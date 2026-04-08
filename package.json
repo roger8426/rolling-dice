@@ -7,11 +7,38 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "type-check": "nuxi typecheck",
+    "lint": "run-s lint:oxlint lint:eslint",
+    "lint:check": "run-s lint:oxlint:check lint:eslint:check",
+    "lint:eslint": "eslint --fix --cache .",
+    "lint:eslint:check": "eslint --cache .",
+    "lint:oxlint": "oxlint --fix .",
+    "lint:oxlint:check": "oxlint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.11.3",
+    "@tailwindcss/vite": "^4.2.2",
     "nuxt": "^4.4.2",
+    "pinia": "^3.0.4",
+    "tailwindcss": "^4.2.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.2",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^25.5.2",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-oxlint": "^1.59.0",
+    "npm-run-all2": "^8.0.4",
+    "oxlint": "^1.59.0",
+    "prettier": "^3.8.1",
+    "typescript": "^6.0.2",
+    "vue-tsc": "^3.2.6"
   }
 }
