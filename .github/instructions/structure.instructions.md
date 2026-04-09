@@ -24,7 +24,7 @@ rolling-dice/
 
 - 本專案的主要產品程式碼。
 - 所有 `.github/instructions/` 下的規範僅適用於此區塊。
-- 使用 `@ui` alias 引用 `packages/ui/src` 的元件與樣式。
+- 使用 `@ui` alias 引用 `packages/ui` 的元件與樣式。
 
 ### `packages/ui/` — Vue 元件庫
 
@@ -37,14 +37,13 @@ rolling-dice/
 
 ```ts
 // nuxt.config.ts
-alias: { '@ui': './packages/ui/src' }
+alias: { '@ui': './packages/ui' }
 ```
 
 使用方式：
 
 ```ts
 import { Button, Modal } from '@ui'
-import '@ui/assets/styles/main.css'
 ```
 
 ### 匯入規則
@@ -57,8 +56,8 @@ import '@ui/assets/styles/main.css'
    import type { ButtonProps, ModalProps } from '@ui'
 
    // ❌ 禁止 — 繞過 barrel
-   import Button from '@ui/components/button/Button.vue'
-   import { useFocusTrap } from '@ui/composables/useFocusTrap'
+   import Button from '@ui/src/components/button/Button.vue'
+   import { useFocusTrap } from '@ui/src/composables/useFocusTrap'
    ```
 
 2. 若需要使用 UI library 尚未從 barrel 匯出的模組，應向元件庫提出匯出需求，不得自行繞路。

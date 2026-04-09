@@ -20,7 +20,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@ui': fileURLToPath(new URL('./packages/ui/src', import.meta.url)),
+      '@ui': fileURLToPath(new URL('./packages/ui', import.meta.url)),
     },
   },
 })
