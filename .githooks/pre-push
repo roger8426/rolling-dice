@@ -1,0 +1,20 @@
+#!/bin/sh
+# pre-push: 推送前在地端執行核心檢查，確保與 CI 結果一致
+# 跳過 build（耗時長，CI 會負責）
+
+echo "⏳ pre-push 檢查中..."
+
+pnpm run type-check && \
+pnpm run lint:check && \
+pnpm run format:check
+
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "❌ pre-push 檢查失敗，推送已中止。"
+  echo "   修正錯誤後再執行 git push。"
+  echo "   若要跳過（緊急用途），可使用：git push --no-verify"
+  exit 1
+fi
+
+echo "✅ pre-push 檢查通過。"

@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "prepare": "git config core.hooksPath .githooks",
     "type-check": "nuxi typecheck",
     "lint": "run-s lint:oxlint lint:eslint",
     "lint:check": "run-s lint:oxlint:check lint:eslint:check",
@@ -40,6 +41,16 @@
     "oxlint": "^1.59.0",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
-    "vue-tsc": "^3.2.6"
+    "vue-tsc": "^3.2.6",
+    "lint-staged": "^16.4.0"
+  },
+  "lint-staged": {
+    "*.{ts,vue,tsx,mts}": [
+      "oxlint --fix",
+      "eslint --fix --cache"
+    ],
+    "*.{ts,vue,tsx,mts,css,json,yaml,yml}": [
+      "prettier --write"
+    ]
   }
 }
