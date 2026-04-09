@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.vue"
+applyTo: '**/*.vue'
 ---
 
 # Vue 元件規範

@@ -1,5 +1,5 @@
 ---
-description: "設計或審查錯誤處理流程，確保 loading/error/empty 三態完整且呈現邏輯集中管理"
+description: '設計或審查錯誤處理流程，確保 loading/error/empty 三態完整且呈現邏輯集中管理'
 ---
 
 # 錯誤處理設計 Prompt

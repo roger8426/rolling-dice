@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.spec.ts,**/*.test.ts,**/*.spec.vue,tests/**,__tests__/**,vitest.config.*"
+applyTo: '**/*.spec.ts,**/*.test.ts,**/*.spec.vue,tests/**,__tests__/**,vitest.config.*'
 ---
 
 # 測試規範

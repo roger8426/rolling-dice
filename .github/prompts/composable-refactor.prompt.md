@@ -1,5 +1,5 @@
 ---
-description: "評估邏輯是否適合抽成 composable，並輸出重構方案與風險"
+description: '評估邏輯是否適合抽成 composable，並輸出重構方案與風險'
 ---
 
 # Composable 重構 Prompt

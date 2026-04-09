@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*"
+applyTo: '**/*'
 ---
 
 # Code Review 規範

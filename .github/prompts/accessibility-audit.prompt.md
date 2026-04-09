@@ -1,5 +1,5 @@
 ---
-description: "審查 UI 元件的可及性問題，確保鍵盤操作、語意 HTML 與 ARIA 屬性符合 WCAG 基本要求"
+description: '審查 UI 元件的可及性問題，確保鍵盤操作、語意 HTML 與 ARIA 屬性符合 WCAG 基本要求'
 ---
 
 # 可及性審查 Prompt

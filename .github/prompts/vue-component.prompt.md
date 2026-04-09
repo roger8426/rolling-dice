@@ -1,5 +1,5 @@
 ---
-description: "實作或重構 Vue 3 component，輸出 API 設計、完整程式碼與風險點"
+description: '實作或重構 Vue 3 component，輸出 API 設計、完整程式碼與風險點'
 ---
 
 # Vue 元件實作 Prompt

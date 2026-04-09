@@ -1,5 +1,5 @@
 ---
-description: "設計或審查 Pinia store，確保 state 邊界合理、action 聚焦且錯誤處理完整"
+description: '設計或審查 Pinia store，確保 state 邊界合理、action 聚焦且錯誤處理完整'
 ---
 
 # Store 設計 Prompt

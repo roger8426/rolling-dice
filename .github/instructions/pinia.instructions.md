@@ -1,5 +1,5 @@
 ---
-applyTo: "stores/**/*.ts,**/*store*.ts"
+applyTo: 'stores/**/*.ts,**/*store*.ts'
 ---
 
 # Pinia 規範
@@ -38,7 +38,7 @@ applyTo: "stores/**/*.ts,**/*store*.ts"
    ```ts
    const store = useCartStore()
    const { items, totalPrice } = storeToRefs(store) // 保持響應性
-   const { addItem, removeItem } = store             // action 直接解構即可
+   const { addItem, removeItem } = store // action 直接解構即可
    ```
 2. action 不需透過 `storeToRefs` 解構，直接從 store 取得即可。
 3. 若整個 store 都需要保持響應性，可直接使用 store 物件，不強制解構。

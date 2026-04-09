@@ -1,5 +1,5 @@
 ---
-description: "分析 Bug 根因並給出最小修正方案，列出可能波及區域"
+description: '分析 Bug 根因並給出最小修正方案，列出可能波及區域'
 ---
 
 # Bug 分析 Prompt

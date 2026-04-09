@@ -1,5 +1,5 @@
 ---
-description: "整理 PR 說明，包含變更摘要、緣由、風險與 reviewer 注意事項"
+description: '整理 PR 說明，包含變更摘要、緣由、風險與 reviewer 注意事項'
 ---
 
 # PR 摘要 Prompt

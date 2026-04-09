@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.ts,**/*.tsx,**/*.vue"
+applyTo: '**/*.ts,**/*.tsx,**/*.vue'
 ---
 
 # TypeScript 規範

@@ -50,6 +50,7 @@ import '@ui/assets/styles/main.css'
 ### 匯入規則
 
 1. UI library 的所有匯入**僅可透過 barrel（`@ui`）**進行，禁止繞過 barrel import 任何內部路徑：
+
    ```ts
    // ✅ 正確
    import { Button, Modal } from '@ui'
@@ -59,6 +60,7 @@ import '@ui/assets/styles/main.css'
    import Button from '@ui/components/button/Button.vue'
    import { useFocusTrap } from '@ui/composables/useFocusTrap'
    ```
+
 2. 若需要使用 UI library 尚未從 barrel 匯出的模組，應向元件庫提出匯出需求，不得自行繞路。
 3. `app/components/` 與 `app/composables/` 內的模組由 Nuxt 自動匯入，**不需要** explicit import。
 4. 禁止對 Nuxt 自動匯入範圍內的 app 模組寫多餘的 explicit import。

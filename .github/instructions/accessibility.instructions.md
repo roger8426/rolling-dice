@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.vue,components/**/*.vue,pages/**/*.vue,layouts/**/*.vue"
+applyTo: '**/*.vue,components/**/*.vue,pages/**/*.vue,layouts/**/*.vue'
 ---
 
 # 可及性規範（Accessibility）
@@ -20,6 +20,7 @@ applyTo: "**/*.vue,components/**/*.vue,pages/**/*.vue,layouts/**/*.vue"
    - 頁面導航 → `<a href="...">`
    - 資料輸入 → `<input>` / `<select>` / `<textarea>`
 2. 不要用 `<div>` 或 `<span>` 模擬按鈕，除非有充分的 ARIA 補充：
+
    ```html
    <!-- 避免 -->
    <div @click="submit">送出</div>
@@ -27,6 +28,7 @@ applyTo: "**/*.vue,components/**/*.vue,pages/**/*.vue,layouts/**/*.vue"
    <!-- 正確 -->
    <button type="button" @click="submit">送出</button>
    ```
+
 3. 頁面結構應使用語意區塊元素：`<header>`、`<main>`、`<nav>`、`<footer>`、`<section>`、`<article>`。
 4. 標題層級（`<h1>` → `<h6>`）應反映頁面資訊架構，不要為了視覺樣式調整標題層級。
 

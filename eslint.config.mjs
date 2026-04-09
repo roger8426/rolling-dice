@@ -10,6 +10,6 @@ export default withNuxt(
   },
   {
     name: 'app/ignores',
-    ignores: ['.nuxt', '.nuxt/**', '.output', '.output/**', 'packages', 'packages/**'],
+    ignores: ['.nuxt/**', '.output/**', 'packages/**'],
   },
 ).append(...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'), skipFormatting)

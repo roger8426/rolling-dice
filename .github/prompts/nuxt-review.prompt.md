@@ -1,5 +1,5 @@
 ---
-description: "從 Nuxt 3 最佳實務角度審查頁面，SSR/CSR 邊界、hydration、data fetching 等"
+description: '從 Nuxt 3 最佳實務角度審查頁面，SSR/CSR 邊界、hydration、data fetching 等'
 ---
 
 # Nuxt 頁面審查 Prompt

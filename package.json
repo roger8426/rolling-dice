@@ -16,7 +16,8 @@
     "lint:oxlint": "oxlint --fix .",
     "lint:oxlint:check": "oxlint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "update:ui": "git submodule update --remote packages/ui && cd packages/ui && pnpm install --ignore-workspace && pnpm build && cd ../.. && git add packages/ui"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
