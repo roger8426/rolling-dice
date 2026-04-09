@@ -69,7 +69,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install UI library dependencies
-        run: cd packages/ui && pnpm install --frozen-lockfile
+        run: cd packages/ui && pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Build UI library
         run: cd packages/ui && pnpm build

@@ -39,7 +39,7 @@ if [ "$PUSH_TO_MAIN" = true ]; then
   echo "⏳ [2/2] 偵測到推送目標為 main/master，執行 Build 驗證..."
 
   echo "   → 安裝 UI library 相依套件..."
-  (cd packages/ui && pnpm install --frozen-lockfile)
+  (cd packages/ui && pnpm install --frozen-lockfile --ignore-workspace)
   if [ $? -ne 0 ]; then
     echo "❌ packages/ui pnpm install 失敗，推送已中止。"
     exit 1
