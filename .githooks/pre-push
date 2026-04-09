@@ -1,20 +1,66 @@
 #!/bin/sh
-# pre-push: 推送前在地端執行核心檢查，確保與 CI 結果一致
-# 跳過 build（耗時長，CI 會負責）
+# pre-push: 推送前在地端執行核心檢查，確保與 CI / Deploy 結果一致
+#
+# 觸發邏輯對應 GitHub Actions：
+#   - 所有分支：Quality 檢查（對應 ci.yml）
+#   - main / master：額外執行 UI build + pnpm generate（對應 deploy.yml）
+#
+# 若要跳過（緊急用途），可使用：git push --no-verify
 
-echo "⏳ pre-push 檢查中..."
+# --- 讀取目標 ref（pre-push stdin 格式：<local ref> <local sha> <remote ref> <remote sha>）
+PUSH_TO_MAIN=false
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master)
+      PUSH_TO_MAIN=true
+      ;;
+  esac
+done
+
+# --- Phase 1：Quality（所有分支）
+echo "⏳ [1/2] Quality 檢查中..."
 
 pnpm run type-check && \
 pnpm run lint:check && \
 pnpm run format:check
 
-STATUS=$?
-if [ $STATUS -ne 0 ]; then
+if [ $? -ne 0 ]; then
   echo ""
-  echo "❌ pre-push 檢查失敗，推送已中止。"
+  echo "❌ Quality 檢查失敗，推送已中止。"
   echo "   修正錯誤後再執行 git push。"
-  echo "   若要跳過（緊急用途），可使用：git push --no-verify"
   exit 1
 fi
 
-echo "✅ pre-push 檢查通過。"
+echo "✅ Quality 檢查通過。"
+
+# --- Phase 2：Build（僅 main / master，對應 deploy.yml build job）
+if [ "$PUSH_TO_MAIN" = true ]; then
+  echo ""
+  echo "⏳ [2/2] 偵測到推送目標為 main/master，執行 Build 驗證..."
+
+  echo "   → 安裝 UI library 相依套件..."
+  (cd packages/ui && pnpm install --frozen-lockfile)
+  if [ $? -ne 0 ]; then
+    echo "❌ packages/ui pnpm install 失敗，推送已中止。"
+    exit 1
+  fi
+
+  echo "   → 建置 UI library..."
+  (cd packages/ui && pnpm build)
+  if [ $? -ne 0 ]; then
+    echo "❌ packages/ui build 失敗，推送已中止。"
+    exit 1
+  fi
+
+  echo "   → 產生靜態網站（pnpm generate）..."
+  NUXT_APP_BASE_URL=/rolling-dice/ pnpm generate
+  if [ $? -ne 0 ]; then
+    echo "❌ pnpm generate 失敗，推送已中止。"
+    exit 1
+  fi
+
+  echo "✅ Build 驗證通過。"
+fi
+
+echo ""
+echo "✅ pre-push 全部檢查通過，推送中..."

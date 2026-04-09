@@ -68,6 +68,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install UI library dependencies
+        run: cd packages/ui && pnpm install --frozen-lockfile
+
+      - name: Build UI library
+        run: cd packages/ui && pnpm build
+
       - name: Generate static site
         run: pnpm generate
         env:
