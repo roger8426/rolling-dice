@@ -16,8 +16,10 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt', '@nuxt/eslint'],
 
+  css: ['~/assets/css/main.css'],
+
   alias: {
-    '@ui': fileURLToPath(new URL('./packages/ui/src', import.meta.url)),
+    '@ui': fileURLToPath(new URL('./packages/ui', import.meta.url)),
   },
 
   vite: {
