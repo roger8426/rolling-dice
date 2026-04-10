@@ -12,6 +12,10 @@ export default defineNuxtConfig({
   // GitHub Pages base URL (set via NUXT_APP_BASE_URL env var in CI)
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
+    head: {
+      link: [{ rel: 'icon', type: 'image/png', href: '/dice-20.png' }],
+      title: 'Rolling Dice',
+    },
   },
 
   modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/fonts'],

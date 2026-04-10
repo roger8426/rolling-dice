@@ -47,75 +47,10 @@
           <h1 class="font-display text-4xl font-bold tracking-widest text-content sm:text-5xl">
             Rolling Dice
           </h1>
-          <p class="mt-2 text-sm tracking-wider text-content-muted">塑造你的冒險者</p>
+          <p class="mt-2 text-sm tracking-wider text-content-muted font-display">Roll Your Life</p>
         </div>
       </div>
-
-      <!-- Scroll indicator -->
-      <!-- <div
-        class="absolute bottom-8 flex flex-col items-center gap-2 text-content-faint"
-        aria-hidden="true"
-      >
-        <span class="text-xs tracking-wider">探索更多</span>
-        <Icon name="chevron-down" :size="20" class="animate-bounce motion-reduce:animate-none" />
-      </div> -->
     </section>
-
-    <!-- ─── Features Section ──────────────────────────────────────────────── -->
-    <!-- <section class="bg-canvas-muted py-20">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 class="mb-12 text-center font-display text-2xl font-bold text-content sm:text-3xl">
-          開始你的冒險
-        </h2>
-        <div class="grid gap-6 md:grid-cols-3">
-          <Card v-for="feature in features" :key="feature.title" shadow="md" :radius="12">
-            <div class="flex flex-col items-center gap-4 p-2 text-center">
-              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft">
-                <Icon :name="feature.icon" :size="22" :color="`var(--rd--color-accent)`" />
-              </div>
-              <h3 class="font-semibold text-content">{{ feature.title }}</h3>
-              <p class="text-sm text-content-muted">{{ feature.description }}</p>
-            </div>
-          </Card>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- ─── Professions Grid Section ─────────────────────────────────────── -->
-    <!-- <section class="py-20">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 class="mb-12 text-center font-display text-2xl font-bold text-content sm:text-3xl">
-          選擇你的職業
-        </h2>
-        <div class="grid grid-cols-4 gap-6 sm:grid-cols-7">
-          <div v-for="prof in ALL_PROFESSIONS" :key="prof" class="flex flex-col items-center gap-2">
-            <div
-              class="overflow-hidden rounded-full border-2 border-surface-3 transition-transform hover:scale-110 hover:border-accent"
-            >
-              <img
-                :src="professionImages[prof]"
-                :alt="PROFESSION_NAMES[prof]"
-                class="h-16 w-16 object-cover"
-              />
-            </div>
-            <span class="text-center text-xs text-content-muted">{{ PROFESSION_NAMES[prof] }}</span>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- ─── Bottom Banner ────────────────────────────────────────────────── -->
-    <!-- <section class="banner-section relative overflow-hidden py-24">
-      <div class="absolute inset-0 bg-canvas/85" aria-hidden="true" />
-      <div class="relative mx-auto max-w-2xl px-4 text-center">
-        <p
-          class="font-display text-3xl font-bold leading-snug tracking-wider text-content sm:text-4xl"
-        >
-          每一顆骰子的背後<br />都是一個等待被訴說的故事
-        </p>
-        <p class="mt-4 text-content-muted">透過上方導覽列開始建立你的角色</p>
-      </div>
-    </section> -->
   </div>
 </template>
 
