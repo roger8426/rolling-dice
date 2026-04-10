@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- ─── Hero Section ─────────────────────────────────────────────────── -->
     <section
       class="relative flex max-h-screen flex-col items-center justify-center overflow-hidden"
     >
@@ -22,7 +21,7 @@
         <!-- Center glow -->
         <div class="ring-glow" aria-hidden="true" />
 
-        <!-- Outer ring (clockwise, 7 professions) -->
+        <!-- Outer ring -->
         <div
           v-for="(prof, i) in OUTER_RING_PROFESSIONS"
           :key="`outer-${prof}`"
@@ -32,7 +31,7 @@
           <img :src="professionImages[prof]" :alt="PROFESSION_NAMES[prof]" class="ring-img" />
         </div>
 
-        <!-- Inner ring (counter-clockwise, 6 professions) -->
+        <!-- Inner ring -->
         <div
           v-for="(prof, i) in INNER_RING_PROFESSIONS"
           :key="`inner-${prof}`"
@@ -55,10 +54,7 @@
 </template>
 
 <script setup lang="ts">
-// import { Card, Icon } from '@ui'
-
 // ─── Image assets ─────────────────────────────────────────────────────────────
-// import: 'default' 告訴 Vite 直接回傳 default export（asset URL 字串），而非模組物件
 const imageModules = import.meta.glob<string>('../assets/images/professions/*.png', {
   eager: true,
   import: 'default',
@@ -74,26 +70,6 @@ const professionImages: Record<string, string> = Object.fromEntries(
     return [key, url]
   }),
 )
-
-// ─── Feature cards ────────────────────────────────────────────────────────────
-// const features = [
-//   {
-//     icon: 'search',
-//     title: '探索職業',
-//     description:
-//       '從 13 種職業中，找到最符合你冒險風格的角色定位，每種職業都有獨特的技能與戰鬥方式。',
-//   },
-//   {
-//     icon: 'user',
-//     title: '塑造角色',
-//     description: '自由分配能力值、選擇種族背景，一步步建立屬於你的獨特冒險者。',
-//   },
-//   {
-//     icon: 'check',
-//     title: '踏上旅程',
-//     description: '完成角色建立，帶著你的角色卡進入桌遊世界，讓每個選擇都成為故事的一部分。',
-//   },
-// ]
 </script>
 
 <style scoped>
