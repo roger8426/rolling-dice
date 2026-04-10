@@ -14,7 +14,15 @@ export default defineNuxtConfig({
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
   },
 
-  modules: ['@pinia/nuxt', '@nuxt/eslint'],
+  modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/fonts'],
+
+  fonts: {
+    families: [
+      { name: 'Inter', weights: [400, 500, 600, 700] },
+      { name: 'Noto Sans TC', weights: [400, 500, 700] },
+      { name: 'Cinzel', weights: [400, 700] },
+    ],
+  },
 
   css: ['~/assets/css/main.css'],
 

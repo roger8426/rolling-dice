@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @import './color.css';
+@import './font.css';
 @source '../../../packages/ui/src';
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans TC', sans-serif;
+  --font-display: 'Cinzel', serif;
+}
 
 @theme inline {
   /* brand — primary */
