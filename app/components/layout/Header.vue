@@ -25,7 +25,7 @@
 
       <!-- Mobile Hamburger -->
       <button
-        class="flex items-center justify-center rounded p-2 text-content-soft transition-colors hover:bg-surface hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring md:hidden"
+        class="flex items-center justify-center rounded p-2 text-content-soft transition-colors hover:bg-surface hover:text-content focus-visible:outline-2 focus-visible:outline-ring md:hidden"
         :aria-expanded="isMobileMenuOpen"
         aria-label="menu"
         aria-controls="mobile-menu"
