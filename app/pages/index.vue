@@ -60,13 +60,9 @@ const imageModules = import.meta.glob<string>('../assets/images/professions/*.pn
   import: 'default',
 })
 
-console.log(imageModules)
-
 const professionImages: Record<string, string> = Object.fromEntries(
   Object.entries(imageModules).map(([path, url]) => {
     const key = path.split('/').pop()!.replace('.png', '')
-    console.log('Loaded image:', key, url)
-
     return [key, url]
   }),
 )

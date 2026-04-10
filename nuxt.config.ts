@@ -39,8 +39,6 @@ export default defineNuxtConfig({
     resolve: {
       alias: {
         // Override the Nuxt directory alias with a specific file entry so Vite's
-        // bundler can resolve it without EISDIR. The Nuxt-level alias above is
-        // kept for documentation / TS path-mapping purposes.
         '@ui': fileURLToPath(new URL('./packages/ui/dist/index.js', import.meta.url)),
       },
     },

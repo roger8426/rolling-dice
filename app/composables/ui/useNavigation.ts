@@ -11,14 +11,18 @@ export const navItems: NavItem[] = [
   { label: '角色', to: '/character' },
 ]
 
-const isMobileMenuOpen = ref(false)
+const isNavOpen = ref(false)
 
-function toggleMobileMenu() {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
+function toggleNav() {
+  isNavOpen.value = !isNavOpen.value
 }
 
-function closeMobileMenu() {
-  isMobileMenuOpen.value = false
+function openNav() {
+  isNavOpen.value = true
+}
+
+function closeNav() {
+  isNavOpen.value = false
 }
 
 export function useNavigation() {
@@ -27,14 +31,15 @@ export function useNavigation() {
   watch(
     () => route.fullPath,
     () => {
-      closeMobileMenu()
+      closeNav()
     },
   )
 
   return {
     navItems,
-    isMobileMenuOpen,
-    toggleMobileMenu,
-    closeMobileMenu,
+    isNavOpen,
+    openNav,
+    toggleNav,
+    closeNav,
   }
 }
