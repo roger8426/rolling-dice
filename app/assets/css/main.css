@@ -1,2 +1,84 @@
 @import 'tailwindcss';
+@import './color.css';
 @source '../../../packages/ui/src';
+
+@theme inline {
+  /* brand — primary */
+  --color-primary: var(--rd--color-primary);
+  --color-primary-hover: var(--rd--color-primary-hover);
+  --color-primary-active: var(--rd--color-primary-active);
+  --color-primary-soft: var(--rd--color-primary-soft);
+  --color-primary-softer: var(--rd--color-primary-softer);
+
+  /* brand — secondary */
+  --color-secondary: var(--rd--color-secondary);
+  --color-secondary-hover: var(--rd--color-secondary-hover);
+  --color-secondary-active: var(--rd--color-secondary-active);
+  --color-secondary-soft: var(--rd--color-secondary-soft);
+
+  /* accent */
+  --color-accent: var(--rd--color-accent);
+  --color-accent-hover: var(--rd--color-accent-hover);
+  --color-accent-active: var(--rd--color-accent-active);
+  --color-accent-soft: var(--rd--color-accent-soft);
+
+  /* background — mapped to "canvas" to avoid bg-bg */
+  --color-canvas: var(--rd--color-bg);
+  --color-canvas-elevated: var(--rd--color-bg-elevated);
+  --color-canvas-muted: var(--rd--color-bg-muted);
+  --color-canvas-inset: var(--rd--color-bg-inset);
+
+  /* surface */
+  --color-surface: var(--rd--color-surface);
+  --color-surface-2: var(--rd--color-surface-2);
+  --color-surface-3: var(--rd--color-surface-3);
+
+  /* panel */
+  --color-panel: var(--rd--color-panel);
+  --color-panel-2: var(--rd--color-panel-2);
+
+  /* text — mapped to "content" to avoid text-text */
+  --color-content: var(--rd--color-text);
+  --color-content-soft: var(--rd--color-text-soft);
+  --color-content-muted: var(--rd--color-text-muted);
+  --color-content-faint: var(--rd--color-text-faint);
+  --color-content-inverse: var(--rd--color-text-inverse);
+
+  /* border / divider */
+  --color-border: var(--rd--color-border);
+  --color-border-soft: var(--rd--color-border-soft);
+  --color-border-strong: var(--rd--color-border-strong);
+  --color-divider: var(--rd--color-divider);
+
+  /* ring / focus */
+  --color-ring: var(--rd--color-ring);
+  --color-ring-soft: var(--rd--color-ring-soft);
+
+  /* disabled */
+  --color-disabled: var(--rd--color-disabled);
+  --color-disabled-text: var(--rd--color-disabled-text);
+  --color-disabled-border: var(--rd--color-disabled-border);
+
+  /* overlay */
+  --color-overlay: var(--rd--color-overlay);
+
+  /* semantic — success */
+  --color-success: var(--rd--color-success);
+  --color-success-hover: var(--rd--color-success-hover);
+  --color-success-soft: var(--rd--color-success-soft);
+
+  /* semantic — warning */
+  --color-warning: var(--rd--color-warning);
+  --color-warning-hover: var(--rd--color-warning-hover);
+  --color-warning-soft: var(--rd--color-warning-soft);
+
+  /* semantic — danger */
+  --color-danger: var(--rd--color-danger);
+  --color-danger-hover: var(--rd--color-danger-hover);
+  --color-danger-soft: var(--rd--color-danger-soft);
+
+  /* semantic — info */
+  --color-info: var(--rd--color-info);
+  --color-info-hover: var(--rd--color-info-hover);
+  --color-info-soft: var(--rd--color-info-soft);
+}
