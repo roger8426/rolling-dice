@@ -1,75 +1,55 @@
-# Nuxt Minimal Starter
+# Rolling Dice
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+D&D 角色建立工具。Nuxt 3 SPA + `packages/ui` Vue 元件庫（git submodule）。
 
-## Setup
+## 第一次 clone 後的設定
 
-Make sure to install dependencies:
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+```sh
+pnpm install   # 安裝依賴，並自動設定 git hooks
+pnpm init:ui   # 初始化 UI submodule、安裝依賴、打包
+pnpm dev       # 啟動開發伺服器 http://localhost:3000
 ```
 
-## Development Server
+> `pnpm install` 會透過 `prepare` script 設定 `core.hooksPath .githooks`，之後的 git hooks 才會生效。
 
-Start the development server on `http://localhost:3000`:
+## 日常開發
 
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+```sh
+pnpm dev       # 開發伺服器
+pnpm pull      # git pull 並更新 UI library（主專案有 / 無更新皆適用）
+pnpm update:ui # 單獨更新並重新打包 UI library
 ```
 
-## Production
+## 型別檢查 / Lint
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+```sh
+pnpm type-check
+pnpm lint
+pnpm format
 ```
 
-Locally preview production build:
+## 測試
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+```sh
+pnpm test:unit
+pnpm test:coverage
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 建置
+
+```sh
+pnpm generate  # 靜態產出（GitHub Pages）
+pnpm preview   # 預覽靜態產出
+```
+
+## 專案結構
+
+```
+rolling-dice/
+├─ app/                # Nuxt 應用（主產品）
+├─ packages/ui/        # Vue 元件庫（git submodule）
+├─ nuxt.config.ts
+└─ package.json
+```
+
+詳細結構與開發規範請參閱 `.github/instructions/`。

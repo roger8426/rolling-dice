@@ -21,6 +21,7 @@
     "test:unit": "vitest",
     "test:unit:ci": "vitest --run",
     "test:coverage": "vitest --coverage",
+    "init:ui": "git submodule update --init packages/ui && pnpm update:ui",
     "update:ui": "git submodule update --remote packages/ui && cd packages/ui && pnpm install --ignore-workspace && pnpm build && cd ../.. && git add packages/ui"
   },
   "dependencies": {
