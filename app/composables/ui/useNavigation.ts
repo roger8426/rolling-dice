@@ -1,14 +1,11 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-
-export interface NavItem {
-  label: string
-  to: string
-}
+import type { NavItem } from './types'
 
 export const navItems: NavItem[] = [
-  { label: '首頁', to: '/' },
-  { label: '角色', to: '/character' },
+  { label: '角色卡', to: '/character', icon: 'profile' },
+  { label: 'DM 相關', to: '/dm', icon: 'dice' },
+  { label: '其他工具', to: '/tools', icon: 'tool' },
 ]
 
 const isNavOpen = ref(false)
