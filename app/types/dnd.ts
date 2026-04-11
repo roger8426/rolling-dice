@@ -49,6 +49,10 @@ export type SkillKey =
 
 // ─── Alignment ────────────────────────────────────────────────────────────────
 
+export type MoralityKey = 'good' | 'neutral' | 'evil'
+
+export type OrderKey = 'lawful' | 'neutral' | 'chaotic'
+
 export type AlignmentKey =
   | 'lawfulGood'
   | 'neutralGood'
@@ -59,3 +63,17 @@ export type AlignmentKey =
   | 'lawfulEvil'
   | 'neutralEvil'
   | 'chaoticEvil'
+
+// ─── Race ─────────────────────────────────────────────────────────────────────
+
+export type RaceKey =
+  | 'human'
+  | 'elf'
+  | 'dwarf'
+  | 'halfling'
+  | 'gnome'
+  | 'halfElf'
+  | 'halfOrc'
+  | 'tiefling'
+  | 'dragonborn'
+  | 'aasimar'

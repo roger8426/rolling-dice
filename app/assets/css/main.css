@@ -88,3 +88,27 @@
   --color-info-hover: var(--rd--color-info-hover);
   --color-info-soft: var(--rd--color-info-soft);
 }
+
+/* ─── Tier Shimmer ─────────────────────────────────────────────────────────── */
+@keyframes tier-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.tier-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--rd--color-accent) 20%,
+    #f0d070 45%,
+    var(--rd--color-accent) 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tier-shimmer 3s linear infinite;
+}

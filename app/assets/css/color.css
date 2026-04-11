@@ -122,4 +122,19 @@
   --rd--color-info: #4c7fb8;
   --rd--color-info-hover: #5d96d8;
   --rd--color-info-soft: #15202c;
+
+  /* ─── Tier ──────────────────────────────────────────────────────────────────
+     各分階的主色與漸層背景，由 level 範圍自動推導。
+     T1 common  (Lv.1–4)  : 沿用現有 muted 色
+     T2 elite   (Lv.5–10) : 翡翠戰場綠
+     T3 master  (Lv.11–16): 鋼鐵藍
+     T4 legendary (Lv.17–20): 沿用現有 accent 金
+  ─────────────────────────────────────────────────────────────────────────── */
+  --rd--tier-elite: #4a9e6c;
+  --rd--tier-elite-soft: rgba(74, 158, 108, 0.15);
+  --rd--tier-elite-gradient: #1a2b22;
+
+  --rd--tier-master: #4a7acf;
+  --rd--tier-master-soft: rgba(74, 122, 207, 0.15);
+  --rd--tier-master-gradient: #1a2032;
 }

@@ -44,11 +44,7 @@
         @click="closeNav"
       >
         <Icon v-if="item.icon" :name="item.icon" :size="60" />
-        <span class="text-xs font-medium tracking-wide">{{ item.label }}</span>
-        <span
-          class="h-0.5 w-6 rounded-full transition-colors duration-150"
-          :class="isActive(item.to) ? 'bg-accent' : 'bg-transparent'"
-        />
+        <span class="text-sm mt-1 font-medium tracking-wide">{{ item.label }}</span>
       </NuxtLink>
     </nav>
   </Drawer>

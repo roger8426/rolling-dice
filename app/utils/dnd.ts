@@ -1,4 +1,5 @@
-import type { AbilityKey, AlignmentKey, ProfessionKey, SkillKey } from '~/types/dnd'
+import type { AbilityKey, AlignmentKey, ProfessionKey, RaceKey, SkillKey } from '~/types/dnd'
+import type { CharacterTier } from '~/types/models/character'
 
 // ─── Profession ───────────────────────────────────────────────────────────────
 
@@ -64,4 +65,54 @@ export const ALIGNMENT_NAMES: Record<AlignmentKey, string> = {
   lawfulEvil: '守序邪惡',
   neutralEvil: '中立邪惡',
   chaoticEvil: '混亂邪惡',
+}
+
+// ─── Race ─────────────────────────────────────────────────────────────────────
+
+export const RACE_NAMES: Record<RaceKey, string> = {
+  human: '人類',
+  elf: '精靈',
+  dwarf: '矮人',
+  halfling: '半身人',
+  gnome: '地精',
+  halfElf: '半精靈',
+  halfOrc: '半獸人',
+  tiefling: '魔裔',
+  dragonborn: '龍裔',
+  aasimar: '天界者',
+}
+
+// ─── Character Tier ───────────────────────────────────────────────────────────
+
+export function getCharacterTier(level: number): CharacterTier {
+  if (level >= 17) return 'legendary'
+  if (level >= 11) return 'master'
+  if (level >= 5) return 'elite'
+  return 'common'
+}
+
+export const TIER_CONFIG: Record<
+  CharacterTier,
+  { textColor: string; badgeBg: string; gradientEnd: string }
+> = {
+  common: {
+    textColor: 'var(--rd--color-text-muted)',
+    badgeBg: 'rgba(35, 31, 32, 0.75)',
+    gradientEnd: 'var(--rd--color-bg-elevated)',
+  },
+  elite: {
+    textColor: 'var(--rd--tier-elite)',
+    badgeBg: 'var(--rd--tier-elite-soft)',
+    gradientEnd: 'var(--rd--tier-elite-gradient)',
+  },
+  master: {
+    textColor: 'var(--rd--tier-master)',
+    badgeBg: 'var(--rd--tier-master-soft)',
+    gradientEnd: 'var(--rd--tier-master-gradient)',
+  },
+  legendary: {
+    textColor: 'var(--rd--color-accent)',
+    badgeBg: 'var(--rd--color-accent-soft)',
+    gradientEnd: 'var(--rd--color-accent-soft)',
+  },
 }

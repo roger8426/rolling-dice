@@ -77,17 +77,7 @@ const INNER_RING_PROFESSIONS: ProfessionKey[] = [
 ]
 
 // ─── Image assets ─────────────────────────────────────────────────────────────
-const imageModules = import.meta.glob<string>('../assets/images/professions/*.png', {
-  eager: true,
-  import: 'default',
-})
-
-const professionImages: Record<string, string> = Object.fromEntries(
-  Object.entries(imageModules).map(([path, url]) => {
-    const key = path.split('/').pop()!.replace('.png', '')
-    return [key, url]
-  }),
-)
+const professionImages = getProfessionImages()
 </script>
 
 <style scoped>
