@@ -54,6 +54,28 @@
 </template>
 
 <script setup lang="ts">
+import type { ProfessionKey } from '~/types/dnd'
+
+// ─── Profession ring data ──────────────────────────────────────────────────────
+const OUTER_RING_PROFESSIONS: ProfessionKey[] = [
+  'artificer',
+  'bard',
+  'cleric',
+  'druid',
+  'sorcerer',
+  'warlock',
+  'wizard',
+]
+
+const INNER_RING_PROFESSIONS: ProfessionKey[] = [
+  'barbarian',
+  'fighter',
+  'monk',
+  'paladin',
+  'ranger',
+  'rogue',
+]
+
 // ─── Image assets ─────────────────────────────────────────────────────────────
 const imageModules = import.meta.glob<string>('../assets/images/professions/*.png', {
   eager: true,
