@@ -1,8 +1,8 @@
 <template>
   <NuxtLink
     :to="`/character/${character.id}`"
-    class="group block transition-shadow duration-200 hover:shadow-[0_0_24px_rgba(223,0,0,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-    :style="{ borderRadius: '8px' }"
+    class="group block transition-shadow duration-200 hover:shadow-(--card-shadow) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+    :style="cardShadowStyle"
     :aria-label="`查看角色 ${character.name}`"
   >
     <Card
@@ -16,12 +16,19 @@
       <template #cover>
         <div class="relative h-52 overflow-hidden">
           <img
-            :src="professionImages[character.professions[0]!]"
-            :alt="character.professions.map((p) => PROFESSION_NAMES[p]).join(' / ')"
-            class="h-full w-full object-contain object-top transition-transform duration-300 group-hover:scale-105"
+            :src="coverSrc"
+            alt=""
+            :class="[
+              'h-full w-full transition-transform duration-300 group-hover:scale-105',
+              hasAvatar ? 'object-cover' : 'object-contain object-top',
+            ]"
+            loading="lazy"
+            decoding="async"
+            @error="onCoverError"
           />
           <div
             class="absolute right-2.5 top-2.5 rounded-full px-2.5 py-0.5 text-sm font-bold backdrop-blur-sm"
+            :class="{ 'tier-shimmer': isMaxLevel }"
             :style="{ backgroundColor: tierConfig.badgeBg, color: tierConfig.textColor }"
           >
             Lv.{{ character.level }}
@@ -31,17 +38,28 @@
 
       <!-- Body: name + race + profession -->
       <div class="px-4 pb-4 pt-3">
-        <h3
-          class="truncate font-display text-base font-bold"
-          :class="{ 'tier-shimmer': isMaxLevel }"
-          :style="{ color: tierConfig.textColor }"
-        >
-          {{ character.name }}
-        </h3>
+        <div class="flex items-center gap-2">
+          <img
+            v-show="!professionIconError"
+            :src="professionImages[character.professions[0]!]"
+            alt=""
+            class="size-4"
+            loading="lazy"
+            decoding="async"
+            @error="onProfessionIconError"
+          />
+          <h3
+            class="truncate font-display text-base font-bold"
+            :class="{ 'tier-shimmer': isMaxLevel }"
+            :style="{ color: tierConfig.textColor }"
+          >
+            {{ character.name }}
+          </h3>
+        </div>
         <div class="mt-2 flex items-center gap-2">
           <Badge
-            :bg-color="'var(--rd--color-surface-2)'"
-            :text-color="'var(--rd--color-text-muted)'"
+            bg-color="var(--rd--color-surface-2)"
+            text-color="var(--rd--color-text-muted)"
             :radius="4"
             size="sm"
           >
@@ -58,15 +76,73 @@
 
 <script setup lang="ts">
 import { Badge, Card } from '@ui'
-import type { Character } from '~/types/models/character'
+import type { Character, CharacterTier } from '~/types/models/character'
 
 const props = defineProps<{
   character: Character
 }>()
 
+const TIER_CONFIG: Record<
+  CharacterTier,
+  { textColor: string; badgeBg: string; gradientEnd: string; shadowRgb: string }
+> = {
+  common: {
+    textColor: 'var(--rd--color-text-muted)',
+    badgeBg: 'rgba(35, 31, 32, 0.75)',
+    gradientEnd: 'var(--rd--color-bg-elevated)',
+    shadowRgb: '160, 150, 140',
+  },
+  elite: {
+    textColor: 'var(--rd--tier-elite)',
+    badgeBg: 'var(--rd--tier-elite-soft)',
+    gradientEnd: 'var(--rd--tier-elite-gradient)',
+    shadowRgb: '74, 158, 108',
+  },
+  master: {
+    textColor: 'var(--rd--tier-master)',
+    badgeBg: 'var(--rd--tier-master-soft)',
+    gradientEnd: 'var(--rd--tier-master-gradient)',
+    shadowRgb: '74, 122, 207',
+  },
+  legendary: {
+    textColor: 'var(--rd--color-accent)',
+    badgeBg: 'var(--rd--color-accent-soft)',
+    gradientEnd: 'var(--rd--color-accent-soft)',
+    shadowRgb: '184, 134, 14',
+  },
+}
+
 const tier = computed(() => getCharacterTier(props.character.level))
 const tierConfig = computed(() => TIER_CONFIG[tier.value])
 const isMaxLevel = computed(() => props.character.level === 20)
 
+const cardShadowStyle = computed(() => {
+  const opacity = props.character.level * 0.017 + 0.1
+  return { '--card-shadow': `0 0 24px rgba(${tierConfig.value.shadowRgb}, ${opacity.toFixed(3)})` }
+})
+
 const professionImages = getProfessionImages()
+
+const coverError = ref(false)
+const professionIconError = ref(false)
+
+watch(
+  () => props.character.avatar,
+  () => {
+    coverError.value = false
+  },
+)
+
+const hasAvatar = computed(() => !!props.character.avatar && !coverError.value)
+const coverSrc = computed(() =>
+  hasAvatar.value ? props.character.avatar! : professionImages[props.character.professions[0]!],
+)
+
+function onCoverError() {
+  coverError.value = true
+}
+
+function onProfessionIconError() {
+  professionIconError.value = true
+}
 </script>

@@ -3,7 +3,7 @@
     <div class="flex items-center gap-2">
       <button
         v-if="showBack"
-        class="rounded p-1 text-content-muted transition-colors hover:text-content"
+        class="flex items-center rounded p-1 text-content-muted transition-colors hover:text-content"
         aria-label="返回上一頁"
         @click="handleBack"
       >

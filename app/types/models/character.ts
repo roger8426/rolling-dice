@@ -9,4 +9,5 @@ export interface Character {
   professions: ProfessionKey[]
   level: number
   createdAt: string
+  avatar?: string
 }
