@@ -15,8 +15,11 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
   }
 
   function isAtBottom(): boolean {
+    const scrollY = getScrollY()
+    const innerHeight = getInnerHeight()
+    if (scrollY === null || innerHeight === null) return false
     const { scrollHeight } = document.documentElement
-    return scrollHeight - (window.scrollY + window.innerHeight) <= SCROLL_BOTTOM_TOLERANCE
+    return scrollHeight - (scrollY + innerHeight) <= SCROLL_BOTTOM_TOLERANCE
   }
 
   function onTouchStart(e: TouchEvent) {
