@@ -55,17 +55,11 @@ const MOCK_CHARACTERS: Character[] = [
 ]
 
 function loadFromStorage(): Character[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as Character[]
-  } catch {
-    // ignore
-  }
-  return [...MOCK_CHARACTERS]
+  return getLocalStorage<Character[]>(STORAGE_KEY) ?? [...MOCK_CHARACTERS]
 }
 
 function saveToStorage(characters: Character[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(characters))
+  setLocalStorage(STORAGE_KEY, characters)
 }
 
 export const useCharacterStore = defineStore('character', () => {

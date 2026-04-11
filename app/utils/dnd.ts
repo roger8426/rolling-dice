@@ -74,12 +74,12 @@ export const RACE_NAMES: Record<RaceKey, string> = {
   elf: '精靈',
   dwarf: '矮人',
   halfling: '半身人',
-  gnome: '地精',
+  gnome: '地侏',
   halfElf: '半精靈',
   halfOrc: '半獸人',
-  tiefling: '魔裔',
+  tiefling: '提夫林',
   dragonborn: '龍裔',
-  aasimar: '天界者',
+  aasimar: '阿斯莫',
 }
 
 // ─── Character Tier ───────────────────────────────────────────────────────────
