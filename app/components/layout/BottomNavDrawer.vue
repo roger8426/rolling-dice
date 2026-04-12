@@ -39,7 +39,7 @@
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
-        class="flex flex-1 flex-col items-center gap-1.5 rounded-lg px-2 py-3 transition-colors duration-150"
+        class="flex flex-1 flex-col items-center gap-1.5 rounded-lg px-2 py-3 focus:outline-accent transition-colors duration-150"
         :class="isActive(item.to) ? 'text-accent' : 'text-content-muted hover:text-content'"
         @click="closeNav"
       >
