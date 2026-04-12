@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import type { NavItem } from './types'
+import type { NavItem } from '~/types/layout/navigation'
 
 export const navItems: NavItem[] = [
   { label: '角色卡', to: '/character', icon: 'profile' },

@@ -54,7 +54,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ProfessionKey } from '~/types/dnd'
+import { PROFESSION_NAMES } from '~/constants/dnd'
+import type { ProfessionKey } from '~/types/business/dnd'
 
 // ─── Profession ring data ──────────────────────────────────────────────────────
 const OUTER_RING_PROFESSIONS: ProfessionKey[] = [

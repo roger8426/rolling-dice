@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { Character } from '~/types/models/character'
+import type { Character } from '~/types/business/character'
 
 const STORAGE_KEY = 'rd:characters'
 

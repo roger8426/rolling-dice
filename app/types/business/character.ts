@@ -1,4 +1,4 @@
-import type { ProfessionKey, RaceKey } from '~/types/dnd'
+import type { ProfessionKey, RaceKey } from '~/types/business/dnd'
 
 export type CharacterTier = 'common' | 'elite' | 'master' | 'legendary'
 

@@ -1,5 +1,10 @@
-import type { AbilityKey, AlignmentKey, ProfessionKey, RaceKey, SkillKey } from '~/types/dnd'
-import type { CharacterTier } from '~/types/models/character'
+import type {
+  AbilityKey,
+  AlignmentKey,
+  ProfessionKey,
+  RaceKey,
+  SkillKey,
+} from '~/types/business/dnd'
 
 // ─── Profession ───────────────────────────────────────────────────────────────
 
@@ -80,13 +85,4 @@ export const RACE_NAMES: Record<RaceKey, string> = {
   tiefling: '提夫林',
   dragonborn: '龍裔',
   aasimar: '阿斯莫',
-}
-
-// ─── Character Tier ───────────────────────────────────────────────────────────
-
-export function getCharacterTier(level: number): CharacterTier {
-  if (level >= 17) return 'legendary'
-  if (level >= 11) return 'master'
-  if (level >= 5) return 'elite'
-  return 'common'
 }

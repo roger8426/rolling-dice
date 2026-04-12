@@ -61,7 +61,8 @@
 
 <script setup lang="ts">
 import { Badge } from '@ui'
-import type { Character, CharacterTier } from '~/types/models/character'
+import { PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
+import type { Character, CharacterTier } from '~/types/business/character'
 
 const props = defineProps<{
   character: Character

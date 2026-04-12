@@ -112,8 +112,8 @@
 
 <script setup lang="ts">
 import PageHeader from '@/components/common/PageHeader.vue'
-import CharacterCard from '@/components/pages/character/CharacterCard.vue'
-import CharacterListItem from '@/components/pages/character/CharacterListItem.vue'
+import CharacterCard from '@/components/business/character/CharacterCard.vue'
+import CharacterListItem from '@/components/business/character/CharacterListItem.vue'
 import { Icon, Select } from '@ui'
 import type { SelectOption } from '@ui'
 

@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { Icon } from '@ui'
-import type { PageHeaderProps } from './types'
+import type { PageHeaderProps } from '~/types/common/page-header'
 
 const props = withDefaults(defineProps<PageHeaderProps>(), {
   showBack: false,

@@ -6,5 +6,7 @@
 </template>
 
 <script setup lang="ts">
+import PageHeader from '@/components/common/PageHeader.vue'
+
 useHead({ title: '角色卡詳情 | Rolling Dice' })
 </script>
