@@ -54,6 +54,13 @@
         :key="character.id"
         :character="character"
       />
+      <NuxtLink
+        to="/character/build"
+        class="flex min-h-68 cursor-pointer items-center justify-center rounded-lg border border-border bg-bg-elevated text-content-muted transition-colors duration-200 hover:bg-surface-1 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        aria-label="新增角色卡"
+      >
+        <Icon name="plus" :size="48" />
+      </NuxtLink>
     </div>
 
     <!-- Character list -->
@@ -63,6 +70,13 @@
         :key="character.id"
         :character="character"
       />
+      <NuxtLink
+        to="/character/build"
+        class="flex min-h-19 items-center justify-center rounded-lg border border-border bg-bg-elevated px-3 py-2.5 text-content-muted transition-colors duration-200 hover:bg-surface-1 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        aria-label="新增角色卡"
+      >
+        <Icon name="plus" :size="28" />
+      </NuxtLink>
     </div>
 
     <!-- Empty state -->
