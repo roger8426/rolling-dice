@@ -151,7 +151,7 @@ const sortedCharacters = computed(() => {
 /* 將 @ui Select 的淺色預設 token 覆蓋成專案暗色主題 */
 .sort-select {
   --rui-color-surface-hover: var(--rd--color-surface-2);
-  --rui-color-select-selected: var(--rd--color-primary-soft);
+  --rui-color-select-selected: var(--rd--color-surface-3);
   --rui-color-text-muted: var(--rd--color-text-muted);
   --rui-color-default: var(--rd--color-primary);
 }
