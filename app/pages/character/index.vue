@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 pb-6">
     <!-- Page header -->
-    <PageHeader title="Characters" show-back>
+    <CommonPageHeader title="Characters" show-back>
       <template v-if="characterStore.characters.length > 0" #actions>
         <div class="flex flex-col items-end gap-2 xs:flex-row xs:items-center">
           <!-- 排序模式 -->
@@ -16,11 +16,14 @@
             aria-label="排序方式"
           />
           <!-- 顯示模式 -->
-          <div
-            role="group"
+          <button
+            type="button"
+            :aria-pressed="isListMode"
             aria-label="切換顯示模式"
             class="relative flex cursor-pointer items-center rounded-lg border border-border p-1"
             @click="isListMode = !isListMode"
+            @keydown.enter.prevent="isListMode = !isListMode"
+            @keydown.space.prevent="isListMode = !isListMode"
           >
             <div
               class="absolute top-1 left-1 size-8 rounded-md bg-primary transition-transform duration-200"
@@ -41,24 +44,24 @@
             >
               <Icon name="list" :size="24" />
             </span>
-          </div>
+          </button>
         </div>
       </template>
-    </PageHeader>
+    </CommonPageHeader>
 
     <!-- Character grid -->
     <div
       v-if="characterStore.characters.length > 0 && !isListMode"
       class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6"
     >
-      <CharacterCard
+      <BusinessCharacterCard
         v-for="character in sortedCharacters"
         :key="character.id"
         :character="character"
       />
       <NuxtLink
         to="/character/build"
-        class="flex min-h-68 cursor-pointer items-center justify-center rounded-lg border border-border bg-bg-elevated text-content-muted transition-colors duration-200 hover:bg-surface-1 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        class="flex min-h-68 cursor-pointer items-center justify-center rounded-lg border border-border bg-bg-elevated text-content-muted transition-colors duration-200 hover:bg-surface hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
         aria-label="新增角色卡"
       >
         <Icon name="plus" :size="48" />
@@ -67,14 +70,14 @@
 
     <!-- Character list -->
     <div v-else-if="characterStore.characters.length > 0 && isListMode" class="flex flex-col gap-2">
-      <CharacterListItem
+      <BusinessCharacterListItem
         v-for="character in sortedCharacters"
         :key="character.id"
         :character="character"
       />
       <NuxtLink
         to="/character/build"
-        class="flex min-h-19 items-center justify-center rounded-lg border border-border bg-bg-elevated px-3 py-2.5 text-content-muted transition-colors duration-200 hover:bg-surface-1 hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        class="flex min-h-19 items-center justify-center rounded-lg border border-border bg-bg-elevated px-3 py-2.5 text-content-muted transition-colors duration-200 hover:bg-surface hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
         aria-label="新增角色卡"
       >
         <Icon name="plus" :size="28" />
@@ -111,9 +114,6 @@
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/common/PageHeader.vue'
-import CharacterCard from '@/components/business/character/CharacterCard.vue'
-import CharacterListItem from '@/components/business/character/CharacterListItem.vue'
 import { Icon, Select } from '@ui'
 import type { SelectOption } from '@ui'
 
@@ -122,11 +122,11 @@ useHead({ title: '角色卡 | Rolling Dice' })
 const characterStore = useCharacterStore()
 
 const VIEW_MODE_KEY = 'rd:character-view-mode'
-const storedMode = localStorage.getItem(VIEW_MODE_KEY)
+const storedMode = getLocalStorage<string>(VIEW_MODE_KEY)
 const isListMode = ref(storedMode === 'list')
 
 watch(isListMode, (val) => {
-  localStorage.setItem(VIEW_MODE_KEY, val ? 'list' : 'grid')
+  setLocalStorage(VIEW_MODE_KEY, val ? 'list' : 'grid')
 })
 
 // ── Sort ──────────────────────────────────────────────────────────────────────

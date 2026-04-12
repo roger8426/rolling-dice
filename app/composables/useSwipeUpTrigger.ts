@@ -1,5 +1,4 @@
 import { type Ref, onMounted, onUnmounted, watch } from 'vue'
-import { useNavigation } from '~/composables/ui/useNavigation'
 
 const MIN_SWIPE_UP_DELTA = 30
 const MIN_SCROLL_BOTTOM_SWIPE_DELTA = 60

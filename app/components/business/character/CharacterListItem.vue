@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="`/character/${character.id}`"
-    class="group flex items-center gap-3 rounded-lg border border-border bg-bg-elevated px-3 py-2.5 transition-colors duration-200 hover:bg-surface-1 hover:shadow-(--card-shadow) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+    class="group flex items-center gap-3 rounded-lg border border-border bg-bg-elevated px-3 py-2.5 transition-colors duration-200 hover:bg-surface hover:shadow-(--card-shadow) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
     :style="cardShadowStyle"
     :aria-label="`查看角色 ${character.name}`"
   >

@@ -51,11 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
-import { useRoute } from 'vue-router'
 import { Drawer, Icon } from '@ui'
-import { useNavigation } from '~/composables/ui/useNavigation'
-import { useSwipeUpTrigger } from '~/composables/ui/useSwipeUpTrigger'
 
 const { navItems, isNavOpen, toggleNav, closeNav } = useNavigation()
 
