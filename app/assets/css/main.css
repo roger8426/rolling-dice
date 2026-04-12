@@ -8,6 +8,10 @@
   --font-display: 'Cinzel', serif;
 }
 
+@theme {
+  --breakpoint-xs: 30rem; /* 480px */
+}
+
 @theme inline {
   /* brand — primary */
   --color-primary: var(--rd--color-primary);

@@ -1,15 +1,15 @@
 <template>
-  <div class="my-6 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-2">
+  <div class="my-6 flex items-center justify-between gap-2 sm:gap-4">
+    <div class="flex min-w-0 items-center gap-2">
       <button
         v-if="showBack"
-        class="flex items-center rounded p-1 text-content-muted transition-colors hover:text-content"
+        class="flex shrink-0 items-center rounded p-1 text-content-muted transition-colors hover:text-content"
         aria-label="返回上一頁"
         @click="handleBack"
       >
         <Icon name="chevron-left" :size="20" />
       </button>
-      <h2 class="font-display text-lg font-bold text-content sm:text-xl">{{ title }}</h2>
+      <h2 class="truncate font-display text-lg font-bold text-content sm:text-xl">{{ title }}</h2>
     </div>
     <slot name="actions" />
   </div>

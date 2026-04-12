@@ -3,7 +3,8 @@
     <!-- Page header -->
     <PageHeader title="Characters" show-back>
       <template v-if="characterStore.characters.length > 0" #actions>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col items-end gap-2 xs:flex-row xs:items-center">
+          <!-- 排序模式 -->
           <Select
             v-model="sortKey"
             :options="SORT_OPTIONS"
@@ -11,9 +12,10 @@
             border-color="var(--rd--color-border)"
             color="var(--rd--color-text)"
             dropdown-bg="var(--rd--color-bg-elevated)"
-            class="sort-select w-28"
+            class="sort-select w-21 xs:w-28"
             aria-label="排序方式"
           />
+          <!-- 顯示模式 -->
           <div
             role="group"
             aria-label="切換顯示模式"
