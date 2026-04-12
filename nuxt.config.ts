@@ -31,7 +31,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   alias: {
-    '@ui': fileURLToPath(new URL('./packages/ui', import.meta.url)),
+    '@ui': fileURLToPath(new URL('./packages/ui/dist/index.d.ts', import.meta.url)),
   },
 
   vite: {
