@@ -1,51 +1,56 @@
 // ─── Profession ───────────────────────────────────────────────────────────────
 
 export type ProfessionKey =
-  | 'artificer'
-  | 'barbarian'
-  | 'bard'
-  | 'cleric'
-  | 'druid'
-  | 'fighter'
-  | 'monk'
-  | 'paladin'
-  | 'ranger'
-  | 'rogue'
-  | 'sorcerer'
-  | 'warlock'
-  | 'wizard'
+  | 'artificer' // 奇械師
+  | 'barbarian' // 野蠻人
+  | 'bard' // 吟遊詩人
+  | 'cleric' // 牧師
+  | 'druid' // 德魯伊
+  | 'fighter' // 戰士
+  | 'monk' // 武僧
+  | 'paladin' // 聖騎士
+  | 'ranger' // 游俠
+  | 'rogue' // 遊蕩者
+  | 'sorcerer' // 術士
+  | 'warlock' // 契術師
+  | 'wizard' // 魔法師
 
 // ─── Ability ──────────────────────────────────────────────────────────────────
 
 export type AbilityKey =
-  | 'strength'
-  | 'dexterity'
-  | 'constitution'
-  | 'intelligence'
-  | 'wisdom'
-  | 'charisma'
+  | 'strength' // 力量
+  | 'dexterity' // 敏捷
+  | 'constitution' // 體質
+  | 'intelligence' // 智力
+  | 'wisdom' // 感知
+  | 'charisma' // 魅力
 
 // ─── Skill ────────────────────────────────────────────────────────────────────
 
 export type SkillKey =
-  | 'acrobatics'
-  | 'animalHandling'
-  | 'arcana'
-  | 'athletics'
-  | 'deception'
-  | 'history'
-  | 'insight'
-  | 'intimidation'
-  | 'investigation'
-  | 'medicine'
-  | 'nature'
-  | 'perception'
-  | 'performance'
-  | 'persuasion'
-  | 'religion'
-  | 'sleightOfHand'
-  | 'stealth'
-  | 'survival'
+  //力量
+  | 'athletics' // 運動
+  //敏捷
+  | 'acrobatics' // 特技
+  | 'sleightOfHand' // 巧手
+  | 'stealth' // 隱匿
+  //智力
+  | 'arcana' // 奧秘
+  | 'history' // 歷史
+  | 'investigation' // 調查
+  | 'nature' // 自然
+  | 'religion' // 宗教
+  //感知
+  | 'animalHandling' // 馴獸
+  | 'insight' // 察言觀色
+  | 'medicine' // 醫藥
+  | 'perception' // 察覺
+  | 'survival' // 求生
+  //魅力
+  | 'deception' // 欺瞞
+  | 'intimidation' // 威嚇
+  | 'performance' // 表演
+  | 'persuasion' // 說服
 
 // ─── Alignment ────────────────────────────────────────────────────────────────
 
@@ -77,3 +82,30 @@ export type RaceKey =
   | 'tiefling'
   | 'dragonborn'
   | 'aasimar'
+
+// ─── Size ─────────────────────────────────────────────────────────────────────
+
+/** 體型：D&D 尺寸分類，從超微型到龐大型 */
+export type SizeKey =
+  | 'tiny' // 微型
+  | 'small' // 小型
+  | 'medium' // 中型
+  | 'large' // 大型
+  | 'huge' // 超大型
+  | 'gargantuan' // 巨型
+
+// ─── Proficiency ─────────────────────────────────────────────────────────────
+
+/** 熟練等級：無熟練、熟練、專精 */
+export type ProficiencyLevel =
+  | 'none' // 無熟練
+  | 'proficient' // 熟練
+  | 'expertise' // 專精（加值翻倍）
+
+// ─── Gender ───────────────────────────────────────────────────────────────────
+
+/** 性別 */
+export type GenderKey =
+  | 'male' // 男性
+  | 'female' // 女性
+  | 'nonBinary' // 非二元

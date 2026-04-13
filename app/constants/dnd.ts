@@ -1,8 +1,10 @@
 import type {
   AbilityKey,
   AlignmentKey,
+  GenderKey,
   ProfessionKey,
   RaceKey,
+  SizeKey,
   SkillKey,
 } from '~/types/business/dnd'
 
@@ -38,24 +40,29 @@ export const ABILITY_NAMES: Record<AbilityKey, string> = {
 // ─── Skill ────────────────────────────────────────────────────────────────────
 
 export const SKILL_NAMES: Record<SkillKey, string> = {
-  acrobatics: '特技',
-  animalHandling: '馴獸',
-  arcana: '奧秘',
+  // 力量
   athletics: '運動',
-  deception: '欺瞞',
-  history: '歷史',
-  insight: '洞察',
-  intimidation: '威嚇',
-  investigation: '調查',
-  medicine: '醫藥',
-  nature: '自然',
-  perception: '察覺',
-  performance: '表演',
-  persuasion: '說服',
-  religion: '宗教',
+  // 敏捷
+  acrobatics: '特技',
   sleightOfHand: '巧手',
   stealth: '隱匿',
+  // 智力
+  arcana: '奧秘',
+  history: '歷史',
+  investigation: '調查',
+  nature: '自然',
+  religion: '宗教',
+  // 感知
+  animalHandling: '馴獸',
+  insight: '察言觀色',
+  medicine: '醫藥',
+  perception: '察覺',
   survival: '求生',
+  // 魅力
+  deception: '欺瞞',
+  intimidation: '威嚇',
+  performance: '表演',
+  persuasion: '說服',
 }
 
 // ─── Alignment ────────────────────────────────────────────────────────────────
@@ -85,4 +92,25 @@ export const RACE_NAMES: Record<RaceKey, string> = {
   tiefling: '提夫林',
   dragonborn: '龍裔',
   aasimar: '阿斯莫',
+}
+
+// ─── Size ─────────────────────────────────────────────────────────────────────
+
+/** 體型中文名稱對照表 */
+export const SIZE_NAMES: Record<SizeKey, string> = {
+  tiny: '微型',
+  small: '小型',
+  medium: '中型',
+  large: '大型',
+  huge: '超大型',
+  gargantuan: '巨型',
+}
+
+// ─── Gender ───────────────────────────────────────────────────────────────────
+
+/** 性別中文名稱對照表 */
+export const GENDER_NAMES: Record<GenderKey, string> = {
+  male: '男性',
+  female: '女性',
+  nonBinary: '非二元',
 }
