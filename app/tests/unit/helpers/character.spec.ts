@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCharacterTier } from '~/utils/character'
+import { getCharacterTier } from '~/helpers/character'
 
 describe('getCharacterTier', () => {
   describe('common 等級 (1–4)', () => {

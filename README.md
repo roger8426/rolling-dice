@@ -52,4 +52,16 @@ rolling-dice/
 └─ package.json
 ```
 
+### app/ 主要目錄
+
+| 目錄 | 用途 |
+|---|---|
+| `components/` | Vue 元件（common / layout / business） |
+| `composables/` | 可重用邏輯，含 reactivity 或 lifecycle |
+| `helpers/` | 業務邏輯相關純函式（如規則計算、分級判斷）；由 Nuxt auto-import |
+| `utils/` | 不含業務語意的通用工具函式（如字串處理、localStorage 封裝） |
+| `stores/` | Pinia 跨元件 / 跨頁面共享狀態 |
+| `pages/` | Nuxt 路由頁面 |
+| `types/` | 共用 TypeScript 型別（api / models / components / stores） |
+
 詳細結構與開發規範請參閱 `.github/instructions/`。

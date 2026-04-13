@@ -18,6 +18,10 @@ export default defineNuxtConfig({
     },
   },
 
+  imports: {
+    dirs: ['helpers'],
+  },
+
   modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/fonts'],
 
   fonts: {
