@@ -1,5 +1,5 @@
 import type {
-  // AbilityKey,
+  AbilityKey,
   // AlignmentKey,
   // GenderKey,
   ProfessionKey,
@@ -54,17 +54,17 @@ export interface Character {
 // ─── Abilities ────────────────────────────────────────────────────────────────
 
 /** 單項屬性資料：屬性值、調整值與豁免熟練狀態 */
-// export interface AbilityScore {
-//   /** 屬性原始分數（1–20） */
-//   score: number
-//   /** 調整值，計算方式：floor((score - 10) / 2) */
-//   modifier: number
-//   /** 豁免是否熟練 */
-//   savingThrowProficient: boolean
-// }
+export interface AbilityScore {
+  /** 屬性原始分數（1–20） */
+  score: number
+  /** 調整值，計算方式：floor((score - 10) / 2) */
+  modifier: number
+  /** 豁免是否熟練 */
+  savingThrowProficient: boolean
+}
 
 /** 角色六項屬性完整資料，以 AbilityKey 為鍵，確保六項皆存在 */
-// export type CharacterAbilities = Record<AbilityKey, AbilityScore>
+export type CharacterAbilities = Record<AbilityKey, AbilityScore>
 
 // ─── Professions ──────────────────────────────────────────────────────────────
 

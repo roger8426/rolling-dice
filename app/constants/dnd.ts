@@ -114,3 +114,26 @@ export const GENDER_NAMES: Record<GenderKey, string> = {
   female: '女性',
   nonBinary: '非二元',
 }
+
+// ─── Point Buy ────────────────────────────────────────────────────────────────
+
+/** 購點制總預算（D&D 5e 標準）*/
+export const POINT_BUY_BUDGET = 27
+
+/** 購點制單項屬性最低分數 */
+export const POINT_BUY_MIN_SCORE = 8
+
+/** 購點制單項屬性最高分數 */
+export const POINT_BUY_MAX_SCORE = 15
+
+/** 購點制費用查找表：key 為屬性分數，value 為所需點數（D&D 5e PHB 標準）*/
+export const POINT_BUY_COST_TABLE: Readonly<Record<number, number>> = {
+  8: 0,
+  9: 1,
+  10: 2,
+  11: 3,
+  12: 4,
+  13: 5,
+  14: 7,
+  15: 9,
+}
