@@ -8,9 +8,11 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
   const { isNavOpen, openNav } = useNavigation()
 
   let touchStartY = 0
+  let touchStartX = 0
 
   function resetTouch() {
     touchStartY = 0
+    touchStartX = 0
   }
 
   function isAtBottom(): boolean {
@@ -23,13 +25,18 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
 
   function onTouchStart(e: TouchEvent) {
     touchStartY = e.touches[0]?.clientY ?? 0
+    touchStartX = e.touches[0]?.clientX ?? 0
   }
 
   function onElementTouchEnd(e: TouchEvent) {
     e.stopPropagation() // 阻止 document handler 重複計算此次觸控
 
     const endY = e.changedTouches[0]?.clientY ?? touchStartY
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX
     const delta = endY - touchStartY
+    const deltaX = endX - touchStartX
+
+    if (Math.abs(deltaX) > Math.abs(delta)) return
 
     if (delta < -MIN_SWIPE_UP_DELTA && !isNavOpen.value) {
       openNav()
@@ -39,7 +46,14 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
 
   function onDocumentTouchEnd(e: TouchEvent) {
     const endY = e.changedTouches[0]?.clientY ?? touchStartY
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX
     const delta = endY - touchStartY
+    const deltaX = endX - touchStartX
+
+    if (Math.abs(deltaX) > Math.abs(delta)) {
+      resetTouch()
+      return
+    }
 
     if (delta < -MIN_SCROLL_BOTTOM_SWIPE_DELTA && isAtBottom() && !isNavOpen.value) {
       openNav()
