@@ -7,42 +7,26 @@
       type="border"
       active-color="var(--color-canvas-elevated)"
       inactive-color="var(--color-canvas)"
-      label="建立角色卡步驟"
+      label="建立角色卡"
     >
       <Tab value="basic">
         <template #label="{ active }">
-          <span
-            class="text-content"
-            :class="!active && isTabValid('basic') ? 'text-green-400' : ''"
-          >
+          <h3 class="text-content" :class="!active && isTabValid('basic') ? 'text-green-400' : ''">
             基本資訊
-          </span>
+          </h3>
         </template>
         <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildBasicTab
             :form-state="formState"
+            :total-level="totalLevel"
+            :point-buy-remaining="pointBuyRemaining"
+            :standard-array-assignment="standardArrayAssignment"
+            :available-standard-values="availableStandardValues"
             @update:name="formState.name = $event"
             @update:gender="formState.gender = $event as typeof formState.gender"
             @update:race="formState.race = $event as typeof formState.race"
             @update:alignment="formState.alignment = $event as typeof formState.alignment"
             @update:faith="formState.faith = $event"
-          />
-        </div>
-      </Tab>
-
-      <Tab value="profession">
-        <template #label="{ active }">
-          <span
-            class="text-content"
-            :class="!active && isTabValid('profession') ? 'text-green-400' : ''"
-          >
-            職業
-          </span>
-        </template>
-        <div class="bg-canvas-elevated p-4 sm:p-6">
-          <BusinessCharacterBuildProfessionTab
-            :form-state="formState"
-            :total-level="totalLevel"
             @add="addProfession"
             @remove="removeProfession"
             @update:profession="
@@ -55,25 +39,6 @@
                 if (formState.professions[i]) formState.professions[i].level = l
               }
             "
-          />
-        </div>
-      </Tab>
-
-      <Tab value="ability">
-        <template #label="{ active }">
-          <span
-            class="text-content"
-            :class="!active && isTabValid('ability') ? 'text-green-400' : ''"
-          >
-            能力值
-          </span>
-        </template>
-        <div class="bg-canvas-elevated p-4 sm:p-6">
-          <BusinessCharacterBuildAbilityTab
-            :form-state="formState"
-            :point-buy-remaining="pointBuyRemaining"
-            :standard-array-assignment="standardArrayAssignment"
-            :available-standard-values="availableStandardValues"
             @update:method="setAbilityMethod"
             @update:score="(k: AbilityKey, s: number) => (formState.abilities[k] = s)"
             @assign:standard="(k: AbilityKey, v: number) => assignStandardArrayValue(k, v)"
@@ -85,12 +50,12 @@
 
       <Tab value="background">
         <template #label="{ active }">
-          <span
+          <h3
             class="text-content"
             :class="!active && isTabValid('background') ? 'text-green-400' : ''"
           >
             背景與技能
-          </span>
+          </h3>
         </template>
         <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildBackgroundTab
@@ -103,12 +68,12 @@
 
       <Tab value="profile">
         <template #label="{ active }">
-          <span
+          <h3
             class="text-content"
             :class="!active && isTabValid('profile') ? 'text-green-400' : ''"
           >
             個人資料
-          </span>
+          </h3>
         </template>
         <div class="rounded-b-lg bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildProfileTab
@@ -156,3 +121,16 @@ const {
   submit,
 } = useCharacterBuild()
 </script>
+
+<style scoped>
+/* 讓 build 頁面內所有 Input 元件套用 canvas-inset 背景 */
+:deep(.build-input) {
+  background-color: var(--color-canvas-inset);
+  border-radius: 0.375rem;
+}
+
+:deep(.build-select) {
+  background-color: var(--color-canvas-inset);
+  border-radius: 0.375rem;
+}
+</style>

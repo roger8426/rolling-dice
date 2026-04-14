@@ -9,9 +9,9 @@ import type {
 } from '~/types/business/character'
 import type { AbilityKey, ProficiencyLevel } from '~/types/business/dnd'
 
-export type BuildTab = 'basic' | 'profession' | 'ability' | 'background' | 'profile'
+export type BuildTab = 'basic' | 'background' | 'profile'
 
-const BUILD_TABS: BuildTab[] = ['basic', 'profession', 'ability', 'background', 'profile']
+const BUILD_TABS: BuildTab[] = ['basic', 'background', 'profile']
 
 function createDefaultAbilities(): AbilityScores {
   return Object.fromEntries(
@@ -118,7 +118,6 @@ export function useCharacterBuild() {
   const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
 
   function addProfession(): void {
-    if (totalLevel.value >= 20) return
     formState.professions.push({
       profession: '' as ProfessionEntry['profession'],
       level: 1,
@@ -183,11 +182,7 @@ export function useCharacterBuild() {
   function isTabValid(tab: BuildTab): boolean {
     switch (tab) {
       case 'basic':
-        return isBasicTabValid()
-      case 'profession':
-        return isProfessionTabValid()
-      case 'ability':
-        return isAbilityTabValid()
+        return isBasicTabValid() && isProfessionTabValid() && isAbilityTabValid()
       case 'background':
         return isBackgroundTabValid()
       case 'profile':
