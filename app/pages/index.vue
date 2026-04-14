@@ -99,7 +99,7 @@ const professionImages = getProfessionImages()
   height: 200px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, var(--rd--color-accent-soft) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, var(--rd--color-primary-soft) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -125,8 +125,8 @@ const professionImages = getProfessionImages()
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 2px solid var(--rd--color-accent);
-  box-shadow: 0 0 10px var(--rd--color-accent-soft);
+  border: 2px solid var(--rd--color-primary);
+  box-shadow: 0 0 10px var(--rd--color-primary-soft);
   padding: 5px;
   animation: orbit-outer 40s linear infinite;
   animation-delay: calc(var(--i) / 7 * -40s);

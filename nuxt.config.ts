@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   },
 
   imports: {
-    dirs: ['helpers'],
+    dirs: ['helpers', 'composables/domain'],
   },
 
   modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxt/fonts'],

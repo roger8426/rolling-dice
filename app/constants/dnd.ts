@@ -137,3 +137,23 @@ export const POINT_BUY_COST_TABLE: Readonly<Record<number, number>> = {
   14: 7,
   15: 9,
 }
+
+// ─── Standard Array ───────────────────────────────────────────────────────────
+
+/** D&D 5e 標準陣列（降冪排列） */
+export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8] as const
+
+// ─── Ability Defaults ─────────────────────────────────────────────────────────
+
+/** 購點制的各屬性初始分數 */
+export const POINT_BUY_DEFAULT_SCORE = 8
+
+/** 所有 AbilityKey，用於迭代 */
+export const ABILITY_KEYS: readonly AbilityKey[] = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'intelligence',
+  'wisdom',
+  'charisma',
+] as const

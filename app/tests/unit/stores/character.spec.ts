@@ -1,15 +1,54 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useCharacterStore } from '~/stores/character'
-import type { Character } from '~/types/business/character'
+import type { Character, CharacterFormState } from '~/types/business/character'
 
 const MOCK_CHARACTER: Character = {
   id: 'test-001',
   name: '測試角色',
+  gender: 'male',
   race: 'human',
-  professions: ['fighter'],
+  alignment: 'trueNeutral',
+  professions: [{ profession: 'fighter', level: 5 }],
   level: 5,
+  abilities: {
+    strength: 15,
+    dexterity: 14,
+    constitution: 13,
+    intelligence: 12,
+    wisdom: 10,
+    charisma: 8,
+  },
+  skills: { athletics: 'proficient' },
+  background: '士兵',
   createdAt: '2026-01-01T00:00:00.000Z',
+}
+
+const MOCK_FORM_STATE: CharacterFormState = {
+  name: '新角色',
+  gender: 'female',
+  race: 'elf',
+  alignment: 'chaoticGood',
+  professions: [{ profession: 'wizard', level: 3 }],
+  abilities: {
+    strength: 8,
+    dexterity: 14,
+    constitution: 12,
+    intelligence: 15,
+    wisdom: 13,
+    charisma: 10,
+  },
+  abilityMethod: 'standardArray',
+  skills: { arcana: 'proficient' },
+  background: '學者',
+  faith: '',
+  age: null,
+  height: '',
+  weight: '',
+  appearance: '',
+  story: '',
+  languages: '',
+  tools: '',
 }
 
 beforeEach(() => {
@@ -58,21 +97,35 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後 characters 長度應 +1', () => {
     const store = useCharacterStore()
     const before = store.characters.length
-    store.addCharacter(MOCK_CHARACTER)
+    store.addCharacter(MOCK_FORM_STATE)
     expect(store.characters).toHaveLength(before + 1)
   })
 
   it('新增後應可透過 getById 查到新角色', () => {
     const store = useCharacterStore()
-    store.addCharacter(MOCK_CHARACTER)
-    expect(store.getById('test-001')).toEqual(MOCK_CHARACTER)
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(store.getById(created.id)).toBeDefined()
+    expect(store.getById(created.id)?.name).toBe('新角色')
+  })
+
+  it('新增後應自動生成 id 與 createdAt', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created.id).toBeTruthy()
+    expect(created.createdAt).toBeTruthy()
+  })
+
+  it('新增後 level 應為各職業等級的加總', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created.level).toBe(3)
   })
 
   it('新增後應同步寫入 localStorage', () => {
     const store = useCharacterStore()
-    store.addCharacter(MOCK_CHARACTER)
+    const created = store.addCharacter(MOCK_FORM_STATE)
     const stored = JSON.parse(localStorage.getItem('rd:characters')!)
-    expect(stored.some((c: Character) => c.id === 'test-001')).toBe(true)
+    expect(stored.some((c: Character) => c.id === created.id)).toBe(true)
   })
 })
 

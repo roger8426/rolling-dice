@@ -4,7 +4,7 @@
       <!-- Logo -->
       <NuxtLink
         to="/"
-        class="flex items-center gap-3 text-lg font-bold tracking-wider text-content transition-colors hover:text-accent"
+        class="flex items-center gap-3 text-lg font-bold tracking-wider text-content transition-colors hover:text-primary"
         aria-label="Rolling Dice"
       >
         <img src="../../assets/images/dnd.png" alt="Dungeons & Dragons" class="w-16" />

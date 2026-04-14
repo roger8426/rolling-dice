@@ -18,19 +18,12 @@
   --color-primary-hover: var(--rd--color-primary-hover);
   --color-primary-active: var(--rd--color-primary-active);
   --color-primary-soft: var(--rd--color-primary-soft);
-  --color-primary-softer: var(--rd--color-primary-softer);
 
   /* brand — secondary */
   --color-secondary: var(--rd--color-secondary);
   --color-secondary-hover: var(--rd--color-secondary-hover);
   --color-secondary-active: var(--rd--color-secondary-active);
   --color-secondary-soft: var(--rd--color-secondary-soft);
-
-  /* accent */
-  --color-accent: var(--rd--color-accent);
-  --color-accent-hover: var(--rd--color-accent-hover);
-  --color-accent-active: var(--rd--color-accent-active);
-  --color-accent-soft: var(--rd--color-accent-soft);
 
   /* background — mapped to "canvas" to avoid bg-bg */
   --color-canvas: var(--rd--color-bg);
@@ -85,7 +78,9 @@
   /* semantic — danger */
   --color-danger: var(--rd--color-danger);
   --color-danger-hover: var(--rd--color-danger-hover);
+  --color-danger-active: var(--rd--color-danger-active);
   --color-danger-soft: var(--rd--color-danger-soft);
+  --color-danger-softer: var(--rd--color-danger-softer);
 
   /* semantic — info */
   --color-info: var(--rd--color-info);
@@ -106,9 +101,9 @@
 .tier-shimmer {
   background: linear-gradient(
     90deg,
-    var(--rd--color-accent) 20%,
+    var(--rd--color-primary) 20%,
     #f0d070 45%,
-    var(--rd--color-accent) 70%
+    var(--rd--color-primary) 70%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;

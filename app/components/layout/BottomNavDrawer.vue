@@ -30,7 +30,7 @@
     border-color="var(--rd--color-border)"
   >
     <template #header>
-      <div class="bg-panel-2 w-full py-1 text-center text-accent font-display">
+      <div class="bg-panel-2 w-full py-1 text-center text-primary font-display">
         Embark On Your Adventure
       </div>
     </template>
@@ -39,8 +39,8 @@
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
-        class="flex flex-1 flex-col items-center gap-1.5 rounded-lg px-2 py-3 focus:outline-accent transition-colors duration-150"
-        :class="isActive(item.to) ? 'text-accent' : 'text-content-muted hover:text-content'"
+        class="flex flex-1 flex-col items-center gap-1.5 rounded-lg px-2 py-3 focus:outline-primary transition-colors duration-150"
+        :class="isActive(item.to) ? 'text-primary' : 'text-content-muted hover:text-content'"
         @click="closeNav"
       >
         <Icon v-if="item.icon" :name="item.icon" :size="60" />

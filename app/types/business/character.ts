@@ -1,57 +1,29 @@
 import type {
   AbilityKey,
-  // AlignmentKey,
-  // GenderKey,
+  AlignmentKey,
+  GenderKey,
   ProfessionKey,
-  // ProficiencyLevel,
+  ProficiencyLevel,
   RaceKey,
-  // SizeKey,
-  // SkillKey,
+  SkillKey,
 } from '~/types/business/dnd'
 
 export type CharacterTier = 'common' | 'elite' | 'master' | 'legendary'
 
-export interface Character {
-  id: string
-  name: string
-  race: RaceKey
-  professions: ProfessionKey[]
+// ─── Professions ──────────────────────────────────────────────────────────────
+
+/** 單一職業條目：職業 key 與該職業等級 */
+export interface ProfessionEntry {
+  /** 職業 */
+  profession: ProfessionKey
+  /** 該職業等級（1–20） */
   level: number
-  createdAt: string
-  avatar?: string
 }
 
-// ─── Profile ──────────────────────────────────────────────────────────────────
-
-/** 角色個人資料 */
-// export interface CharacterProfile {
-//   /** 角色名稱 */
-//   name: string
-//   /** 種族 */
-//   race: RaceKey
-//   /** 陣營 */
-//   alignment: AlignmentKey
-//   /** 體型（依 D&D 尺寸分類） */
-//   build: SizeKey
-//   /** 性別 */
-//   gender: GenderKey
-//   /** 背景（暫為自由文字，後續改為 BackgroundKey） */
-//   background: string
-//   /** 所有職業等級加總 */
-//   totalLevel: number
-//   /** 信仰神祇（選填） */
-//   faith?: string
-//   /** 年齡（選填） */
-//   age?: number
-//   /** 身高，自由描述，如 "175cm"（選填） */
-//   height?: string
-//   /** 體重，自由描述，如 "70kg"（選填） */
-//   weight?: string
-//   /** 外貌簡述，字數上限 20（選填） */
-//   appearance?: string
-// }
-
 // ─── Abilities ────────────────────────────────────────────────────────────────
+
+/** 六項屬性分數，以 AbilityKey 為鍵 */
+export type AbilityScores = Record<AbilityKey, number>
 
 /** 單項屬性資料：屬性值、調整值與豁免熟練狀態 */
 export interface AbilityScore {
@@ -66,26 +38,58 @@ export interface AbilityScore {
 /** 角色六項屬性完整資料，以 AbilityKey 為鍵，確保六項皆存在 */
 export type CharacterAbilities = Record<AbilityKey, AbilityScore>
 
-// ─── Professions ──────────────────────────────────────────────────────────────
-
-/** 單一職業條目：職業 key 與該職業等級 */
-// export interface ProfessionEntry {
-//   /** 職業 */
-//   profession: ProfessionKey
-//   /** 該職業等級（1–20） */
-//   level: number
-// }
-
-/** 角色職業列表，index 0 為主職業，其餘依序為兼職 */
-// export type CharacterProfessions = ProfessionEntry[]
-
 // ─── Skills ───────────────────────────────────────────────────────────────────
 
-/** 單項技能資料 */
-// export interface SkillEntry {
-//   /** 熟練等級 */
-//   proficiency: ProficiencyLevel
-// }
+/** 角色技能熟練度，僅記錄有熟練或專精的技能 */
+export type SkillProficiencies = Partial<Record<SkillKey, ProficiencyLevel>>
 
-/** 角色 18 項技能完整資料，以 SkillKey 為鍵，確保 18 項皆存在 */
-// export type CharacterSkills = Record<SkillKey, SkillEntry>
+// ─── Character ────────────────────────────────────────────────────────────────
+
+export interface Character {
+  id: string
+  name: string
+  gender: GenderKey
+  race: RaceKey
+  alignment: AlignmentKey
+  professions: ProfessionEntry[]
+  level: number
+  abilities: AbilityScores
+  skills: SkillProficiencies
+  background: string
+  createdAt: string
+  faith?: string
+  age?: number
+  height?: string
+  weight?: string
+  appearance?: string
+  story?: string
+  languages?: string
+  tools?: string
+  avatar?: string
+}
+
+// ─── Form State ───────────────────────────────────────────────────────────────
+
+/** 能力值分配方式 */
+export type AbilityMethod = 'pointBuy' | 'standardArray' | 'diceRoll'
+
+/** 建立角色表單的 draft 狀態 */
+export interface CharacterFormState {
+  name: string
+  gender: GenderKey | ''
+  race: RaceKey | ''
+  alignment: AlignmentKey | ''
+  professions: ProfessionEntry[]
+  abilities: AbilityScores
+  abilityMethod: AbilityMethod
+  skills: SkillProficiencies
+  background: string
+  faith: string
+  age: number | null
+  height: string
+  weight: string
+  appearance: string
+  story: string
+  languages: string
+  tools: string
+}
