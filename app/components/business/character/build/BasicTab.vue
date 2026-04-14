@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col md:flex-row gap-2">
-    <div class="space-y-4 px-2">
+    <div class="space-y-4 px-2 w-1/3">
       <div class="flex items-end gap-2">
         <!-- 角色名稱 -->
         <div class="min-w-20 flex-1">
@@ -130,8 +130,9 @@
             aria-label="移除此職業"
             @click="emit('remove', index)"
           >
-            <Icon name="close" :size="16" />
+            <Icon name="close" :size="20" />
           </button>
+          <div v-else class="size-8" />
         </div>
 
         <div class="flex items-center justify-between">
@@ -139,8 +140,8 @@
             size="sm"
             outline
             :disabled="isButtonDisabled"
-            text-color="var(--color-primary-active)"
-            border-color="var(--color-primary-active)"
+            text-color="var(--color-primary)"
+            border-color="var(--color-primary)"
             :radius="8"
             @click="emit('add')"
           >
@@ -155,17 +156,25 @@
       </div>
     </div>
 
+    <div class="flex-1 my-auto px-2">
+      <!-- 角色圖像設定區，等後端完成補上，先用圖片佔位 -->
+      <img src="../../../../assets/images/dnd.png" alt="" />
+    </div>
     <!-- 屬性計算區 -->
-    <div class="flex-1 space-y-6">
+    <div class="space-y-4 px-2 w-1/3">
       <!-- Method selector -->
       <div>
-        <p class="mb-2 text-sm font-medium text-content">分配方式</p>
+        <p class="mb-1 text-xs text-content">分配方式</p>
         <div class="flex gap-2">
           <Button
             v-for="method in methods"
             :key="method.key"
             size="sm"
             :outline="formState.abilityMethod !== method.key"
+            border-color="var(--color-primary)"
+            bg-color="var(--color-primary)"
+            text-color="var(--color-content)"
+            class="ability-button"
             @click="emit('update:method', method.key)"
           >
             {{ method.label }}
@@ -173,75 +182,98 @@
         </div>
       </div>
 
-      <!-- Point Buy remaining -->
-      <p v-if="formState.abilityMethod === 'pointBuy'" class="text-sm text-content-muted">
-        剩餘點數：
-        <span :class="pointBuyRemaining < 0 ? 'text-red-400 font-bold' : 'font-bold'">
-          {{ pointBuyRemaining }}
-        </span>
-        / 27
-      </p>
-
       <!-- Ability grid -->
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div v-for="key in ABILITY_KEYS" :key="key" class="space-y-1">
-          <label :for="`ability-${key}`" class="block text-sm font-medium text-content">
-            {{ ABILITY_NAMES[key] }}
+          <label :for="`ability-${key}`" class="block text-xs text-content">
+            {{ ABILITY_NAMES[key] }}（{{ formatModifier(formState.abilities[key]) }}）
           </label>
 
           <!-- Point Buy -->
-          <div v-if="formState.abilityMethod === 'pointBuy'" class="flex items-center gap-1">
+          <div v-if="formState.abilityMethod === 'pointBuy'" class="flex items-center gap-1 py-0.5">
             <button
               type="button"
-              class="rounded px-2 py-1 text-sm font-bold transition-colors hover:bg-surface-hover disabled:opacity-30"
+              class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
               :disabled="formState.abilities[key] <= POINT_BUY_MIN_SCORE"
               aria-label="減少"
               @click="adjustPointBuy(key, -1)"
             >
-              −
+              <Icon name="minus" :size="16" />
             </button>
             <span class="w-8 text-center font-mono text-lg font-bold">
               {{ formState.abilities[key] }}
             </span>
             <button
               type="button"
-              class="rounded px-2 py-1 text-sm font-bold transition-colors hover:bg-surface-hover disabled:opacity-30"
+              class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
               :disabled="formState.abilities[key] >= POINT_BUY_MAX_SCORE || !canIncrement(key)"
               aria-label="增加"
               @click="adjustPointBuy(key, 1)"
             >
-              +
+              <Icon name="plus" :size="16" />
             </button>
           </div>
 
-          <!-- Standard Array -->
-          <Select
-            v-else-if="formState.abilityMethod === 'standardArray'"
-            :id="`ability-${key}`"
-            :model-value="standardArrayAssignment[key]"
-            :options="getStandardArrayOptions(key)"
-            placeholder="—"
-            @update:model-value="emit('assign:standard', key, Number($event))"
-          />
-
-          <!-- Dice Roll -->
-          <div v-else class="flex items-center gap-2">
+          <!-- Custom -->
+          <div
+            v-else-if="formState.abilityMethod === 'custom'"
+            class="flex items-center gap-1 py-0.5"
+          >
+            <button
+              type="button"
+              class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
+              :disabled="formState.abilities[key] <= CUSTOM_ABILITY_MIN"
+              aria-label="減少"
+              @click="adjustCustomAbility(key, -1)"
+            >
+              <Icon name="minus" :size="16" />
+            </button>
             <span class="w-8 text-center font-mono text-lg font-bold">
               {{ formState.abilities[key] }}
             </span>
-            <Button size="sm" outline @click="emit('roll:single', key)"> 🎲 </Button>
+            <button
+              type="button"
+              class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
+              :disabled="formState.abilities[key] >= CUSTOM_ABILITY_MAX"
+              aria-label="增加"
+              @click="adjustCustomAbility(key, 1)"
+            >
+              <Icon name="plus" :size="16" />
+            </button>
           </div>
 
-          <p class="text-xs text-content-muted">
-            調整值: {{ formatModifier(formState.abilities[key]) }}
-          </p>
+          <!-- Dice Roll -->
+          <div v-else class="flex items-center gap-1 py-0.5">
+            <span class="w-8 text-center font-mono text-lg font-bold">
+              {{ formState.abilities[key] }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- Dice Roll: roll all button -->
-      <Button v-if="formState.abilityMethod === 'diceRoll'" outline @click="emit('roll:all')">
-        🎲 全部重擲
-      </Button>
+      <!-- Point Buy remaining -->
+      <div class="flex items-center justify-between">
+        <p v-if="formState.abilityMethod === 'pointBuy'" class="text-sm text-content-muted">
+          剩餘點數：
+          <span :class="pointBuyRemaining < 0 ? 'text-red-400 font-bold' : 'font-bold'">
+            {{ pointBuyRemaining }}
+          </span>
+          / 27
+        </p>
+        <div v-else class="size-1"></div>
+        <Button
+          size="sm"
+          outline
+          text-color="var(--color-primary)"
+          border-color="var(--color-primary)"
+          :radius="8"
+          class="flex items-center gap-2"
+          @click="resetAbilities()"
+        >
+          <Icon v-if="formState.abilityMethod === 'diceRoll'" name="dice-20" :size="16" />
+          {{ formState.abilityMethod === 'diceRoll' ? '擲骰' : '重置屬性' }}
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -253,6 +285,8 @@ import {
   ABILITY_KEYS,
   ABILITY_NAMES,
   ALIGNMENT_NAMES,
+  CUSTOM_ABILITY_MAX,
+  CUSTOM_ABILITY_MIN,
   GENDER_NAMES,
   POINT_BUY_MAX_SCORE,
   POINT_BUY_MIN_SCORE,
@@ -267,8 +301,6 @@ const props = defineProps<{
   formState: CharacterFormState
   totalLevel: number
   pointBuyRemaining: number
-  standardArrayAssignment: Record<AbilityKey, number | null>
-  availableStandardValues: readonly number[]
 }>()
 
 const emit = defineEmits<{
@@ -283,9 +315,8 @@ const emit = defineEmits<{
   'update:level': [index: number, level: number]
   'update:method': [method: AbilityMethod]
   'update:score': [key: AbilityKey, score: number]
-  'assign:standard': [key: AbilityKey, value: number]
-  'roll:single': [key: AbilityKey]
   'roll:all': []
+  'reset:abilities': []
 }>()
 
 const genderOptions: SelectOption[] = Object.entries(GENDER_NAMES).map(([value, label]) => ({
@@ -334,9 +365,9 @@ const isButtonDisabled = computed(() => {
 })
 
 const methods: { key: AbilityMethod; label: string }[] = [
-  { key: 'pointBuy', label: '購點制' },
-  { key: 'standardArray', label: '標準陣列' },
-  { key: 'diceRoll', label: '投骰' },
+  { key: 'custom', label: '自訂' },
+  { key: 'pointBuy', label: '購點' },
+  { key: 'diceRoll', label: '擲骰' },
 ]
 
 function updateProfessionKey(index: number, value: string): void {
@@ -367,15 +398,23 @@ function adjustPointBuy(key: AbilityKey, delta: number): void {
   emit('update:score', key, next)
 }
 
-function getStandardArrayOptions(key: AbilityKey): SelectOption[] {
-  const current = props.standardArrayAssignment[key]
-  const available = props.availableStandardValues
-  const values = current !== null ? [current, ...available] : [...available]
-  return [...new Set(values)]
-    .sort((a, b) => b - a)
-    .map((v) => ({
-      value: v,
-      label: String(v),
-    }))
+function adjustCustomAbility(key: AbilityKey, delta: number): void {
+  const current = props.formState.abilities[key]
+  const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
+  emit('update:score', key, next)
+}
+
+function resetAbilities(): void {
+  if (props.formState.abilityMethod === 'diceRoll') {
+    emit('roll:all')
+  } else {
+    emit('reset:abilities')
+  }
 }
 </script>
+
+<style scoped>
+:deep(.ability-button) {
+  padding: 0.3625rem 1rem;
+}
+</style>

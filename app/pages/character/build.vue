@@ -20,8 +20,6 @@
             :form-state="formState"
             :total-level="totalLevel"
             :point-buy-remaining="pointBuyRemaining"
-            :standard-array-assignment="standardArrayAssignment"
-            :available-standard-values="availableStandardValues"
             @update:name="formState.name = $event"
             @update:gender="formState.gender = $event as typeof formState.gender"
             @update:race="formState.race = $event as typeof formState.race"
@@ -41,9 +39,8 @@
             "
             @update:method="setAbilityMethod"
             @update:score="(k: AbilityKey, s: number) => (formState.abilities[k] = s)"
-            @assign:standard="(k: AbilityKey, v: number) => assignStandardArrayValue(k, v)"
-            @roll:single="rollSingleAbility"
             @roll:all="rollAllAbilities"
+            @reset:abilities="resetAbilities"
           />
         </div>
       </Tab>
@@ -106,12 +103,9 @@ const {
   activeTab,
   formState,
   pointBuyRemaining,
-  standardArrayAssignment,
-  availableStandardValues,
   setAbilityMethod,
-  assignStandardArrayValue,
   rollAllAbilities,
-  rollSingleAbility,
+  resetAbilities,
   totalLevel,
   addProfession,
   removeProfession,

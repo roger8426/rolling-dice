@@ -138,10 +138,13 @@ export const POINT_BUY_COST_TABLE: Readonly<Record<number, number>> = {
   15: 9,
 }
 
-// ─── Standard Array ───────────────────────────────────────────────────────────
+// ─── Custom ─────────────────────────────────────────────────────────────────────
 
-/** D&D 5e 標準陣列（降冪排列） */
-export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8] as const
+/** 自訂模式屬性分數下限 */
+export const CUSTOM_ABILITY_MIN = 1
+
+/** 自訂模式屬性分數上限 */
+export const CUSTOM_ABILITY_MAX = 20
 
 // ─── Ability Defaults ─────────────────────────────────────────────────────────
 

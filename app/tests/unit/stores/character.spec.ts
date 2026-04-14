@@ -38,7 +38,7 @@ const MOCK_FORM_STATE: CharacterFormState = {
     wisdom: 13,
     charisma: 10,
   },
-  abilityMethod: 'standardArray',
+  abilityMethod: 'custom',
   skills: { arcana: 'proficient' },
   background: '學者',
   faith: '',

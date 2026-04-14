@@ -1,4 +1,9 @@
-import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE, STANDARD_ARRAY } from '~/constants/dnd'
+import {
+  ABILITY_KEYS,
+  CUSTOM_ABILITY_MAX,
+  CUSTOM_ABILITY_MIN,
+  POINT_BUY_DEFAULT_SCORE,
+} from '~/constants/dnd'
 import { getRemainingPoints, isValidPointBuy } from '~/helpers/ability'
 import type {
   AbilityMethod,
@@ -7,7 +12,7 @@ import type {
   ProfessionEntry,
   SkillProficiencies,
 } from '~/types/business/character'
-import type { AbilityKey, ProficiencyLevel } from '~/types/business/dnd'
+import type { ProficiencyLevel } from '~/types/business/dnd'
 
 export type BuildTab = 'basic' | 'background' | 'profile'
 
@@ -27,7 +32,7 @@ function createDefaultFormState(): CharacterFormState {
     alignment: '',
     professions: [{ profession: '' as ProfessionEntry['profession'], level: 1 }],
     abilities: createDefaultAbilities(),
-    abilityMethod: 'pointBuy',
+    abilityMethod: 'custom',
     skills: {},
     background: '',
     faith: '',
@@ -46,17 +51,6 @@ export function useCharacterBuild() {
   const activeTab = ref<BuildTab>('basic')
   const formState = reactive<CharacterFormState>(createDefaultFormState())
 
-  // ─── Standard Array ───────────────────────────────────────────────────
-
-  const standardArrayAssignment = ref<Record<AbilityKey, number | null>>(
-    Object.fromEntries(ABILITY_KEYS.map((key) => [key, null])) as Record<AbilityKey, number | null>,
-  )
-
-  const availableStandardValues = computed(() => {
-    const used = Object.values(standardArrayAssignment.value).filter((v): v is number => v !== null)
-    return STANDARD_ARRAY.filter((v) => !used.includes(v))
-  })
-
   // ─── Dice Roll ────────────────────────────────────────────────────────
 
   function rollAbilityScore(): number {
@@ -71,8 +65,8 @@ export function useCharacterBuild() {
     }
   }
 
-  function rollSingleAbility(key: AbilityKey): void {
-    formState.abilities[key] = rollAbilityScore()
+  function resetAbilities(): void {
+    formState.abilities = createDefaultAbilities()
   }
 
   // ─── Ability Method Switching ─────────────────────────────────────────
@@ -82,28 +76,11 @@ export function useCharacterBuild() {
 
     if (method === 'pointBuy') {
       formState.abilities = createDefaultAbilities()
-    } else if (method === 'standardArray') {
+    } else if (method === 'custom') {
       formState.abilities = createDefaultAbilities()
-      standardArrayAssignment.value = Object.fromEntries(
-        ABILITY_KEYS.map((key) => [key, null]),
-      ) as Record<AbilityKey, number | null>
     } else if (method === 'diceRoll') {
       rollAllAbilities()
     }
-  }
-
-  function assignStandardArrayValue(key: AbilityKey, value: number | null): void {
-    // Clear previous assignment of this value
-    if (value !== null) {
-      for (const k of ABILITY_KEYS) {
-        if (standardArrayAssignment.value[k] === value) {
-          standardArrayAssignment.value[k] = null
-          formState.abilities[k] = POINT_BUY_DEFAULT_SCORE
-        }
-      }
-    }
-    standardArrayAssignment.value[key] = value
-    formState.abilities[key] = value ?? POINT_BUY_DEFAULT_SCORE
   }
 
   // ─── Point Buy ────────────────────────────────────────────────────────
@@ -168,8 +145,10 @@ export function useCharacterBuild() {
     if (!allPositive) return false
 
     if (abilityMethod === 'pointBuy') return isValidPointBuy(abilities)
-    if (abilityMethod === 'standardArray') {
-      return ABILITY_KEYS.every((key) => standardArrayAssignment.value[key] !== null)
+    if (abilityMethod === 'custom') {
+      return ABILITY_KEYS.every(
+        (key) => abilities[key] >= CUSTOM_ABILITY_MIN && abilities[key] <= CUSTOM_ABILITY_MAX,
+      )
     }
     // diceRoll: just check all > 0
     return true
@@ -206,12 +185,9 @@ export function useCharacterBuild() {
 
     // abilities
     pointBuyRemaining,
-    standardArrayAssignment,
-    availableStandardValues,
     setAbilityMethod,
-    assignStandardArrayValue,
     rollAllAbilities,
-    rollSingleAbility,
+    resetAbilities,
 
     // professions
     totalLevel,

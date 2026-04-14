@@ -71,7 +71,7 @@ export interface Character {
 // ─── Form State ───────────────────────────────────────────────────────────────
 
 /** 能力值分配方式 */
-export type AbilityMethod = 'pointBuy' | 'standardArray' | 'diceRoll'
+export type AbilityMethod = 'pointBuy' | 'custom' | 'diceRoll'
 
 /** 建立角色表單的 draft 狀態 */
 export interface CharacterFormState {
