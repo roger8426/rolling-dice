@@ -10,10 +10,8 @@
       label="建立角色卡"
     >
       <Tab value="basic">
-        <template #label="{ active }">
-          <h3 class="text-content" :class="!active && isTabValid('basic') ? 'text-green-400' : ''">
-            基本資訊
-          </h3>
+        <template #label>
+          <h3 class="text-content">基本資訊 <span class="text-danger">*</span></h3>
         </template>
         <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildBasicTab
@@ -41,22 +39,6 @@
             @update:score="(k: AbilityKey, s: number) => (formState.abilities[k] = s)"
             @roll:all="rollAllAbilities"
             @reset:abilities="resetAbilities"
-          />
-        </div>
-      </Tab>
-
-      <Tab value="background">
-        <template #label="{ active }">
-          <h3
-            class="text-content"
-            :class="!active && isTabValid('background') ? 'text-green-400' : ''"
-          >
-            背景與技能
-          </h3>
-        </template>
-        <div class="bg-canvas-elevated p-4 sm:p-6">
-          <BusinessCharacterBuildBackgroundTab
-            :form-state="formState"
             @update:background="formState.background = $event"
             @update:skill="(s: string, l: string) => setSkillProficiency(s, l as ProficiencyLevel)"
           />
@@ -64,13 +46,8 @@
       </Tab>
 
       <Tab value="profile">
-        <template #label="{ active }">
-          <h3
-            class="text-content"
-            :class="!active && isTabValid('profile') ? 'text-green-400' : ''"
-          >
-            個人資料
-          </h3>
+        <template #label>
+          <h3 class="text-content">詳細設定</h3>
         </template>
         <div class="rounded-b-lg bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildProfileTab
@@ -110,7 +87,6 @@ const {
   addProfession,
   removeProfession,
   setSkillProficiency,
-  isTabValid,
   canSubmit,
   submit,
 } = useCharacterBuild()

@@ -33,8 +33,6 @@
             @update:model-value="emit('update:gender', String($event))"
           />
         </div>
-      </div>
-      <div class="flex items-end gap-2">
         <!-- 種族 -->
         <div>
           <label for="char-race" class="mb-1 block text-xs text-content"> 種族 </label>
@@ -50,6 +48,22 @@
             placeholder=""
             size="sm"
             @update:model-value="emit('update:race', String($event))"
+          />
+        </div>
+      </div>
+      <div class="flex items-end gap-2">
+        <!-- 背景 -->
+        <div class="min-w-12 grow">
+          <label for="char-background" class="mb-1 block text-xs text-content"> 背景 </label>
+          <Input
+            id="char-background"
+            class="build-input w-full"
+            border-color="var(--color-primary)"
+            :radius="0"
+            :model-value="formState.background"
+            size="sm"
+            outline
+            @update:model-value="emit('update:background', $event)"
           />
         </div>
         <!-- 陣營 -->
@@ -70,7 +84,7 @@
           />
         </div>
         <!-- 信仰 -->
-        <div class="min-w-12 flex-1">
+        <div class="min-w-12 grow">
           <label for="char-faith" class="mb-1 block text-xs text-content"> 信仰 </label>
           <Input
             id="char-faith"
@@ -156,12 +170,34 @@
       </div>
     </div>
 
-    <div class="flex-1 my-auto px-2">
-      <!-- 角色圖像設定區，等後端完成補上，先用圖片佔位 -->
-      <img src="../../../../assets/images/dnd.png" alt="" />
+    <div class="flex-1 self-start space-y-1 px-2">
+      <p class="text-xs text-content">技能熟練度</p>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div
+          v-for="(label, key) in SKILL_NAMES"
+          :key="key"
+          class="flex items-center justify-between rounded-md border border-border px-2 py-1.5"
+        >
+          <span class="text-xs text-content">{{ label }}</span>
+          <Select
+            :model-value="formState.skills[key] ?? 'none'"
+            :options="proficiencyOptions"
+            class="build-select"
+            border-color="var(--color-primary)"
+            dropdown-bg="var(--color-canvas)"
+            option-hover-color="var(--color-canvas-inset)"
+            option-selected-color="var(--color-canvas-muted)"
+            size="sm"
+            @update:model-value="emit('update:skill', key, $event as string)"
+          />
+        </div>
+      </div>
     </div>
     <!-- 屬性計算區 -->
     <div class="space-y-4 px-2 w-1/3">
+      <div>
+        <img src="../../../../assets/images/dnd.png" alt="" />
+      </div>
       <!-- Method selector -->
       <div>
         <p class="mb-1 text-xs text-content">分配方式</p>
@@ -292,10 +328,11 @@ import {
   POINT_BUY_MIN_SCORE,
   PROFESSION_NAMES,
   RACE_NAMES,
+  SKILL_NAMES,
 } from '~/constants/dnd'
 import { getPointBuyCost } from '~/helpers/ability'
 import type { AbilityMethod, CharacterFormState } from '~/types/business/character'
-import type { AbilityKey, ProfessionKey } from '~/types/business/dnd'
+import type { AbilityKey, ProfessionKey, SkillKey } from '~/types/business/dnd'
 
 const props = defineProps<{
   formState: CharacterFormState
@@ -307,6 +344,7 @@ const emit = defineEmits<{
   'update:name': [value: string]
   'update:gender': [value: string]
   'update:race': [value: string]
+  'update:background': [value: string]
   'update:alignment': [value: string]
   'update:faith': [value: string]
   add: []
@@ -315,6 +353,7 @@ const emit = defineEmits<{
   'update:level': [index: number, level: number]
   'update:method': [method: AbilityMethod]
   'update:score': [key: AbilityKey, score: number]
+  'update:skill': [skill: SkillKey, level: string]
   'roll:all': []
   'reset:abilities': []
 }>()
@@ -363,6 +402,12 @@ const isButtonDisabled = computed(() => {
 
   return professionsOver || everSelected
 })
+
+const proficiencyOptions: SelectOption[] = [
+  { value: 'none', label: '無' },
+  { value: 'proficient', label: '熟練' },
+  { value: 'expertise', label: '專精' },
+]
 
 const methods: { key: AbilityMethod; label: string }[] = [
   { key: 'custom', label: '自訂' },

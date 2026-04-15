@@ -14,9 +14,9 @@ import type {
 } from '~/types/business/character'
 import type { ProficiencyLevel } from '~/types/business/dnd'
 
-export type BuildTab = 'basic' | 'background' | 'profile'
+export type BuildTab = 'basic' | 'profile'
 
-const BUILD_TABS: BuildTab[] = ['basic', 'background', 'profile']
+const BUILD_TABS: BuildTab[] = ['basic', 'profile']
 
 function createDefaultAbilities(): AbilityScores {
   return Object.fromEntries(
@@ -124,7 +124,8 @@ export function useCharacterBuild() {
       formState.name.trim() !== '' &&
       formState.gender !== '' &&
       formState.race !== '' &&
-      formState.alignment !== ''
+      formState.alignment !== '' &&
+      formState.background.trim() !== ''
     )
   }
 
@@ -154,16 +155,10 @@ export function useCharacterBuild() {
     return true
   }
 
-  function isBackgroundTabValid(): boolean {
-    return formState.background.trim() !== ''
-  }
-
   function isTabValid(tab: BuildTab): boolean {
     switch (tab) {
       case 'basic':
         return isBasicTabValid() && isProfessionTabValid() && isAbilityTabValid()
-      case 'background':
-        return isBackgroundTabValid()
       case 'profile':
         return true // all optional
     }
