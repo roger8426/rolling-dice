@@ -11,7 +11,7 @@
     >
       <Tab value="basic">
         <template #label>
-          <h3 class="text-content">基本資訊</h3>
+          <span class="text-content">基本資訊</span>
         </template>
         <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildBasicTab
@@ -47,9 +47,9 @@
 
       <Tab value="profile">
         <template #label>
-          <h3 class="text-content">詳細設定</h3>
+          <span class="text-content">詳細設定</span>
         </template>
-        <div class="rounded-b-lg bg-canvas-elevated p-4 sm:p-6">
+        <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildProfileTab
             :form-state="formState"
             @update:age="formState.age = $event ? Number($event) : null"

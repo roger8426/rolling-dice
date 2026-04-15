@@ -1,10 +1,5 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center">
-      <Icon name="info" />
-      <p class="text-sm text-content-muted">本頁欄位皆為選填，可在建立完成後再補充。</p>
-    </div>
-
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
       <div>
         <label for="char-age" class="mb-1 block text-sm font-medium text-content">年齡</label>
@@ -63,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { Input, TextArea, Icon } from '@ui'
+import { Input, TextArea } from '@ui'
 import type { CharacterFormState } from '~/types/business/character'
 
 defineProps<{
