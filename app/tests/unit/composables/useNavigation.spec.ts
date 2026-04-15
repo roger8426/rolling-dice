@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mockRoute = reactive({ fullPath: '/initial' })
 
 async function getComposable() {
-  const { useNavigation, navItems } = await import('~/composables/useNavigation')
+  const { useNavigation, navItems } = await import('~/composables/ui/useNavigation')
   return { useNavigation, navItems }
 }
 

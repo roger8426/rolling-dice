@@ -54,9 +54,9 @@ export function useCharacterBuild() {
   // ─── Dice Roll ────────────────────────────────────────────────────────
 
   function rollAbilityScore(): number {
-    const rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1)
-    rolls.sort((a, b) => a - b)
-    return rolls[1]! + rolls[2]! + rolls[3]!
+    const rolls = rollDice(6, 4)
+    const sorted = [...rolls].sort((a, b) => a - b)
+    return sorted[1]! + sorted[2]! + sorted[3]!
   }
 
   function rollAllAbilities(): void {
