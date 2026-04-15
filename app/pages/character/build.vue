@@ -51,7 +51,15 @@
     </Tabs>
 
     <div class="mt-8 flex justify-end">
-      <Button :disabled="!canSubmit" :loading="isSubmitting" @click="submit"> 儲存角色卡 </Button>
+      <Button
+        :disabled="!canSubmit"
+        :loading="isSubmitting"
+        :radius="4"
+        bg-color="var(--color-primary)"
+        @click="submit"
+      >
+        儲存角色卡
+      </Button>
     </div>
   </div>
 </template>

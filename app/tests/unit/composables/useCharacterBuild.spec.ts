@@ -192,130 +192,23 @@ describe('useCharacterBuild — 技能熟練度', () => {
   })
 })
 
-// ─── 驗證邏輯 ──────────────────────────────────────────────────────────────────
-
-describe('useCharacterBuild — isTabValid (basic)', () => {
-  async function fillRequiredFields() {
-    const composable = await getComposable()
-    composable.formState.name = '測試角色'
-    composable.formState.gender = 'male'
-    composable.formState.race = 'human'
-    composable.formState.alignment = 'trueNeutral'
-    composable.formState.background = '士兵'
-    composable.formState.professions = [{ profession: 'fighter', level: 5 }]
-    return composable
-  }
-
-  it('所有必填欄位填寫完成且職業與屬性合法時，basic tab 應為 valid', async () => {
-    const { isTabValid } = await fillRequiredFields()
-    expect(isTabValid('basic')).toBe(true)
-  })
-
-  it('name 為空白時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.name = '   '
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('gender 為空字串時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.gender = ''
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('race 為空字串時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.race = ''
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('alignment 為空字串時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.alignment = ''
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('background 為空白時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.background = ''
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('職業未選擇（空字串）時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.professions[0]!.profession = ''
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('職業等級為 0 時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.professions[0]!.level = 0
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('職業等級超過 20 時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.professions[0]!.level = 21
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('總等級超過 20 時應為 invalid', async () => {
-    const { formState, isTabValid, addProfession } = await fillRequiredFields()
-    formState.professions[0]!.level = 15
-    addProfession()
-    formState.professions[1]!.profession = 'wizard'
-    formState.professions[1]!.level = 10
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('pointBuy 模式下屬性超出合法範圍時應為 invalid', async () => {
-    const { formState, isTabValid, setAbilityMethod } = await fillRequiredFields()
-    setAbilityMethod('pointBuy')
-    // 強制設定超出 pointBuy 範圍的值
-    formState.abilities.strength = 20
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('custom 模式下屬性為 0 時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.abilities.strength = 0
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('custom 模式下屬性超過 20 時應為 invalid', async () => {
-    const { formState, isTabValid } = await fillRequiredFields()
-    formState.abilities.strength = 21
-    expect(isTabValid('basic')).toBe(false)
-  })
-
-  it('profile tab 應始終為 valid（全為選填）', async () => {
-    const { isTabValid } = await getComposable()
-    expect(isTabValid('profile')).toBe(true)
-  })
-})
-
 // ─── canSubmit ──────────────────────────────────────────────────────────────
 
 describe('useCharacterBuild — canSubmit', () => {
-  it('所有 tab 皆 valid 時 canSubmit 應為 true', async () => {
+  it('角色名稱有填寫時 canSubmit 應為 true', async () => {
     const { formState, canSubmit } = await getComposable()
     formState.name = '完整角色'
-    formState.gender = 'female'
-    formState.race = 'elf'
-    formState.alignment = 'chaoticGood'
-    formState.background = '學者'
-    formState.professions = [{ profession: 'wizard', level: 3 }]
     expect(canSubmit.value).toBe(true)
   })
 
-  it('任一必填欄位缺漏時 canSubmit 應為 false', async () => {
+  it('角色名稱為空字串時 canSubmit 應為 false', async () => {
+    const { canSubmit } = await getComposable()
+    expect(canSubmit.value).toBe(false)
+  })
+
+  it('角色名稱為空白時 canSubmit 應為 false', async () => {
     const { formState, canSubmit } = await getComposable()
-    formState.name = '缺漏角色'
-    formState.gender = 'male'
-    // race 未填
-    formState.alignment = 'trueNeutral'
-    formState.background = '士兵'
-    formState.professions = [{ profession: 'fighter', level: 1 }]
+    formState.name = '   '
     expect(canSubmit.value).toBe(false)
   })
 })
@@ -330,11 +223,6 @@ describe('useCharacterBuild — submit', () => {
 
     const { formState, submit } = await getComposable()
     formState.name = '提交角色'
-    formState.gender = 'male'
-    formState.race = 'human'
-    formState.alignment = 'lawfulGood'
-    formState.background = '貴族'
-    formState.professions = [{ profession: 'paladin', level: 5 }]
 
     submit()
     expect(addSpy).toHaveBeenCalledOnce()
@@ -344,11 +232,6 @@ describe('useCharacterBuild — submit', () => {
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false（防重複點擊）', async () => {
     const { formState, submit, isSubmitting, canSubmit } = await getComposable()
     formState.name = '防重複角色'
-    formState.gender = 'female'
-    formState.race = 'elf'
-    formState.alignment = 'chaoticGood'
-    formState.background = '學者'
-    formState.professions = [{ profession: 'wizard', level: 3 }]
 
     expect(isSubmitting.value).toBe(false)
     submit()
@@ -363,11 +246,6 @@ describe('useCharacterBuild — submit', () => {
 
     const { formState, submit } = await getComposable()
     formState.name = '重複測試'
-    formState.gender = 'male'
-    formState.race = 'human'
-    formState.alignment = 'trueNeutral'
-    formState.background = '士兵'
-    formState.professions = [{ profession: 'fighter', level: 1 }]
 
     submit()
     submit()

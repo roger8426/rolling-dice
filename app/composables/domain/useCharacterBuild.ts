@@ -1,10 +1,5 @@
-import {
-  ABILITY_KEYS,
-  CUSTOM_ABILITY_MAX,
-  CUSTOM_ABILITY_MIN,
-  POINT_BUY_DEFAULT_SCORE,
-} from '~/constants/dnd'
-import { getRemainingPoints, isValidPointBuy } from '~/helpers/ability'
+import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
+import { getRemainingPoints } from '~/helpers/ability'
 import type {
   AbilityMethod,
   AbilityScores,
@@ -14,8 +9,6 @@ import type {
 import type { AbilityKey, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
 
 export type BuildTab = 'basic' | 'profile'
-
-const BUILD_TABS: BuildTab[] = ['basic', 'profile']
 
 function createDefaultAbilities(): AbilityScores {
   return Object.fromEntries(
@@ -130,52 +123,7 @@ export function useCharacterBuild() {
 
   // ─── Validation ───────────────────────────────────────────────────────
 
-  function isBasicTabValid(): boolean {
-    return (
-      formState.name.trim() !== '' &&
-      formState.gender !== '' &&
-      formState.race !== '' &&
-      formState.alignment !== '' &&
-      formState.background.trim() !== ''
-    )
-  }
-
-  function isProfessionTabValid(): boolean {
-    return (
-      formState.professions.length > 0 &&
-      formState.professions.every((p) => p.profession !== '' && p.level >= 1 && p.level <= 20) &&
-      totalLevel.value >= 1 &&
-      totalLevel.value <= 20
-    )
-  }
-
-  function isAbilityTabValid(): boolean {
-    const { abilityMethod, abilities } = formState
-    const allPositive = ABILITY_KEYS.every((key) => abilities[key] > 0)
-    if (!allPositive) return false
-
-    if (abilityMethod === 'pointBuy') return isValidPointBuy(abilities)
-    if (abilityMethod === 'custom') {
-      return ABILITY_KEYS.every(
-        (key) => abilities[key] >= CUSTOM_ABILITY_MIN && abilities[key] <= CUSTOM_ABILITY_MAX,
-      )
-    }
-    // diceRoll: just check all > 0
-    return true
-  }
-
-  function isTabValid(tab: BuildTab): boolean {
-    switch (tab) {
-      case 'basic':
-        return isBasicTabValid() && isProfessionTabValid() && isAbilityTabValid()
-      case 'profile':
-        return true // all optional
-    }
-  }
-
-  const canSubmit = computed(
-    () => !isSubmitting.value && BUILD_TABS.every((tab) => isTabValid(tab)),
-  )
+  const canSubmit = computed(() => !isSubmitting.value && formState.name.trim() !== '')
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
@@ -210,7 +158,6 @@ export function useCharacterBuild() {
     setSkillProficiency,
 
     // validation
-    isTabValid,
     canSubmit,
 
     // submit
