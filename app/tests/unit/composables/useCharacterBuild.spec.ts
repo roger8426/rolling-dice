@@ -341,6 +341,40 @@ describe('useCharacterBuild — submit', () => {
     expect(mockNavigateTo).toHaveBeenCalledWith('/character')
   })
 
+  it('submit 後 isSubmitting 應為 true，canSubmit 應為 false（防重複點擊）', async () => {
+    const { formState, submit, isSubmitting, canSubmit } = await getComposable()
+    formState.name = '防重複角色'
+    formState.gender = 'female'
+    formState.race = 'elf'
+    formState.alignment = 'chaoticGood'
+    formState.background = '學者'
+    formState.professions = [{ profession: 'wizard', level: 3 }]
+
+    expect(isSubmitting.value).toBe(false)
+    submit()
+    expect(isSubmitting.value).toBe(true)
+    expect(canSubmit.value).toBe(false)
+  })
+
+  it('submit 後再次呼叫 submit 不應重複執行', async () => {
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    const addSpy = vi.spyOn(store, 'addCharacter')
+
+    const { formState, submit } = await getComposable()
+    formState.name = '重複測試'
+    formState.gender = 'male'
+    formState.race = 'human'
+    formState.alignment = 'trueNeutral'
+    formState.background = '士兵'
+    formState.professions = [{ profession: 'fighter', level: 1 }]
+
+    submit()
+    submit()
+    expect(addSpy).toHaveBeenCalledOnce()
+    expect(mockNavigateTo).toHaveBeenCalledOnce()
+  })
+
   it('canSubmit 為 false 時 submit 不應執行任何動作', async () => {
     const { useCharacterStore } = await import('~/stores/character')
     const store = useCharacterStore()

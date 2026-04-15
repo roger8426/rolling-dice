@@ -161,12 +161,17 @@ export function useCharacterBuild() {
     }
   }
 
-  const canSubmit = computed(() => BUILD_TABS.every((tab) => isTabValid(tab)))
+  const canSubmit = computed(
+    () => !isSubmitting.value && BUILD_TABS.every((tab) => isTabValid(tab)),
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
+  const isSubmitting = ref(false)
+
   function submit(): void {
     if (!canSubmit.value) return
+    isSubmitting.value = true
     store.addCharacter(formState)
     navigateTo('/character')
   }
@@ -194,6 +199,7 @@ export function useCharacterBuild() {
     canSubmit,
 
     // submit
+    isSubmitting,
     submit,
   }
 }
