@@ -76,9 +76,9 @@ describe('useCharacterBuild — 職業管理', () => {
 
   it('removeProfession 應移除指定索引的職業', async () => {
     const { formState, addProfession, removeProfession } = await getComposable()
-    formState.professions[0]!.profession = 'fighter' as never
+    formState.professions[0]!.profession = 'fighter'
     addProfession()
-    formState.professions[1]!.profession = 'wizard' as never
+    formState.professions[1]!.profession = 'wizard'
     removeProfession(0)
     expect(formState.professions).toHaveLength(1)
     expect(formState.professions[0]!.profession).toBe('wizard')
@@ -202,7 +202,7 @@ describe('useCharacterBuild — isTabValid (basic)', () => {
     composable.formState.race = 'human'
     composable.formState.alignment = 'trueNeutral'
     composable.formState.background = '士兵'
-    composable.formState.professions = [{ profession: 'fighter' as never, level: 5 }]
+    composable.formState.professions = [{ profession: 'fighter', level: 5 }]
     return composable
   }
 
@@ -243,7 +243,7 @@ describe('useCharacterBuild — isTabValid (basic)', () => {
 
   it('職業未選擇（空字串）時應為 invalid', async () => {
     const { formState, isTabValid } = await fillRequiredFields()
-    formState.professions[0]!.profession = '' as never
+    formState.professions[0]!.profession = ''
     expect(isTabValid('basic')).toBe(false)
   })
 
@@ -263,7 +263,7 @@ describe('useCharacterBuild — isTabValid (basic)', () => {
     const { formState, isTabValid, addProfession } = await fillRequiredFields()
     formState.professions[0]!.level = 15
     addProfession()
-    formState.professions[1]!.profession = 'wizard' as never
+    formState.professions[1]!.profession = 'wizard'
     formState.professions[1]!.level = 10
     expect(isTabValid('basic')).toBe(false)
   })
@@ -304,7 +304,7 @@ describe('useCharacterBuild — canSubmit', () => {
     formState.race = 'elf'
     formState.alignment = 'chaoticGood'
     formState.background = '學者'
-    formState.professions = [{ profession: 'wizard' as never, level: 3 }]
+    formState.professions = [{ profession: 'wizard', level: 3 }]
     expect(canSubmit.value).toBe(true)
   })
 
@@ -315,7 +315,7 @@ describe('useCharacterBuild — canSubmit', () => {
     // race 未填
     formState.alignment = 'trueNeutral'
     formState.background = '士兵'
-    formState.professions = [{ profession: 'fighter' as never, level: 1 }]
+    formState.professions = [{ profession: 'fighter', level: 1 }]
     expect(canSubmit.value).toBe(false)
   })
 })
@@ -334,7 +334,7 @@ describe('useCharacterBuild — submit', () => {
     formState.race = 'human'
     formState.alignment = 'lawfulGood'
     formState.background = '貴族'
-    formState.professions = [{ profession: 'paladin' as never, level: 5 }]
+    formState.professions = [{ profession: 'paladin', level: 5 }]
 
     submit()
     expect(addSpy).toHaveBeenCalledOnce()

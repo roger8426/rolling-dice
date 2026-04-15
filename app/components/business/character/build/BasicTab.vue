@@ -4,7 +4,9 @@
       <div class="flex items-end gap-2">
         <!-- 角色名稱 -->
         <div class="min-w-20 flex-1">
-          <label for="char-name" class="mb-1 block text-xs text-content"> 角色名稱 </label>
+          <label for="char-name" class="mb-1 block text-xs text-content">
+            角色名稱 <span class="text-danger">*</span>
+          </label>
           <Input
             id="char-name"
             class="build-input w-full"
@@ -96,6 +98,32 @@
             @update:model-value="emit('update:faith', $event)"
           />
         </div>
+      </div>
+      <div>
+        <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
+        <Input
+          id="char-languages"
+          class="build-input w-full"
+          border-color="var(--color-primary)"
+          :radius="0"
+          :model-value="formState.languages"
+          size="sm"
+          outline
+          @update:model-value="emit('update:languages', $event)"
+        />
+      </div>
+      <div>
+        <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
+        <Input
+          id="char-tools"
+          class="build-input w-full"
+          border-color="var(--color-primary)"
+          :radius="0"
+          :model-value="formState.tools"
+          size="sm"
+          outline
+          @update:model-value="emit('update:tools', $event)"
+        />
       </div>
 
       <!-- 職業設定 -->
@@ -347,6 +375,8 @@ const emit = defineEmits<{
   'update:background': [value: string]
   'update:alignment': [value: string]
   'update:faith': [value: string]
+  'update:languages': [value: string]
+  'update:tools': [value: string]
   add: []
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]

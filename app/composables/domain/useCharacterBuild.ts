@@ -9,7 +9,6 @@ import type {
   AbilityMethod,
   AbilityScores,
   CharacterFormState,
-  ProfessionEntry,
   SkillProficiencies,
 } from '~/types/business/character'
 import type { ProficiencyLevel } from '~/types/business/dnd'
@@ -30,7 +29,7 @@ function createDefaultFormState(): CharacterFormState {
     gender: '',
     race: '',
     alignment: '',
-    professions: [{ profession: '' as ProfessionEntry['profession'], level: 1 }],
+    professions: [{ profession: '', level: 1 }],
     abilities: createDefaultAbilities(),
     abilityMethod: 'custom',
     skills: {},
@@ -96,7 +95,7 @@ export function useCharacterBuild() {
 
   function addProfession(): void {
     formState.professions.push({
-      profession: '' as ProfessionEntry['profession'],
+      profession: '',
       level: 1,
     })
   }
@@ -132,9 +131,7 @@ export function useCharacterBuild() {
   function isProfessionTabValid(): boolean {
     return (
       formState.professions.length > 0 &&
-      formState.professions.every(
-        (p) => (p.profession as string) !== '' && p.level >= 1 && p.level <= 20,
-      ) &&
+      formState.professions.every((p) => p.profession !== '' && p.level >= 1 && p.level <= 20) &&
       totalLevel.value >= 1 &&
       totalLevel.value <= 20
     )

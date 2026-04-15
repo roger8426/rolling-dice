@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { Character, CharacterFormState } from '~/types/business/character'
+import type { Character, CharacterFormState, ProfessionEntry } from '~/types/business/character'
 
 const STORAGE_KEY = 'rd:characters'
 
@@ -177,7 +177,7 @@ export const useCharacterStore = defineStore('character', () => {
       gender: formState.gender as Character['gender'],
       race: formState.race as Character['race'],
       alignment: formState.alignment as Character['alignment'],
-      professions: formState.professions,
+      professions: formState.professions as ProfessionEntry[],
       level: formState.professions.reduce((sum, p) => sum + p.level, 0),
       abilities: { ...formState.abilities },
       skills: { ...formState.skills },

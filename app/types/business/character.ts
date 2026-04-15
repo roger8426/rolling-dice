@@ -20,6 +20,14 @@ export interface ProfessionEntry {
   level: number
 }
 
+/** 表單用職業條目：允許尚未選擇職業的空值狀態 */
+export interface FormProfessionEntry {
+  /** 職業（空字串表示尚未選擇） */
+  profession: ProfessionKey | ''
+  /** 該職業等級（1–20） */
+  level: number
+}
+
 // ─── Abilities ────────────────────────────────────────────────────────────────
 
 /** 六項屬性分數，以 AbilityKey 為鍵 */
@@ -79,7 +87,7 @@ export interface CharacterFormState {
   gender: GenderKey | ''
   race: RaceKey | ''
   alignment: AlignmentKey | ''
-  professions: ProfessionEntry[]
+  professions: FormProfessionEntry[]
   abilities: AbilityScores
   abilityMethod: AbilityMethod
   skills: SkillProficiencies
