@@ -1,15 +1,14 @@
 <template>
-  <div class="space-y-4 px-2 w-1/3">
+  <div class="space-y-4 px-2">
     <div class="flex items-end gap-2">
       <!-- 角色名稱 -->
       <div class="min-w-20 flex-1">
         <label for="char-name" class="mb-1 block text-xs text-content">
           角色名稱 <span class="text-danger">*</span>
         </label>
-        <Input
+        <CommonAppInput
           id="char-name"
-          class="build-input w-full"
-          border-color="var(--color-primary)"
+          class="w-full"
           :radius="0"
           :model-value="formState.name"
           size="sm"
@@ -20,35 +19,27 @@
       <!-- 性別 -->
       <div>
         <label for="char-gender" class="mb-1 block text-xs text-content"> 性別 </label>
-        <Select
+        <CommonAppSelect
           id="char-gender"
-          class="build-select min-w-20"
-          border-color="var(--color-primary)"
-          dropdown-bg="var(--color-canvas)"
-          option-hover-color="var(--color-canvas-inset)"
-          option-selected-color="var(--color-canvas-muted)"
+          class="min-w-20"
           placeholder=""
           :model-value="formState.gender || null"
           :options="genderOptions"
           size="sm"
-          @update:model-value="emit('update:gender', String($event))"
+          @update:model-value="emit('update:gender', $event as typeof formState.gender)"
         />
       </div>
       <!-- 種族 -->
       <div>
         <label for="char-race" class="mb-1 block text-xs text-content"> 種族 </label>
-        <Select
+        <CommonAppSelect
           id="char-race"
-          class="build-select min-w-20"
-          border-color="var(--color-primary)"
-          dropdown-bg="var(--color-canvas)"
-          option-hover-color="var(--color-canvas-inset)"
-          option-selected-color="var(--color-canvas-muted)"
+          class="min-w-20"
           :model-value="formState.race || null"
           :options="raceOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:race', String($event))"
+          @update:model-value="emit('update:race', $event as typeof formState.race)"
         />
       </div>
     </div>
@@ -56,10 +47,9 @@
       <!-- 背景 -->
       <div class="min-w-12 grow">
         <label for="char-background" class="mb-1 block text-xs text-content"> 背景 </label>
-        <Input
+        <CommonAppInput
           id="char-background"
-          class="build-input w-full"
-          border-color="var(--color-primary)"
+          class="w-full"
           :radius="0"
           :model-value="formState.background"
           size="sm"
@@ -70,27 +60,22 @@
       <!-- 陣營 -->
       <div>
         <label for="char-alignment" class="mb-1 block text-xs text-content"> 陣營 </label>
-        <Select
+        <CommonAppSelect
           id="char-alignment"
-          class="build-select min-w-24"
-          border-color="var(--color-primary)"
-          dropdown-bg="var(--color-canvas)"
-          option-hover-color="var(--color-canvas-inset)"
-          option-selected-color="var(--color-canvas-muted)"
+          class="min-w-24"
           :model-value="formState.alignment || null"
           :options="alignmentOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:alignment', String($event))"
+          @update:model-value="emit('update:alignment', $event as typeof formState.alignment)"
         />
       </div>
       <!-- 信仰 -->
       <div class="min-w-12 grow">
         <label for="char-faith" class="mb-1 block text-xs text-content"> 信仰 </label>
-        <Input
+        <CommonAppInput
           id="char-faith"
-          class="build-input w-full"
-          border-color="var(--color-primary)"
+          class="w-full"
           :model-value="formState.faith"
           placeholder=""
           size="sm"
@@ -100,10 +85,9 @@
     </div>
     <div>
       <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
-      <Input
+      <CommonAppInput
         id="char-languages"
-        class="build-input w-full"
-        border-color="var(--color-primary)"
+        class="w-full"
         :radius="0"
         :model-value="formState.languages"
         size="sm"
@@ -113,10 +97,9 @@
     </div>
     <div>
       <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
-      <Input
+      <CommonAppInput
         id="char-tools"
-        class="build-input w-full"
-        border-color="var(--color-primary)"
+        class="w-full"
         :radius="0"
         :model-value="formState.tools"
         size="sm"
@@ -136,15 +119,11 @@
           <label :for="`prof-${index}`" class="mb-1 block text-xs text-content">
             職業 {{ index + 1 }}
           </label>
-          <Select
+          <CommonAppSelect
             :id="`prof-${index}`"
             :model-value="entry.profession || null"
             :options="getProfessionOptions(index)"
-            class="build-select w-full"
-            border-color="var(--color-primary)"
-            dropdown-bg="var(--color-canvas)"
-            option-hover-color="var(--color-canvas-inset)"
-            option-selected-color="var(--color-canvas-muted)"
+            class="w-full"
             size="sm"
             :placeholder="index === 0 ? '主職業' : '兼職'"
             @update:model-value="updateProfessionKey(index, $event as string)"
@@ -152,11 +131,10 @@
         </div>
         <div class="max-w-12">
           <label :for="`prof-level-${index}`" class="mb-1 block text-xs text-content"> 等級 </label>
-          <Input
+          <CommonAppInput
             :id="`prof-level-${index}`"
             type="number"
-            class="build-input w-full"
-            border-color="var(--color-primary)"
+            class="w-full"
             size="sm"
             :model-value="String(entry.level)"
             @update:model-value="updateProfessionLevel(index, $event)"
@@ -197,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Icon, Input, Select } from '@ui'
+import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
 import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
 import type { CharacterFormState } from '~/types/business/character'

@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 px-2 w-1/3">
+  <div class="space-y-4 px-2">
     <div>
       <img src="~/assets/images/dnd.png" alt="" />
     </div>
@@ -30,14 +30,14 @@
           {{ ABILITY_NAMES[key] }}（{{ formatModifier(abilities[key]) }}）
         </label>
 
-        <!-- Point Buy -->
-        <div v-if="abilityMethod === 'pointBuy'" class="flex items-center gap-1 py-0.5">
+        <!-- Stepper (pointBuy / custom) -->
+        <div v-if="abilityMethod !== 'diceRoll'" class="flex items-center gap-1 py-0.5">
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] <= POINT_BUY_MIN_SCORE"
+            :disabled="abilities[key] <= getMinScore()"
             aria-label="減少"
-            @click="adjustPointBuy(key, -1)"
+            @click="adjustAbility(key, -1)"
           >
             <Icon name="minus" :size="16" />
           </button>
@@ -47,40 +47,15 @@
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] >= POINT_BUY_MAX_SCORE || !canIncrement(key)"
+            :disabled="!canIncrease(key)"
             aria-label="增加"
-            @click="adjustPointBuy(key, 1)"
+            @click="adjustAbility(key, 1)"
           >
             <Icon name="plus" :size="16" />
           </button>
         </div>
 
-        <!-- Custom -->
-        <div v-else-if="abilityMethod === 'custom'" class="flex items-center gap-1 py-0.5">
-          <button
-            type="button"
-            class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] <= CUSTOM_ABILITY_MIN"
-            aria-label="減少"
-            @click="adjustCustomAbility(key, -1)"
-          >
-            <Icon name="minus" :size="16" />
-          </button>
-          <span class="w-8 text-center font-mono text-lg font-bold">
-            {{ abilities[key] }}
-          </span>
-          <button
-            type="button"
-            class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] >= CUSTOM_ABILITY_MAX"
-            aria-label="增加"
-            @click="adjustCustomAbility(key, 1)"
-          >
-            <Icon name="plus" :size="16" />
-          </button>
-        </div>
-
-        <!-- Dice Roll -->
+        <!-- Dice Roll (read-only) -->
         <div v-else class="flex items-center gap-1 py-0.5">
           <span class="w-8 text-center font-mono text-lg font-bold">
             {{ abilities[key] }}
@@ -153,23 +128,26 @@ function formatModifier(score: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`
 }
 
-function canIncrement(key: AbilityKey): boolean {
-  const current = props.abilities[key]
-  if (current >= POINT_BUY_MAX_SCORE) return false
-  const costDiff = getPointBuyCost(current + 1) - getPointBuyCost(current)
-  return costDiff <= props.pointBuyRemaining
+function getMinScore(): number {
+  return props.abilityMethod === 'pointBuy' ? POINT_BUY_MIN_SCORE : CUSTOM_ABILITY_MIN
 }
 
-function adjustPointBuy(key: AbilityKey, delta: number): void {
+function canIncrease(key: AbilityKey): boolean {
   const current = props.abilities[key]
-  const next = current + delta
-  if (next < POINT_BUY_MIN_SCORE || next > POINT_BUY_MAX_SCORE) return
-  emit('update:score', key, next)
+  if (props.abilityMethod === 'pointBuy') {
+    if (current >= POINT_BUY_MAX_SCORE) return false
+    const costDiff = getPointBuyCost(current + 1) - getPointBuyCost(current)
+    return costDiff <= props.pointBuyRemaining
+  }
+  return current < CUSTOM_ABILITY_MAX
 }
 
-function adjustCustomAbility(key: AbilityKey, delta: number): void {
+function adjustAbility(key: AbilityKey, delta: number): void {
   const current = props.abilities[key]
-  const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
+  const min = getMinScore()
+  const max = props.abilityMethod === 'pointBuy' ? POINT_BUY_MAX_SCORE : CUSTOM_ABILITY_MAX
+  const next = Math.max(min, Math.min(max, current + delta))
+  if (next === current) return
   emit('update:score', key, next)
 }
 

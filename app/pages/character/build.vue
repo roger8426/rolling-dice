@@ -13,54 +13,40 @@
         <template #label>
           <span class="text-content">基本資訊</span>
         </template>
-        <div class="bg-canvas-elevated p-4 sm:p-6">
-          <BusinessCharacterBuildBasicTab
-            :form-state="formState"
-            :total-level="totalLevel"
-            :point-buy-remaining="pointBuyRemaining"
-            @update:name="formState.name = $event"
-            @update:gender="formState.gender = $event as typeof formState.gender"
-            @update:race="formState.race = $event as typeof formState.race"
-            @update:alignment="formState.alignment = $event as typeof formState.alignment"
-            @update:faith="formState.faith = $event"
-            @add="addProfession"
-            @remove="removeProfession"
-            @update:profession="
-              (i: number, k: ProfessionKey) => {
-                if (formState.professions[i]) formState.professions[i].profession = k
-              }
-            "
-            @update:level="
-              (i: number, l: number) => {
-                if (formState.professions[i]) formState.professions[i].level = l
-              }
-            "
-            @update:method="setAbilityMethod"
-            @update:score="(k: AbilityKey, s: number) => (formState.abilities[k] = s)"
-            @roll:all="rollAllAbilities"
-            @reset:abilities="resetAbilities"
-            @update:background="formState.background = $event"
-            @update:skill="(s: SkillKey, l: ProficiencyLevel) => setSkillProficiency(s, l)"
-          />
-        </div>
+        <BusinessCharacterBuildBasicTab
+          :form-state="formState"
+          :total-level="totalLevel"
+          :point-buy-remaining="pointBuyRemaining"
+          @update:name="formState.name = $event"
+          @update:gender="formState.gender = $event as typeof formState.gender"
+          @update:race="formState.race = $event as typeof formState.race"
+          @update:alignment="formState.alignment = $event as typeof formState.alignment"
+          @update:faith="formState.faith = $event"
+          @add="addProfession"
+          @remove="removeProfession"
+          @update:profession="updateProfession"
+          @update:level="updateProfessionLevel"
+          @update:method="setAbilityMethod"
+          @update:score="updateAbilityScore"
+          @roll:all="rollAllAbilities"
+          @reset:abilities="resetAbilities"
+          @update:background="formState.background = $event"
+          @update:skill="setSkillProficiency"
+        />
       </Tab>
 
       <Tab value="profile">
         <template #label>
           <span class="text-content">詳細設定</span>
         </template>
-        <div class="bg-canvas-elevated p-4 sm:p-6">
-          <BusinessCharacterBuildProfileTab
-            :form-state="formState"
-            @update:age="formState.age = $event ? Number($event) : null"
-            @update:height="formState.height = $event"
-            @update:weight="formState.weight = $event"
-            @update:appearance="formState.appearance = $event"
-            @update:story="formState.story = $event"
-            @update:languages="formState.languages = $event"
-            @update:tools="formState.tools = $event"
-          />
-        </div>
+        <BusinessCharacterBuildProfileTab
+          :form-state="formState"
+          @update:age="formState.age = $event ? Number($event) : null"
+          @update:height="formState.height = $event"
+          @update:weight="formState.weight = $event"
+          @update:appearance="formState.appearance = $event"
+          @update:story="formState.story = $event"
+        />
       </Tab>
     </Tabs>
 
@@ -72,7 +58,6 @@
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
-import type { AbilityKey, ProficiencyLevel, ProfessionKey, SkillKey } from '~/types/business/dnd'
 
 useHead({ title: '建立角色卡 | Rolling Dice' })
 
@@ -86,22 +71,12 @@ const {
   totalLevel,
   addProfession,
   removeProfession,
+  updateProfession,
+  updateProfessionLevel,
+  updateAbilityScore,
   setSkillProficiency,
   isSubmitting,
   canSubmit,
   submit,
 } = useCharacterBuild()
 </script>
-
-<style scoped>
-/* 讓 build 頁面內所有 Input 元件套用 canvas-inset 背景 */
-:deep(.build-input) {
-  background-color: var(--color-canvas-inset);
-  border-radius: 0.375rem;
-}
-
-:deep(.build-select) {
-  background-color: var(--color-canvas-inset);
-  border-radius: 0.375rem;
-}
-</style>

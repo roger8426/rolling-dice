@@ -11,7 +11,7 @@ import type {
   CharacterFormState,
   SkillProficiencies,
 } from '~/types/business/character'
-import type { ProficiencyLevel } from '~/types/business/dnd'
+import type { AbilityKey, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
 
 export type BuildTab = 'basic' | 'profile'
 
@@ -105,6 +105,18 @@ export function useCharacterBuild() {
     formState.professions.splice(index, 1)
   }
 
+  function updateProfession(index: number, key: ProfessionKey): void {
+    if (formState.professions[index]) formState.professions[index].profession = key
+  }
+
+  function updateProfessionLevel(index: number, level: number): void {
+    if (formState.professions[index]) formState.professions[index].level = level
+  }
+
+  function updateAbilityScore(key: AbilityKey, score: number): void {
+    formState.abilities[key] = score
+  }
+
   // ─── Skills ───────────────────────────────────────────────────────────
 
   function setSkillProficiency(skill: string, level: ProficiencyLevel): void {
@@ -190,6 +202,9 @@ export function useCharacterBuild() {
     totalLevel,
     addProfession,
     removeProfession,
+    updateProfession,
+    updateProfessionLevel,
+    updateAbilityScore,
 
     // skills
     setSkillProficiency,

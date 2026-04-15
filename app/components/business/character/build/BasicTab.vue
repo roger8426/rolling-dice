@@ -1,6 +1,7 @@
 <template>
-  <div class="flex flex-col md:flex-row gap-2">
+  <div class="flex flex-col gap-2 bg-canvas-elevated p-4 sm:p-6 md:flex-row">
     <BusinessCharacterBuildCharacterInfoSection
+      class="w-full md:w-1/3"
       :form-state="formState"
       :total-level="totalLevel"
       @update:name="emit('update:name', $event)"
@@ -18,11 +19,13 @@
     />
 
     <BusinessCharacterBuildSkillProficiencyGrid
+      class="w-full md:w-1/3"
       :skills="formState.skills"
       @update:skill="(s, l) => emit('update:skill', s, l)"
     />
 
     <BusinessCharacterBuildAbilityScorePanel
+      class="w-full md:w-1/3"
       :abilities="formState.abilities"
       :ability-method="formState.abilityMethod"
       :point-buy-remaining="pointBuyRemaining"

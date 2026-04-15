@@ -8,14 +8,9 @@
         class="flex items-center justify-between rounded-md border border-border px-2 py-1.5"
       >
         <span class="text-xs text-content">{{ label }}</span>
-        <Select
+        <CommonAppSelect
           :model-value="skills[key] ?? 'none'"
           :options="proficiencyOptions"
-          class="build-select"
-          border-color="var(--color-primary)"
-          dropdown-bg="var(--color-canvas)"
-          option-hover-color="var(--color-canvas-inset)"
-          option-selected-color="var(--color-canvas-muted)"
           size="sm"
           @update:model-value="emit('update:skill', key, $event as ProficiencyLevel)"
         />
@@ -25,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { Select } from '@ui'
 import type { SelectOption } from '@ui'
 import { SKILL_NAMES } from '~/constants/dnd'
 import type { SkillProficiencies } from '~/types/business/character'
