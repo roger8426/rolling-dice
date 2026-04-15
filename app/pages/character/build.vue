@@ -11,7 +11,7 @@
     >
       <Tab value="basic">
         <template #label>
-          <h3 class="text-content">基本資訊 <span class="text-danger">*</span></h3>
+          <h3 class="text-content">基本資訊</h3>
         </template>
         <div class="bg-canvas-elevated p-4 sm:p-6">
           <BusinessCharacterBuildBasicTab
@@ -40,7 +40,7 @@
             @roll:all="rollAllAbilities"
             @reset:abilities="resetAbilities"
             @update:background="formState.background = $event"
-            @update:skill="(s: string, l: string) => setSkillProficiency(s, l as ProficiencyLevel)"
+            @update:skill="(s: SkillKey, l: ProficiencyLevel) => setSkillProficiency(s, l)"
           />
         </div>
       </Tab>
@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
-import type { AbilityKey, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
+import type { AbilityKey, ProficiencyLevel, ProfessionKey, SkillKey } from '~/types/business/dnd'
 
 useHead({ title: '建立角色卡 | Rolling Dice' })
 

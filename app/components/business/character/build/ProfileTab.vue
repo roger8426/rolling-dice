@@ -1,6 +1,9 @@
 <template>
   <div class="space-y-6">
-    <p class="text-sm text-content-muted">以下欄位皆為選填，可稍後再補充。</p>
+    <div class="flex items-center">
+      <Icon name="info" />
+      <p class="text-sm text-content-muted">本頁欄位皆為選填，可在建立完成後再補充。</p>
+    </div>
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
       <div>
@@ -56,34 +59,11 @@
         @update:model-value="$emit('update:story', $event)"
       />
     </div>
-
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <div>
-        <label for="char-languages" class="mb-1 block text-sm font-medium text-content">
-          語言
-        </label>
-        <Input
-          id="char-languages"
-          :model-value="formState.languages"
-          placeholder="例如：通用語, 精靈語"
-          @update:model-value="$emit('update:languages', $event)"
-        />
-      </div>
-      <div>
-        <label for="char-tools" class="mb-1 block text-sm font-medium text-content"> 工具 </label>
-        <Input
-          id="char-tools"
-          :model-value="formState.tools"
-          placeholder="例如：盜賊工具, 草藥包"
-          @update:model-value="$emit('update:tools', $event)"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Input, TextArea } from '@ui'
+import { Input, TextArea, Icon } from '@ui'
 import type { CharacterFormState } from '~/types/business/character'
 
 defineProps<{

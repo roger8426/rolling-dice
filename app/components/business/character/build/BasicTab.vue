@@ -216,7 +216,7 @@
             option-hover-color="var(--color-canvas-inset)"
             option-selected-color="var(--color-canvas-muted)"
             size="sm"
-            @update:model-value="emit('update:skill', key, $event as string)"
+            @update:model-value="emit('update:skill', key, $event as ProficiencyLevel)"
           />
         </div>
       </div>
@@ -360,7 +360,7 @@ import {
 } from '~/constants/dnd'
 import { getPointBuyCost } from '~/helpers/ability'
 import type { AbilityMethod, CharacterFormState } from '~/types/business/character'
-import type { AbilityKey, ProfessionKey, SkillKey } from '~/types/business/dnd'
+import type { AbilityKey, ProfessionKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
 const props = defineProps<{
   formState: CharacterFormState
@@ -383,7 +383,7 @@ const emit = defineEmits<{
   'update:level': [index: number, level: number]
   'update:method': [method: AbilityMethod]
   'update:score': [key: AbilityKey, score: number]
-  'update:skill': [skill: SkillKey, level: string]
+  'update:skill': [skill: SkillKey, level: ProficiencyLevel]
   'roll:all': []
   'reset:abilities': []
 }>()
