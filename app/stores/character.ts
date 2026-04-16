@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import type { Character, CharacterFormState, ProfessionEntry } from '~/types/business/character'
 
-const STORAGE_KEY = 'rd:characters'
+const STORAGE_KEY = 'roll-dice:characters'
 
 const MOCK_CHARACTERS: Character[] = [
   {
@@ -121,7 +121,7 @@ const MOCK_CHARACTERS: Character[] = [
       religion: 'proficient',
     },
     background: '侍祭',
-    faith: '乐翠拿',
+    faith: '樂翠拿',
     createdAt: '2025-04-01T00:00:00.000Z',
   },
   {

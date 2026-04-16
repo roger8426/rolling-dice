@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+  <div class="mx-auto max-w-6xl px-4 pb-6">
     <CommonPageHeader title="Detail" :show-back="true" />
     <p class="text-content-muted">（施工中）</p>
   </div>
@@ -7,4 +7,6 @@
 
 <script setup lang="ts">
 useHead({ title: '角色卡詳情 | Rolling Dice' })
+
+// const characterStore = useCharacterStore()
 </script>
