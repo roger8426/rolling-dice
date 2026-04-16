@@ -45,7 +45,7 @@
       <!-- Right: profession + level badge -->
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <span class="text-xs text-content-muted md:text-sm">
-          {{ character.professions.map((p) => PROFESSION_NAMES[p]).join(' / ') }}
+          {{ character.professions.map((p) => PROFESSION_NAMES[p.profession]).join(' / ') }}
         </span>
         <div
           class="rounded-full px-2.5 py-0.5 text-xs font-bold md:px-3 md:text-sm"
@@ -88,8 +88,8 @@ const TIER_CONFIG: Record<
     shadowRgb: '74, 122, 207',
   },
   legendary: {
-    textColor: 'var(--rd--color-accent)',
-    badgeBg: 'var(--rd--color-accent-soft)',
+    textColor: 'var(--rd--color-primary)',
+    badgeBg: 'var(--rd--color-primary-soft)',
     shadowRgb: '184, 134, 14',
   },
 }
@@ -115,7 +115,9 @@ watch(
 
 const hasAvatar = computed(() => !!props.character.avatar && !coverError.value)
 const coverSrc = computed(() =>
-  hasAvatar.value ? props.character.avatar! : professionImages[props.character.professions[0]!],
+  hasAvatar.value
+    ? props.character.avatar!
+    : professionImages[props.character.professions[0]!.profession],
 )
 
 function onCoverError() {

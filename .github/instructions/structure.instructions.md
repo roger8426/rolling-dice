@@ -37,7 +37,7 @@ rolling-dice/
 
 ```ts
 // nuxt.config.ts
-alias: { '@ui': './packages/ui' }
+alias: { '@ui': fileURLToPath(new URL('./packages/ui/dist/index.d.ts', import.meta.url))Ｆ }
 ```
 
 使用方式：
@@ -115,10 +115,12 @@ app/
 │  ├─ unit/
 │  │  ├─ composables/
 │  │  ├─ utils/
+│  │  ├─ helpers/
 │  │  └─ stores/
 │  ├─ component/
 │  └─ e2e/
 ├─ utils/
+├─ helpers/
 └─ app.vue
 ```
 
@@ -180,12 +182,20 @@ app/
 
 ### `utils`
 
-- 放置與 Vue / Nuxt reactivity 無直接耦合的前端純函式工具
+- 放置與 Vue / Nuxt reactivity 無直接耦合、且**不含業務語意**的前端純函式工具
+- 例如字串處理、日期格式化、本地存儲封裝、window 工具
+
+### `helpers`
+
+- 放置與業務邏輯強相關的純函式
+- 不含 Vue / Nuxt reactivity，不依賴 lifecycle 或 route context
+- 例如等級分級計算、技能點計算、D&D 規則判斷
+- 由 Nuxt 透過 `imports.dirs: ['helpers']` 設定自動匯入
 
 ### `tests/unit`
 
-- 放置 composables、utils、stores 的純邏輯單元測試
-- 子目錄依來源模組對應：`composables/`、`utils/`、`stores/`
+- 放置 composables、utils、helpers、stores 的純邏輯單元測試
+- 子目錄依來源模組對應：`composables/`、`utils/`、`helpers/`、`stores/`
 
 ### `tests/component`
 
@@ -255,11 +265,18 @@ app/
 2. 涉及 private runtime config、資料聚合、敏感資訊處理時，優先放在 server 層。
 3. 不要把 server-only 邏輯放到前端可直接存取的區域。
 
-### `utils/` 或 `helpers/`
+### `utils/`
 
-1. 放置與 Vue/Nuxt 無直接耦合的純函式工具。
+1. 放置與 Vue/Nuxt 無直接耦合、且**不含業務語意**的前端純函式工具。
 2. 若邏輯依賴 reactivity、lifecycle 或 route context，不應放入 utils。
-3. 不要把業務流程假裝包成 utils。
+3. 不要把業務邏輯假裝包成 utils，業務相關純函式應放入 `helpers/`。
+
+### `helpers/`
+
+1. 放置業務邏輯相關的純函式，例如規則計算、分級判斷、資料轉換邏輯。
+2. 不含 Vue/Nuxt reactivity，不依賴 lifecycle 或 route context。
+3. 由 Nuxt 透過 `imports.dirs` 設定自動匯入，使用方式與 `utils/` 一致。
+4. 若函式不含業務語意，應放入 `utils/` 而非 `helpers/`。
 
 ### `tests/`
 
@@ -307,7 +324,7 @@ app/
 
 當需要新增檔案時，應依下列順序判斷放置位置：
 
-1. 先判斷這個檔案屬於 page、component、composable、store、type、server 還是 utils。
+1. 先判斷這個檔案屬於 page、component、composable、store、type、server、utils 還是 helpers。
 2. 再判斷它是共用還是局部。
 3. 再判斷它是否應集中管理，或應貼近使用場景。
 4. 若無明確重用需求，不要預設建立過深層結構。
@@ -326,7 +343,7 @@ app/
 2. 不要把型別隨意散落在各檔案角落。
 3. 不要把局部一次性邏輯過早抽成全域共用模組。
 4. 不要讓 `stores/` 變成所有狀態的收容所。
-5. 不要讓 `utils/` 混入與 Vue/Nuxt 強耦合的邏輯。
+5. 不要讓 `utils/` 混入與 Vue/Nuxt 強耦合的邏輯，或混入業務邏輯（業務相關純函式應放入 `helpers/`）。
 6. 不要因為短期方便而破壞長期可維護性。
 7. 不要在沒有明確需求時建立過深的資料夾巢狀。
 8. 不要把測試檔散落在各模組角落而沒有統一策略，應在專案初期確認採用集中或 co-located 方式並保持一致。

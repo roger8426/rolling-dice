@@ -3,13 +3,15 @@
     <div class="flex min-w-0 items-center gap-2">
       <button
         v-if="showBack"
-        class="flex shrink-0 items-center rounded p-1 text-content-muted transition-colors hover:text-content"
+        class="flex shrink-0 items-center rounded p-1 text-content-soft transition-colors hover:text-content cursor-pointer"
         aria-label="返回上一頁"
         @click="handleBack"
       >
         <Icon name="chevron-left" :size="20" />
       </button>
-      <h2 class="truncate font-display text-lg font-bold text-content sm:text-xl">{{ title }}</h2>
+      <h2 class="truncate font-display text-lg font-bold text-primary sm:text-xl">
+        {{ title }}
+      </h2>
     </div>
     <slot name="actions" />
   </div>

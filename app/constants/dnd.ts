@@ -1,8 +1,10 @@
 import type {
   AbilityKey,
   AlignmentKey,
+  GenderKey,
   ProfessionKey,
   RaceKey,
+  SizeKey,
   SkillKey,
 } from '~/types/business/dnd'
 
@@ -38,24 +40,29 @@ export const ABILITY_NAMES: Record<AbilityKey, string> = {
 // ─── Skill ────────────────────────────────────────────────────────────────────
 
 export const SKILL_NAMES: Record<SkillKey, string> = {
-  acrobatics: '特技',
-  animalHandling: '馴獸',
-  arcana: '奧秘',
+  // 力量
   athletics: '運動',
-  deception: '欺瞞',
-  history: '歷史',
-  insight: '洞察',
-  intimidation: '威嚇',
-  investigation: '調查',
-  medicine: '醫藥',
-  nature: '自然',
-  perception: '察覺',
-  performance: '表演',
-  persuasion: '說服',
-  religion: '宗教',
+  // 敏捷
+  acrobatics: '特技',
   sleightOfHand: '巧手',
   stealth: '隱匿',
+  // 智力
+  arcana: '奧秘',
+  history: '歷史',
+  investigation: '調查',
+  nature: '自然',
+  religion: '宗教',
+  // 感知
+  animalHandling: '馴獸',
+  insight: '察言觀色',
+  medicine: '醫藥',
+  perception: '察覺',
   survival: '求生',
+  // 魅力
+  deception: '欺瞞',
+  intimidation: '威嚇',
+  performance: '表演',
+  persuasion: '說服',
 }
 
 // ─── Alignment ────────────────────────────────────────────────────────────────
@@ -86,3 +93,70 @@ export const RACE_NAMES: Record<RaceKey, string> = {
   dragonborn: '龍裔',
   aasimar: '阿斯莫',
 }
+
+// ─── Size ─────────────────────────────────────────────────────────────────────
+
+/** 體型中文名稱對照表 */
+export const SIZE_NAMES: Record<SizeKey, string> = {
+  tiny: '微型',
+  small: '小型',
+  medium: '中型',
+  large: '大型',
+  huge: '超大型',
+  gargantuan: '巨型',
+}
+
+// ─── Gender ───────────────────────────────────────────────────────────────────
+
+/** 性別中文名稱對照表 */
+export const GENDER_NAMES: Record<GenderKey, string> = {
+  male: '男性',
+  female: '女性',
+  nonBinary: '非二元',
+}
+
+// ─── Point Buy ────────────────────────────────────────────────────────────────
+
+/** 購點制總預算（D&D 5e 標準）*/
+export const POINT_BUY_BUDGET = 27
+
+/** 購點制單項屬性最低分數 */
+export const POINT_BUY_MIN_SCORE = 8
+
+/** 購點制單項屬性最高分數 */
+export const POINT_BUY_MAX_SCORE = 15
+
+/** 購點制費用查找表：key 為屬性分數，value 為所需點數（D&D 5e PHB 標準）*/
+export const POINT_BUY_COST_TABLE: Readonly<Record<number, number>> = {
+  8: 0,
+  9: 1,
+  10: 2,
+  11: 3,
+  12: 4,
+  13: 5,
+  14: 7,
+  15: 9,
+}
+
+// ─── Custom ─────────────────────────────────────────────────────────────────────
+
+/** 自訂模式屬性分數下限 */
+export const CUSTOM_ABILITY_MIN = 1
+
+/** 自訂模式屬性分數上限 */
+export const CUSTOM_ABILITY_MAX = 20
+
+// ─── Ability Defaults ─────────────────────────────────────────────────────────
+
+/** 購點制的各屬性初始分數 */
+export const POINT_BUY_DEFAULT_SCORE = 8
+
+/** 所有 AbilityKey，用於迭代 */
+export const ABILITY_KEYS: readonly AbilityKey[] = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'intelligence',
+  'wisdom',
+  'charisma',
+] as const

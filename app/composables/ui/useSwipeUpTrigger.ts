@@ -3,14 +3,19 @@ import { type Ref, onMounted, onUnmounted, watch } from 'vue'
 const MIN_SWIPE_UP_DELTA = 30
 const MIN_SCROLL_BOTTOM_SWIPE_DELTA = 60
 const SCROLL_BOTTOM_TOLERANCE = 20
+const TRIGGER_ZONE_HEIGHT = 100
 
 export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
   const { isNavOpen, openNav } = useNavigation()
 
   let touchStartY = 0
+  let touchStartX = 0
+  let isInTriggerZone = false
 
   function resetTouch() {
     touchStartY = 0
+    touchStartX = 0
+    isInTriggerZone = false
   }
 
   function isAtBottom(): boolean {
@@ -23,13 +28,20 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
 
   function onTouchStart(e: TouchEvent) {
     touchStartY = e.touches[0]?.clientY ?? 0
+    touchStartX = e.touches[0]?.clientX ?? 0
+    const innerHeight = getInnerHeight()
+    isInTriggerZone = innerHeight !== null && touchStartY >= innerHeight - TRIGGER_ZONE_HEIGHT
   }
 
   function onElementTouchEnd(e: TouchEvent) {
     e.stopPropagation() // 阻止 document handler 重複計算此次觸控
 
     const endY = e.changedTouches[0]?.clientY ?? touchStartY
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX
     const delta = endY - touchStartY
+    const deltaX = endX - touchStartX
+
+    if (Math.abs(deltaX) > Math.abs(delta)) return
 
     if (delta < -MIN_SWIPE_UP_DELTA && !isNavOpen.value) {
       openNav()
@@ -38,8 +50,20 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
   }
 
   function onDocumentTouchEnd(e: TouchEvent) {
+    if (!isInTriggerZone) {
+      resetTouch()
+      return
+    }
+
     const endY = e.changedTouches[0]?.clientY ?? touchStartY
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX
     const delta = endY - touchStartY
+    const deltaX = endX - touchStartX
+
+    if (Math.abs(deltaX) > Math.abs(delta)) {
+      resetTouch()
+      return
+    }
 
     if (delta < -MIN_SCROLL_BOTTOM_SWIPE_DELTA && isAtBottom() && !isNavOpen.value) {
       openNav()
@@ -50,6 +74,9 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
 
   // 桌面滾輪：已在頁面底部時繼續往下滾觸發 open
   function onWheel(e: WheelEvent) {
+    const innerHeight = getInnerHeight()
+    if (innerHeight === null || e.clientY < innerHeight - TRIGGER_ZONE_HEIGHT) return
+
     if (e.deltaY > 0 && isAtBottom() && !isNavOpen.value) {
       openNav()
     }
