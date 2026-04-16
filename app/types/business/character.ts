@@ -60,7 +60,7 @@ export interface Character {
   race: RaceKey
   alignment: AlignmentKey
   professions: ProfessionEntry[]
-  level: number
+  totalLevel: number // 角色總等級，等於所有職業等級之和
   abilities: AbilityScores
   skills: SkillProficiencies
   background: string

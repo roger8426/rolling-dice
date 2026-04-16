@@ -4,6 +4,10 @@
     <CommonPageHeader title="Characters" show-back>
       <template v-if="characterStore.characters.length > 0" #actions>
         <div class="flex flex-col items-end gap-2 xs:flex-row xs:items-center">
+          <!-- 測試用按鈕 -->
+          <Button bg-color="var(--color-danger)" @click="characterStore.resetCharacters">
+            重設 mock 資料
+          </Button>
           <!-- 排序模式 -->
           <Select
             v-model="sortKey"
@@ -114,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { Icon, Select } from '@ui'
+import { Icon, Select, Button } from '@ui'
 import type { SelectOption } from '@ui'
 
 useHead({ title: '角色卡 | Rolling Dice' })
@@ -143,8 +147,8 @@ const sortKey = ref<SortKey>('default')
 
 const sortedCharacters = computed(() => {
   const list = [...characterStore.characters]
-  if (sortKey.value === 'level-asc') return list.sort((a, b) => a.level - b.level)
-  if (sortKey.value === 'level-desc') return list.sort((a, b) => b.level - a.level)
+  if (sortKey.value === 'level-asc') return list.sort((a, b) => a.totalLevel - b.totalLevel)
+  if (sortKey.value === 'level-desc') return list.sort((a, b) => b.totalLevel - a.totalLevel)
   return list.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 })
 </script>

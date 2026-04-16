@@ -10,7 +10,7 @@ const MOCK_CHARACTER: Character = {
   race: 'human',
   alignment: 'trueNeutral',
   professions: [{ profession: 'fighter', level: 5 }],
-  level: 5,
+  totalLevel: 5,
   abilities: {
     strength: 15,
     dexterity: 14,
@@ -118,7 +118,7 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後 level 應為各職業等級的加總', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created.level).toBe(3)
+    expect(created.totalLevel).toBe(3)
   })
 
   it('新增後應同步寫入 localStorage', () => {
