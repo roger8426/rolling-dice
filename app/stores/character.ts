@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 import type { Character, CharacterFormState, ProfessionEntry } from '~/types/business/character'
+import type { AbilityKey } from '~/types/business/dnd'
+import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
 
 const STORAGE_KEY = 'roll-dice:characters'
 
@@ -16,13 +18,14 @@ const MOCK_CHARACTERS: Character[] = [
     ],
     totalLevel: 5,
     abilities: {
-      strength: 14,
-      dexterity: 16,
-      constitution: 13,
-      intelligence: 8,
-      wisdom: 15,
-      charisma: 10,
+      strength: { basicScore: 14, bonusScore: 0 },
+      dexterity: { basicScore: 16, bonusScore: 0 },
+      constitution: { basicScore: 13, bonusScore: 0 },
+      intelligence: { basicScore: 8, bonusScore: 0 },
+      wisdom: { basicScore: 15, bonusScore: 0 },
+      charisma: { basicScore: 10, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['strength', 'dexterity'],
     skills: { athletics: 'proficient', acrobatics: 'proficient' },
     background: '隱士',
     createdAt: '2025-01-01T00:00:00.000Z',
@@ -36,13 +39,14 @@ const MOCK_CHARACTERS: Character[] = [
     professions: [{ profession: 'wizard', level: 3 }],
     totalLevel: 3,
     abilities: {
-      strength: 8,
-      dexterity: 14,
-      constitution: 12,
-      intelligence: 16,
-      wisdom: 13,
-      charisma: 10,
+      strength: { basicScore: 8, bonusScore: 0 },
+      dexterity: { basicScore: 14, bonusScore: 0 },
+      constitution: { basicScore: 12, bonusScore: 0 },
+      intelligence: { basicScore: 16, bonusScore: 0 },
+      wisdom: { basicScore: 13, bonusScore: 0 },
+      charisma: { basicScore: 10, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['intelligence', 'wisdom'],
     skills: { arcana: 'proficient', history: 'proficient', investigation: 'proficient' },
     background: '學者',
     createdAt: '2025-01-15T00:00:00.000Z',
@@ -56,13 +60,14 @@ const MOCK_CHARACTERS: Character[] = [
     professions: [{ profession: 'rogue', level: 7 }],
     totalLevel: 7,
     abilities: {
-      strength: 10,
-      dexterity: 18,
-      constitution: 12,
-      intelligence: 14,
-      wisdom: 10,
-      charisma: 13,
+      strength: { basicScore: 10, bonusScore: 0 },
+      dexterity: { basicScore: 18, bonusScore: 0 },
+      constitution: { basicScore: 12, bonusScore: 0 },
+      intelligence: { basicScore: 14, bonusScore: 0 },
+      wisdom: { basicScore: 10, bonusScore: 0 },
+      charisma: { basicScore: 13, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['dexterity', 'intelligence'],
     skills: {
       stealth: 'expertise',
       sleightOfHand: 'proficient',
@@ -84,13 +89,14 @@ const MOCK_CHARACTERS: Character[] = [
     ],
     totalLevel: 13,
     abilities: {
-      strength: 8,
-      dexterity: 12,
-      constitution: 14,
-      intelligence: 10,
-      wisdom: 13,
-      charisma: 18,
+      strength: { basicScore: 8, bonusScore: 0 },
+      dexterity: { basicScore: 12, bonusScore: 0 },
+      constitution: { basicScore: 14, bonusScore: 0 },
+      intelligence: { basicScore: 10, bonusScore: 0 },
+      wisdom: { basicScore: 13, bonusScore: 0 },
+      charisma: { basicScore: 18, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['constitution', 'charisma'],
     skills: { persuasion: 'proficient', deception: 'proficient', arcana: 'proficient' },
     background: '貴族',
     createdAt: '2025-03-01T00:00:00.000Z',
@@ -107,13 +113,14 @@ const MOCK_CHARACTERS: Character[] = [
     ],
     totalLevel: 18,
     abilities: {
-      strength: 18,
-      dexterity: 10,
-      constitution: 14,
-      intelligence: 8,
-      wisdom: 14,
-      charisma: 16,
+      strength: { basicScore: 18, bonusScore: 0 },
+      dexterity: { basicScore: 10, bonusScore: 0 },
+      constitution: { basicScore: 14, bonusScore: 0 },
+      intelligence: { basicScore: 8, bonusScore: 0 },
+      wisdom: { basicScore: 14, bonusScore: 0 },
+      charisma: { basicScore: 16, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['wisdom', 'charisma'],
     skills: {
       athletics: 'proficient',
       medicine: 'proficient',
@@ -137,13 +144,14 @@ const MOCK_CHARACTERS: Character[] = [
     ],
     totalLevel: 20,
     abilities: {
-      strength: 20,
-      dexterity: 14,
-      constitution: 16,
-      intelligence: 8,
-      wisdom: 12,
-      charisma: 10,
+      strength: { basicScore: 20, bonusScore: 0 },
+      dexterity: { basicScore: 14, bonusScore: 0 },
+      constitution: { basicScore: 16, bonusScore: 0 },
+      intelligence: { basicScore: 8, bonusScore: 0 },
+      wisdom: { basicScore: 12, bonusScore: 0 },
+      charisma: { basicScore: 10, bonusScore: 0 },
     },
+    savingThrowProficiencies: ['strength', 'constitution'],
     skills: {
       athletics: 'expertise',
       survival: 'proficient',
@@ -171,15 +179,27 @@ export const useCharacterStore = defineStore('character', () => {
   }
 
   function addCharacter(formState: CharacterFormState): Character {
+    const professions = formState.professions as ProfessionEntry[]
+    const primaryProfession = professions[0]?.profession
+
+    const abilities = Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, { basicScore: formState.abilities[key], bonusScore: 0 }]),
+    ) as Record<AbilityKey, { basicScore: number; bonusScore: number }>
+
+    const savingThrowProficiencies: AbilityKey[] = primaryProfession
+      ? [...PROFESSION_CONFIG[primaryProfession].savingThrowProficiencies]
+      : []
+
     const character: Character = {
       id: crypto.randomUUID(),
       name: formState.name,
       gender: formState.gender as Character['gender'],
       race: formState.race as Character['race'],
       alignment: formState.alignment as Character['alignment'],
-      professions: formState.professions as ProfessionEntry[],
+      professions,
       totalLevel: formState.professions.reduce((sum, p) => sum + p.level, 0),
-      abilities: { ...formState.abilities },
+      abilities,
+      savingThrowProficiencies,
       skills: { ...formState.skills },
       background: formState.background,
       createdAt: new Date().toISOString(),

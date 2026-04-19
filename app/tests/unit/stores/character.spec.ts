@@ -12,13 +12,14 @@ const MOCK_CHARACTER: Character = {
   professions: [{ profession: 'fighter', level: 5 }],
   totalLevel: 5,
   abilities: {
-    strength: 15,
-    dexterity: 14,
-    constitution: 13,
-    intelligence: 12,
-    wisdom: 10,
-    charisma: 8,
+    strength: { basicScore: 15, bonusScore: 0 },
+    dexterity: { basicScore: 14, bonusScore: 0 },
+    constitution: { basicScore: 13, bonusScore: 0 },
+    intelligence: { basicScore: 12, bonusScore: 0 },
+    wisdom: { basicScore: 10, bonusScore: 0 },
+    charisma: { basicScore: 8, bonusScore: 0 },
   },
+  savingThrowProficiencies: ['strength', 'constitution'],
   skills: { athletics: 'proficient' },
   background: '士兵',
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -65,13 +66,13 @@ describe('useCharacterStore — 初始化', () => {
       name: expect.any(String),
       race: expect.any(String),
       professions: expect.any(Array),
-      level: expect.any(Number),
+      totalLevel: expect.any(Number),
       createdAt: expect.any(String),
     })
   })
 
   it('localStorage 有資料時應從 storage 載入，不覆寫', () => {
-    localStorage.setItem('rd:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     expect(store.characters).toHaveLength(1)
     expect(store.characters[0]!.id).toBe('test-001')
@@ -80,7 +81,7 @@ describe('useCharacterStore — 初始化', () => {
 
 describe('useCharacterStore — getById', () => {
   it('存在的 id 應回傳對應的 Character', () => {
-    localStorage.setItem('rd:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const result = store.getById('test-001')
     expect(result).toBeDefined()
@@ -124,24 +125,24 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後應同步寫入 localStorage', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    const stored = JSON.parse(localStorage.getItem('rd:characters')!)
+    const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
     expect(stored.some((c: Character) => c.id === created.id)).toBe(true)
   })
 })
 
 describe('useCharacterStore — removeCharacter', () => {
   it('刪除後該角色不應出現在 characters 中', () => {
-    localStorage.setItem('rd:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     store.removeCharacter('test-001')
     expect(store.getById('test-001')).toBeUndefined()
   })
 
   it('刪除後應同步更新 localStorage', () => {
-    localStorage.setItem('rd:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     store.removeCharacter('test-001')
-    const stored = JSON.parse(localStorage.getItem('rd:characters')!)
+    const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
     expect(stored.some((c: Character) => c.id === 'test-001')).toBe(false)
   })
 

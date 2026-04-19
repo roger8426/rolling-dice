@@ -5,6 +5,28 @@ import {
   POINT_BUY_MIN_SCORE,
 } from '~/constants/dnd'
 import type { AbilityKey } from '~/types/business/dnd'
+import type { AbilityScoreEntry } from '~/types/business/character'
+
+/**
+ * 計算屬性總分（基礎分數 + 獎勵加值）
+ */
+export function getTotalScore(entry: AbilityScoreEntry): number {
+  return entry.basicScore + entry.bonusScore
+}
+
+/**
+ * 計算屬性調整值：floor((totalScore - 10) / 2)
+ */
+export function getAbilityModifier(totalScore: number): number {
+  return Math.floor((totalScore - 10) / 2)
+}
+
+/**
+ * 將調整值格式化為帶正負號的字串，例如 `+2`、`-1`、`+0`
+ */
+export function formatModifier(modifier: number): string {
+  return modifier >= 0 ? `+${modifier}` : `${modifier}`
+}
 
 /**
  * 判斷單項屬性分數是否在購點制合法範圍內（8–15）

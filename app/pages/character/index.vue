@@ -143,7 +143,6 @@
       bg-color="var(--color-canvas-elevated)"
       text-color="var(--color-content)"
       border-color="var(--color-border)"
-      class="delete-modal"
     >
       <p class="text-md text-content-muted">刪除後無法復原，確定要刪除這張角色卡嗎？</p>
       <template #footer>

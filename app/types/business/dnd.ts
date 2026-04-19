@@ -15,6 +15,16 @@ export type ProfessionKey =
   | 'warlock' // 契術師
   | 'wizard' // 魔法師
 
+/** 職業靜態設定資料 */
+export interface ProfessionData {
+  /** 職業中文名稱 */
+  label: string
+  /** 生命骰面數（例如 12 代表 d12） */
+  hitDie: number
+  /** D&D 5e 標準豁免熟練屬性（兩項） */
+  savingThrowProficiencies: readonly AbilityKey[]
+}
+
 // ─── Ability ──────────────────────────────────────────────────────────────────
 
 export type AbilityKey =

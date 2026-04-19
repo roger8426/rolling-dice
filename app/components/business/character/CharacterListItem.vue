@@ -46,7 +46,9 @@
         <!-- Right: profession + level badge -->
         <div class="ml-auto flex shrink-0 items-center gap-2">
           <span class="text-xs text-content-muted md:text-sm">
-            {{ character.professions.map((p) => PROFESSION_NAMES[p.profession]).join(' / ') }}
+            {{
+              character.professions.map((p) => PROFESSION_CONFIG[p.profession].label).join(' / ')
+            }}
           </span>
           <div
             class="rounded-full px-2.5 py-0.5 text-xs font-bold md:px-3 md:text-sm"
@@ -74,7 +76,7 @@
 
 <script setup lang="ts">
 import { Badge, Icon } from '@ui'
-import { PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
+import { PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
 import type { Character, CharacterTier } from '~/types/business/character'
 
 const props = defineProps<{

@@ -67,7 +67,9 @@
               {{ RACE_NAMES[character.race] }}
             </Badge>
             <span class="text-xs text-content-muted">
-              {{ character.professions.map((p) => PROFESSION_NAMES[p.profession]).join(' / ') }}
+              {{
+                character.professions.map((p) => PROFESSION_CONFIG[p.profession].label).join(' / ')
+              }}
             </span>
           </div>
         </div>
@@ -87,7 +89,7 @@
 
 <script setup lang="ts">
 import { Badge, Card, Icon } from '@ui'
-import { PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
+import { PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
 import type { Character, CharacterTier } from '~/types/business/character'
 
 const props = defineProps<{

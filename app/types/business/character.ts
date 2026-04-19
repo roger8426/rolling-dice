@@ -30,21 +30,19 @@ export interface FormProfessionEntry {
 
 // ─── Abilities ────────────────────────────────────────────────────────────────
 
-/** 六項屬性分數，以 AbilityKey 為鍵 */
+/** 表單用六項屬性分數（純數字），以 AbilityKey 為鍵 */
 export type AbilityScores = Record<AbilityKey, number>
 
-/** 單項屬性資料：屬性值、調整值與豁免熟練狀態 */
-export interface AbilityScore {
-  /** 屬性原始分數（1–20） */
-  score: number
-  /** 調整值，計算方式：floor((score - 10) / 2) */
-  modifier: number
-  /** 豁免是否熟練 */
-  savingThrowProficient: boolean
+/** 角色屬性值儲存單元：基礎分數與獎勵加值 */
+export interface AbilityScoreEntry {
+  /** 建立角色時的初始屬性分數 */
+  basicScore: number
+  /** 升級或冒險途中獲得的屬性提升 */
+  bonusScore: number
 }
 
-/** 角色六項屬性完整資料，以 AbilityKey 為鍵，確保六項皆存在 */
-export type CharacterAbilities = Record<AbilityKey, AbilityScore>
+/** 角色六項屬性完整資料，以 AbilityKey 為鍵 */
+export type CharacterAbilityScores = Record<AbilityKey, AbilityScoreEntry>
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 
@@ -61,9 +59,11 @@ export interface Character {
   alignment: AlignmentKey
   professions: ProfessionEntry[]
   totalLevel: number // 角色總等級，等於所有職業等級之和
-  abilities: AbilityScores
+  abilities: CharacterAbilityScores
+  savingThrowProficiencies: AbilityKey[]
   skills: SkillProficiencies
   background: string
+  isJackOfAllTrades?: boolean // 是否全能高手（1/2 熟練）
   createdAt: string
   faith?: string
   age?: number
