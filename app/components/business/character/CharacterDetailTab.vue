@@ -134,51 +134,51 @@
       <div class="w-1/4 border border-primary h-100"></div>
     </section>
 
-    <section class="flex gap-4" aria-labelledby="section-abilities-saves">
-      <!-- 屬性與豁免 -->
-      <div class="flex flex-col gap-4 flex-1 w-1/2">
-        <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
-          屬性與豁免
-        </h2>
-        <div class="grid grid-cols-3 gap-3">
-          <div
-            v-for="key in ABILITY_KEYS"
-            :key="key"
-            class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
-          >
-            <span
-              class="text-xs text-content-muted"
-              :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
+    <div class="flex gap-4">
+      <section class="flex-1 w-1/2" aria-labelledby="section-abilities-saves">
+        <!-- 屬性與豁免 -->
+        <div class="flex flex-col gap-4">
+          <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
+            屬性與豁免
+          </h2>
+          <div class="grid grid-cols-3 gap-3">
+            <div
+              v-for="key in ABILITY_KEYS"
+              :key="key"
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
-              {{ ABILITY_NAMES[key] }}
-            </span>
-            <div class="flex items-center gap-2">
-              <span class="mt-1 text-2xl font-bold text-content">
-                {{ getTotalScore(character.abilities[key]) }}
-              </span>
               <span
-                class="text-sm"
-                :class="
-                  modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
-                "
+                class="text-xs text-content-muted"
+                :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
               >
-                {{ formatModifier(getAbilityModifier(getTotalScore(character.abilities[key]))) }}
+                {{ ABILITY_NAMES[key] }}
+              </span>
+              <div class="flex items-center gap-2">
+                <span class="mt-1 text-2xl font-bold text-content">
+                  {{ getTotalScore(character.abilities[key]) }}
+                </span>
+                <span
+                  class="text-sm"
+                  :class="
+                    modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
+                  "
+                >
+                  {{ formatModifier(getAbilityModifier(getTotalScore(character.abilities[key]))) }}
+                </span>
+              </div>
+              <span class="text-xs text-content-soft mt-1">
+                豁免
+                <span :class="modifierTextColor(savingThrowBonuses[key])">
+                  {{ formatModifier(savingThrowBonuses[key]) }}
+                </span>
               </span>
             </div>
-            <span class="text-xs text-content-soft mt-1">
-              豁免
-              <span :class="modifierTextColor(savingThrowBonuses[key])">
-                {{ formatModifier(savingThrowBonuses[key]) }}
-              </span>
-            </span>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section aria-labelledby="section-skills">
-      <!-- 技能熟練 -->
-      <div class="flex-1 w-1/2">
+      <section class="flex-1 w-1/2" aria-labelledby="section-skills">
+        <!-- 技能熟練 -->
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
           技能熟練度
         </h2>
@@ -199,8 +199,8 @@
             </span>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
     <!-- ─── 背景故事 ─────────────────────────────────────────────────────── -->
     <section aria-labelledby="section-background">
