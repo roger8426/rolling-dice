@@ -75,6 +75,30 @@ export const SKILL_NAMES: Record<SkillKey, string> = {
   persuasion: '說服',
 }
 
+// ─── Skill-Ability Mapping ────────────────────────────────────────────────────
+
+/** D&D 5e 技能與屬性對應表 */
+export const SKILL_TO_ABILITY_MAP: Record<SkillKey, AbilityKey> = {
+  athletics: 'strength',
+  acrobatics: 'dexterity',
+  sleightOfHand: 'dexterity',
+  stealth: 'dexterity',
+  arcana: 'intelligence',
+  history: 'intelligence',
+  investigation: 'intelligence',
+  nature: 'intelligence',
+  religion: 'intelligence',
+  animalHandling: 'wisdom',
+  insight: 'wisdom',
+  medicine: 'wisdom',
+  perception: 'wisdom',
+  survival: 'wisdom',
+  deception: 'charisma',
+  intimidation: 'charisma',
+  performance: 'charisma',
+  persuasion: 'charisma',
+}
+
 // ─── Alignment ────────────────────────────────────────────────────────────────
 
 export const ALIGNMENT_NAMES: Record<AlignmentKey, string> = {

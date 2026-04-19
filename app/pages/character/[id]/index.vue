@@ -57,6 +57,6 @@ const activeTab = ref('profile')
 const route = useRoute()
 const characterStore = useCharacterStore()
 
-const id = route.params.id as string
+const id = String(route.params.id)
 const character = computed(() => characterStore.getById(id))
 </script>

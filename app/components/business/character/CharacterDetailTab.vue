@@ -130,10 +130,11 @@
           </table>
         </div>
       </div>
+      <!-- TODO: 頭像 / 角色圖像區塊，待實作 -->
       <div class="w-1/4 border border-primary h-100"></div>
     </section>
 
-    <section class="flex gap-4" aria-labelledby="section-skills">
+    <section class="flex gap-4" aria-labelledby="section-abilities-saves">
       <!-- 屬性與豁免 -->
       <div class="flex flex-col gap-4 flex-1 w-1/2">
         <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
@@ -173,6 +174,9 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section aria-labelledby="section-skills">
       <!-- 技能熟練 -->
       <div class="flex-1 w-1/2">
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
@@ -221,6 +225,7 @@ import {
   PROFESSION_CONFIG,
   RACE_NAMES,
   SKILL_NAMES,
+  SKILL_TO_ABILITY_MAP,
 } from '~/constants/dnd'
 
 const props = defineProps<{
@@ -269,31 +274,10 @@ const savingThrowBonuses = computed(() => {
 
 // ─── Skill Computed ────────────────────────────────────────────────────────
 
-const SKILL_ABILITY_MAP: Record<SkillKey, AbilityKey> = {
-  athletics: 'strength',
-  acrobatics: 'dexterity',
-  sleightOfHand: 'dexterity',
-  stealth: 'dexterity',
-  arcana: 'intelligence',
-  history: 'intelligence',
-  investigation: 'intelligence',
-  nature: 'intelligence',
-  religion: 'intelligence',
-  animalHandling: 'wisdom',
-  insight: 'wisdom',
-  medicine: 'wisdom',
-  perception: 'wisdom',
-  survival: 'wisdom',
-  deception: 'charisma',
-  intimidation: 'charisma',
-  performance: 'charisma',
-  persuasion: 'charisma',
-}
-
 const skillList = computed(() => {
   const jackBonus = props.character.isJackOfAllTrades ? Math.floor(proficiencyBonus.value / 2) : 0
   return (Object.entries(SKILL_NAMES) as [SkillKey, string][]).map(([key, name]) => {
-    const abilityKey = SKILL_ABILITY_MAP[key]
+    const abilityKey = SKILL_TO_ABILITY_MAP[key]
     const mod = getAbilityModifier(getTotalScore(props.character.abilities[abilityKey]))
     const proficiency: ProficiencyLevel = props.character.skills[key] ?? 'none'
     const base = getSkillBonus(mod, proficiency, proficiencyBonus.value)
