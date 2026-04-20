@@ -37,8 +37,8 @@ const MOCK_CHARACTER: Character = {
   story: null,
   languages: null,
   tools: null,
-  weapons: null,
-  armors: null,
+  weaponProficiencies: null,
+  armorProficiencies: null,
   avatar: null,
 }
 
@@ -69,8 +69,8 @@ const MOCK_FORM_STATE: CharacterFormState = {
   story: '',
   languages: '',
   tools: '',
-  weapons: '',
-  armors: '',
+  weaponProficiencies: '',
+  armorProficiencies: '',
 }
 
 beforeEach(() => {
@@ -217,8 +217,10 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   story: '來自遠方的精靈法師',
   languages: '通用語, 精靈語',
   tools: '書法工具',
-  weapons: '',
-  armors: '',
+  weaponProficiencies: '',
+  armorProficiencies: '',
+  armorClass: { type: '', value: null, abilities: '' },
+  speedBonus: null,
 }
 
 describe('useCharacterStore — updateCharacter', () => {

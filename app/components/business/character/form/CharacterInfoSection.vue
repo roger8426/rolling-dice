@@ -117,10 +117,10 @@
           id="char-weapons"
           class="w-full"
           :radius="0"
-          :model-value="formState.weapons"
+          :model-value="formState.weaponProficiencies"
           size="sm"
           outline
-          @update:model-value="emit('update:weapons', $event)"
+          @update:model-value="emit('update:weaponProficiencies', $event)"
         />
       </div>
       <div class="min-w-0 flex-1">
@@ -129,10 +129,10 @@
           id="char-armor"
           class="w-full"
           :radius="0"
-          :model-value="formState.armors"
+          :model-value="formState.armorProficiencies"
           size="sm"
           outline
-          @update:model-value="emit('update:armors', $event)"
+          @update:model-value="emit('update:armorProficiencies', $event)"
         />
       </div>
     </div>
@@ -223,8 +223,8 @@ const emit = defineEmits<{
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]
-  'update:weapons': [value: string]
-  'update:armors': [value: string]
+  'update:weaponProficiencies': [value: string]
+  'update:armorProficiencies': [value: string]
   add: []
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]

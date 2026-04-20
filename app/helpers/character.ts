@@ -55,3 +55,17 @@ export function getClassHitPoints(hitDie: number, level: number, isPrimary: bool
   }
   return avg * level
 }
+
+/**
+ * 計算基礎護甲等級（無甲）：10 + 敏捷調整值
+ */
+export function getBaseArmorClass(dexModifier: number): number {
+  return 10 + dexModifier
+}
+
+/**
+ * 計算被動感知：10 + 感知（Perception）技能加值
+ */
+export function getPassivePerception(perceptionBonus: number): number {
+  return 10 + perceptionBonus
+}

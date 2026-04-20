@@ -44,8 +44,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
   {
@@ -78,8 +78,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
   {
@@ -117,8 +117,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
   {
@@ -154,8 +154,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
   {
@@ -196,8 +196,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
   {
@@ -239,8 +239,8 @@ const MOCK_CHARACTERS: Character[] = [
     story: null,
     languages: null,
     tools: null,
-    weapons: null,
-    armors: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     avatar: null,
   },
 ]
@@ -295,8 +295,8 @@ export const useCharacterStore = defineStore('character', () => {
       story: formState.story || null,
       languages: formState.languages || null,
       tools: formState.tools || null,
-      weapons: formState.weapons || null,
-      armors: formState.armors || null,
+      weaponProficiencies: formState.weaponProficiencies || null,
+      armorProficiencies: formState.armorProficiencies || null,
       avatar: null,
     }
     characters.value.push(character)
@@ -343,8 +343,8 @@ export const useCharacterStore = defineStore('character', () => {
       story: formState.story || null,
       languages: formState.languages || null,
       tools: formState.tools || null,
-      weapons: formState.weapons || null,
-      armors: formState.armors || null,
+      weaponProficiencies: formState.weaponProficiencies || null,
+      armorProficiencies: formState.armorProficiencies || null,
     }
 
     characters.value[index] = updated

@@ -12,8 +12,8 @@
       @update:faith="emit('update:faith', $event)"
       @update:languages="emit('update:languages', $event)"
       @update:tools="emit('update:tools', $event)"
-      @update:weapons="emit('update:weapons', $event)"
-      @update:armors="emit('update:armors', $event)"
+      @update:weapon-proficiencies="emit('update:weaponProficiencies', $event)"
+      @update:armor-proficiencies="emit('update:armorProficiencies', $event)"
       @add="emit('add')"
       @remove="emit('remove', $event)"
       @update:profession="(i, k) => emit('update:profession', i, k)"
@@ -57,8 +57,8 @@ const emit = defineEmits<{
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]
-  'update:weapons': [value: string]
-  'update:armors': [value: string]
+  'update:weaponProficiencies': [value: string]
+  'update:armorProficiencies': [value: string]
   add: []
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]

@@ -33,8 +33,8 @@ const MOCK_CHARACTER: Character = {
   story: '曾是王國的士兵',
   languages: '通用語, 精靈語',
   tools: '鍛造工具',
-  weapons: '長劍',
-  armors: '鎧甲',
+  weaponProficiencies: '長劍',
+  armorProficiencies: '鎧甲',
   avatar: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 }

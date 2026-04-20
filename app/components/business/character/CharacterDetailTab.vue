@@ -69,8 +69,8 @@
               <tr class="border-b border-border-soft">
                 <td class="py-2 text-content-soft">{{ character.languages || '—' }}</td>
                 <td class="py-2 text-content-soft">{{ character.tools || '—' }}</td>
-                <td class="py-2 text-content-soft">—</td>
-                <td class="py-2 text-content-soft">—</td>
+                <td class="py-2 text-content-soft">{{ character.weaponProficiencies || '—' }}</td>
+                <td class="py-2 text-content-soft">{{ character.armorProficiencies || '—' }}</td>
               </tr>
             </tbody>
           </table>
@@ -134,46 +134,86 @@
 
     <div class="flex flex-col sm:flex-row gap-4">
       <!-- 屬性與豁免 -->
-      <section class="flex-1 sm:w-1/2" aria-labelledby="section-abilities-saves">
-        <div class="flex flex-col gap-4">
-          <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
-            屬性與豁免
-          </h2>
-          <div class="grid grid-cols-3 gap-3">
-            <div
-              v-for="key in ABILITY_KEYS"
-              :key="key"
-              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
-            >
-              <span
-                class="text-xs text-content-muted"
-                :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
+      <div class="flex flex-col flex-1 sm:w-1/2 gap-4">
+        <section aria-labelledby="section-abilities-saves">
+          <div class="flex flex-col gap-4">
+            <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
+              屬性與豁免
+            </h2>
+            <div class="grid grid-cols-3 gap-3">
+              <div
+                v-for="key in ABILITY_KEYS"
+                :key="key"
+                class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
               >
-                {{ ABILITY_NAMES[key] }}
-              </span>
-              <div class="flex items-center gap-2">
-                <span class="mt-1 text-2xl font-bold text-content">
-                  {{ getTotalScore(character.abilities[key]) }}
-                </span>
                 <span
-                  class="text-sm"
-                  :class="
-                    modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
-                  "
+                  class="text-xs text-content-muted"
+                  :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
                 >
-                  {{ formatModifier(getAbilityModifier(getTotalScore(character.abilities[key]))) }}
+                  {{ ABILITY_NAMES[key] }}
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="mt-1 text-2xl font-bold text-content">
+                    {{ getTotalScore(character.abilities[key]) }}
+                  </span>
+                  <span
+                    class="text-sm"
+                    :class="
+                      modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
+                    "
+                  >
+                    {{
+                      formatModifier(getAbilityModifier(getTotalScore(character.abilities[key])))
+                    }}
+                  </span>
+                </div>
+                <span class="text-xs text-content-soft mt-1">
+                  豁免
+                  <span :class="modifierTextColor(savingThrowBonuses[key])">
+                    {{ formatModifier(savingThrowBonuses[key]) }}
+                  </span>
                 </span>
               </div>
-              <span class="text-xs text-content-soft mt-1">
-                豁免
-                <span :class="modifierTextColor(savingThrowBonuses[key])">
-                  {{ formatModifier(savingThrowBonuses[key]) }}
-                </span>
+            </div>
+          </div>
+        </section>
+        <section aria-labelledby="section-other-abilities">
+          <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
+            其他屬性
+          </h2>
+          <div class="grid grid-cols-4 gap-3 mt-4">
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">護甲值</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ baseAC }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">被動感知</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">移動速度</span>
+              <span class="mt-1 text-2xl font-bold text-content"
+                >30
+                <span class="text-xs font-normal text-content-muted">呎</span>
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">熟練加值</span>
+              <span class="mt-1 text-2xl font-bold" :class="modifierTextColor(proficiencyBonus)">
+                {{ formatModifier(proficiencyBonus) }}
               </span>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <!-- 技能熟練 -->
       <section class="flex-1 sm:w-1/2" aria-labelledby="section-skills">
@@ -237,6 +277,17 @@ const professionImages = getProfessionImages()
 const conModifier = computed(() =>
   getAbilityModifier(getTotalScore(props.character.abilities.constitution)),
 )
+
+const dexModifier = computed(() =>
+  getAbilityModifier(getTotalScore(props.character.abilities.dexterity)),
+)
+
+const baseAC = computed(() => getBaseArmorClass(dexModifier.value))
+
+const passivePerception = computed(() => {
+  const skill = skillList.value.find((s) => s.key === 'perception')
+  return getPassivePerception(skill?.bonus ?? 0)
+})
 
 const classHpRows = computed(() =>
   props.character.professions.map((entry, index) => {

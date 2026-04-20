@@ -1,6 +1,7 @@
 import type {
   AbilityKey,
   AlignmentKey,
+  ArmorType,
   GenderKey,
   ProfessionData,
   ProfessionKey,
@@ -148,7 +149,15 @@ export const GENDER_NAMES: Record<GenderKey, string> = {
   female: '女性',
   nonBinary: '非二元',
 }
+// ─── Armor Type ─────────────────────────────────────────────────────────────────
 
+/** 護甲類型中文名稱對照表 */
+export const ARMOR_TYPE_NAMES: Record<ArmorType, string> = {
+  none: '無甲',
+  light: '輕甲',
+  medium: '中甲',
+  heavy: '重甲',
+}
 // ─── Point Buy ────────────────────────────────────────────────────────────────
 
 /** 購點制總預算（D&D 5e 標準）*/

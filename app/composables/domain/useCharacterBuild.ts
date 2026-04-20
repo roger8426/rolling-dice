@@ -37,8 +37,8 @@ function createDefaultFormState(): CharacterFormState {
     story: '',
     languages: '',
     tools: '',
-    weapons: '',
-    armors: '',
+    weaponProficiencies: '',
+    armorProficiencies: '',
   }
 }
 

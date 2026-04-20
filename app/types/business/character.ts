@@ -1,6 +1,7 @@
 import type {
   AbilityKey,
   AlignmentKey,
+  ArmorType,
   GenderKey,
   ProfessionKey,
   ProficiencyLevel,
@@ -74,8 +75,8 @@ export interface Character {
   story: string | null
   languages: string | null
   tools: string | null
-  weapons: string | null
-  armors: string | null
+  weaponProficiencies: string | null
+  armorProficiencies: string | null
   avatar: string | null
 }
 
@@ -103,8 +104,8 @@ export interface CharacterFormStateBase {
   story: string
   languages: string
   tools: string
-  weapons: string
-  armors: string
+  weaponProficiencies: string
+  armorProficiencies: string
 }
 
 /** 建立角色表單的 draft 狀態 */
@@ -113,8 +114,24 @@ export interface CharacterFormState extends CharacterFormStateBase {
   abilityMethod: AbilityMethod
 }
 
+// ─── Armor Class ──────────────────────────────────────────────────────────────
+
+/** 護甲等級設定 */
+export interface ArmorClassConfig {
+  /** 護甲類型 */
+  type: ArmorType | ''
+  /** 護甲值（使用者自定義） */
+  value: number | null
+  /** 屬性調整值（使用者從六種屬性自選） */
+  abilities: AbilityKey | ''
+}
+
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
 export interface CharacterUpdateFormState extends CharacterFormStateBase {
   id: string
   abilities: CharacterAbilityScores
+  /** 護甲等級設定 */
+  armorClass: ArmorClassConfig
+  /** 額外移動速度加值，移動速度 = 30 + speedBonus */
+  speedBonus: number | null
 }
