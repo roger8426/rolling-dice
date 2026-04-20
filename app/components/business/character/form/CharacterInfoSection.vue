@@ -45,7 +45,7 @@
     </div>
     <div class="flex items-end gap-2">
       <!-- 背景 -->
-      <div class="min-w-12 grow">
+      <div class="min-w-12">
         <label for="char-background" class="mb-1 block text-xs text-content"> 背景 </label>
         <CommonAppInput
           id="char-background"
@@ -71,7 +71,7 @@
         />
       </div>
       <!-- 信仰 -->
-      <div class="min-w-12 grow">
+      <div class="min-w-12">
         <label for="char-faith" class="mb-1 block text-xs text-content"> 信仰 </label>
         <CommonAppInput
           id="char-faith"
@@ -83,55 +83,59 @@
         />
       </div>
     </div>
-    <div>
-      <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
-      <CommonAppInput
-        id="char-languages"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.languages"
-        size="sm"
-        outline
-        @update:model-value="emit('update:languages', $event)"
-      />
-    </div>
-    <div>
-      <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
-      <CommonAppInput
-        id="char-tools"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.tools"
-        size="sm"
-        outline
-        @update:model-value="emit('update:tools', $event)"
-      />
-    </div>
-    <div>
-      <label for="char-weapons" class="mb-1 block text-xs text-content"> 武器 </label>
-      <CommonAppInput
-        id="char-weapons"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.weapons"
-        size="sm"
-        outline
-        @update:model-value="emit('update:weapons', $event)"
-      />
-    </div>
-    <div>
-      <label for="char-armor" class="mb-1 block text-xs text-content"> 護甲 </label>
-      <CommonAppInput
-        id="char-armor"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.armors"
-        size="sm"
-        outline
-        @update:model-value="emit('update:armors', $event)"
-      />
-    </div>
 
+    <div class="flex items-end gap-2">
+      <div class="min-w-0 flex-1">
+        <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
+        <CommonAppInput
+          id="char-languages"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.languages"
+          size="sm"
+          outline
+          @update:model-value="emit('update:languages', $event)"
+        />
+      </div>
+      <div class="min-w-0 flex-1">
+        <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
+        <CommonAppInput
+          id="char-tools"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.tools"
+          size="sm"
+          outline
+          @update:model-value="emit('update:tools', $event)"
+        />
+      </div>
+    </div>
+    <div class="flex items-end gap-2">
+      <div class="min-w-0 flex-1">
+        <label for="char-weapons" class="mb-1 block text-xs text-content"> 武器 </label>
+        <CommonAppInput
+          id="char-weapons"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.weapons"
+          size="sm"
+          outline
+          @update:model-value="emit('update:weapons', $event)"
+        />
+      </div>
+      <div class="min-w-0 flex-1">
+        <label for="char-armor" class="mb-1 block text-xs text-content"> 護甲 </label>
+        <CommonAppInput
+          id="char-armor"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.armors"
+          size="sm"
+          outline
+          @update:model-value="emit('update:armors', $event)"
+        />
+      </div>
+    </div>
     <!-- 職業設定 -->
     <div class="space-y-4">
       <div

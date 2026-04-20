@@ -82,7 +82,7 @@ describe('useCharacterUpdate — 初始狀態', () => {
     const { formState } = await getComposable('update-001')
     expect(formState.faith).toBe('坦帕斯')
     expect(formState.age).toBe(35)
-    expect(formState.height).toBe('')
+    expect(formState.height).toBe('180cm')
   })
 
   it('應正確映射 isTough', async () => {

@@ -44,8 +44,14 @@ export function getSkillBonus(
 }
 
 /**
- * 計算單一職業的生命值（使用平均值公式）：(hitDie / 2 + 1) × level
+ * 計算單一職業的生命值
+ * - 主職業（isPrimary）第 1 級取滿生命骰，其餘等級使用平均值
+ * - 非主職業全部使用平均值：(hitDie / 2 + 1) × level
  */
-export function getClassHitPoints(hitDie: number, level: number): number {
-  return (Math.floor(hitDie / 2) + 1) * level
+export function getClassHitPoints(hitDie: number, level: number, isPrimary: boolean): number {
+  const avg = Math.floor(hitDie / 2) + 1
+  if (isPrimary && level >= 1) {
+    return hitDie + avg * (level - 1)
+  }
+  return avg * level
 }

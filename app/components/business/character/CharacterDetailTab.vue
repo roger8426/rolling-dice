@@ -239,9 +239,9 @@ const conModifier = computed(() =>
 )
 
 const classHpRows = computed(() =>
-  props.character.professions.map((entry) => {
+  props.character.professions.map((entry, index) => {
     const config = PROFESSION_CONFIG[entry.profession]
-    const hp = getClassHitPoints(config.hitDie, entry.level)
+    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
     const conBonus = conModifier.value * entry.level
     return {
       profession: entry.profession,
