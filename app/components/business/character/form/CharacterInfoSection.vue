@@ -107,6 +107,30 @@
         @update:model-value="emit('update:tools', $event)"
       />
     </div>
+    <div>
+      <label for="char-weapons" class="mb-1 block text-xs text-content"> 武器 </label>
+      <CommonAppInput
+        id="char-weapons"
+        class="w-full"
+        :radius="0"
+        :model-value="formState.weapons"
+        size="sm"
+        outline
+        @update:model-value="emit('update:weapons', $event)"
+      />
+    </div>
+    <div>
+      <label for="char-armor" class="mb-1 block text-xs text-content"> 護甲 </label>
+      <CommonAppInput
+        id="char-armor"
+        class="w-full"
+        :radius="0"
+        :model-value="formState.armors"
+        size="sm"
+        outline
+        @update:model-value="emit('update:armors', $event)"
+      />
+    </div>
 
     <!-- 職業設定 -->
     <div class="space-y-4">
@@ -195,6 +219,8 @@ const emit = defineEmits<{
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]
+  'update:weapons': [value: string]
+  'update:armors': [value: string]
   add: []
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]

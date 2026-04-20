@@ -37,6 +37,8 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     story: character.story ?? '',
     languages: character.languages ?? '',
     tools: character.tools ?? '',
+    weapons: character.weapons ?? '',
+    armors: character.armors ?? '',
   }
 }
 
@@ -153,5 +155,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     story: '',
     languages: '',
     tools: '',
+    weapons: '',
+    armors: '',
   }
 }

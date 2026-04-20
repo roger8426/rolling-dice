@@ -29,6 +29,17 @@ const MOCK_CHARACTER: Character = {
   isJackOfAllTrades: false,
   isTough: true,
   createdAt: '2026-01-01T00:00:00.000Z',
+  faith: null,
+  age: null,
+  height: null,
+  weight: null,
+  appearance: null,
+  story: null,
+  languages: null,
+  tools: null,
+  weapons: null,
+  armors: null,
+  avatar: null,
 }
 
 const MOCK_FORM_STATE: CharacterFormState = {
@@ -58,6 +69,8 @@ const MOCK_FORM_STATE: CharacterFormState = {
   story: '',
   languages: '',
   tools: '',
+  weapons: '',
+  armors: '',
 }
 
 beforeEach(() => {
@@ -143,10 +156,10 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created.isTough).toBe(true)
   })
 
-  it('isTough 為 false 時不應寫入角色資料', () => {
+  it('isTough 為 false 時應寫入 false', () => {
     const store = useCharacterStore()
     const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: false })
-    expect(created.isTough).toBeUndefined()
+    expect(created.isTough).toBe(false)
   })
 })
 
@@ -204,6 +217,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   story: '來自遠方的精靈法師',
   languages: '通用語, 精靈語',
   tools: '書法工具',
+  weapons: '',
+  armors: '',
 }
 
 describe('useCharacterStore — updateCharacter', () => {
@@ -266,7 +281,7 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(store.characters).toHaveLength(before)
   })
 
-  it('空字串的 optional 欄位更新後應為 undefined', () => {
+  it('空字串的 optional 欄位更新後應為 null', () => {
     localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
@@ -275,8 +290,8 @@ describe('useCharacterStore — updateCharacter', () => {
       age: null,
       height: '',
     })
-    expect(updated!.faith).toBeUndefined()
-    expect(updated!.age).toBeUndefined()
-    expect(updated!.height).toBeUndefined()
+    expect(updated!.faith).toBeNull()
+    expect(updated!.age).toBeNull()
+    expect(updated!.height).toBeNull()
   })
 })

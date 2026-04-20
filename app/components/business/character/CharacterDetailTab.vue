@@ -1,6 +1,9 @@
 <template>
   <div class="space-y-8 bg-canvas-elevated p-4">
-    <section class="flex items-start gap-8" aria-labelledby="section-basic">
+    <section
+      class="flex flex-col-reverse sm:flex-row items-start gap-8"
+      aria-labelledby="section-basic"
+    >
       <div class="flex-1 flex flex-col gap-4">
         <!-- 角色資訊 -->
         <h2 id="section-basic" class="font-display text-lg font-bold text-content">角色資訊</h2>
@@ -82,7 +85,7 @@
                 <th class="pb-2 pr-4 font-normal text-right">等級</th>
                 <th class="pb-2 pr-4 font-normal text-right">生命骰</th>
                 <th class="pb-2 pr-4 font-normal text-right">生命值</th>
-                <th class="pb-2 font-normal text-right">體質補正</th>
+                <th class="pb-2 font-normal text-right">體質</th>
                 <th class="pb-2 font-normal text-right">健壯</th>
               </tr>
             </thead>
@@ -108,22 +111,11 @@
                 <td class="py-2 pr-4 text-right text-content-soft">{{ row.level }}</td>
                 <td class="py-2 pr-4 text-right text-content-soft">d{{ row.hitDie }}</td>
                 <td class="py-2 pr-4 text-right text-content-soft">{{ row.hp }}</td>
-                <td class="py-2 text-right text-content-soft">
-                  {{ formatModifier(row.conBonus) }}
-                </td>
+                <td class="py-2 text-right text-content-soft">{{ row.conBonus }}</td>
                 <td class="py-2 text-right text-content-soft">
                   {{ character.isTough ? row.level * 2 : '-' }}
                 </td>
               </tr>
-              <!-- 其他 / 健壯 -->
-              <!-- <tr class="border-b border-border-soft text-content-muted">
-                <td class="py-2">移動速度</td>
-                <td class="py-2">-</td>
-                <td class="py-2">AC</td>
-                <td class="py-2">10</td>
-                <td class="py-2">其它</td>
-                <td class="py-2 pr-4 text-right">—</td>
-              </tr> -->
             </tbody>
             <tfoot>
               <tr class="font-bold text-content">
@@ -137,12 +129,12 @@
         </div>
       </div>
       <!-- TODO: 頭像 / 角色圖像區塊，待實作 -->
-      <div class="w-1/4 border border-primary h-100"></div>
+      <div class="sm:w-1/4 md:w-1/3 border border-primary h-100 w-full"></div>
     </section>
 
-    <div class="flex gap-4">
-      <section class="flex-1 w-1/2" aria-labelledby="section-abilities-saves">
-        <!-- 屬性與豁免 -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- 屬性與豁免 -->
+      <section class="flex-1 sm:w-1/2" aria-labelledby="section-abilities-saves">
         <div class="flex flex-col gap-4">
           <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
             屬性與豁免
@@ -183,8 +175,8 @@
         </div>
       </section>
 
-      <section class="flex-1 w-1/2" aria-labelledby="section-skills">
-        <!-- 技能熟練 -->
+      <!-- 技能熟練 -->
+      <section class="flex-1 sm:w-1/2" aria-labelledby="section-skills">
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
           技能熟練度
         </h2>

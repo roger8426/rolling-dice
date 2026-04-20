@@ -119,3 +119,9 @@ export type GenderKey =
   | 'male' // 男性
   | 'female' // 女性
   | 'nonBinary' // 非二元
+
+// ─── Armor / Weapon ────────────────────────────────────────────────────────────────
+
+export type ArmorType = 'light' | 'medium' | 'heavy' | 'none'
+
+export type WeaponType = 'simple' | 'martial'

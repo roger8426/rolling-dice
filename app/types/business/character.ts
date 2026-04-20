@@ -64,17 +64,19 @@ export interface Character {
   skills: SkillProficiencies
   background: string
   isJackOfAllTrades: boolean // 是否全能高手（1/2 熟練）
-  isTough?: boolean // 是否具有健壯特質（每等額外 2 HP）
+  isTough: boolean // 是否具有健壯特質（每等額外 2 HP）
   createdAt: string
-  faith?: string
-  age?: number
-  height?: string
-  weight?: string
-  appearance?: string
-  story?: string
-  languages?: string
-  tools?: string
-  avatar?: string
+  faith: string | null
+  age: number | null
+  height: string | null
+  weight: string | null
+  appearance: string | null
+  story: string | null
+  languages: string | null
+  tools: string | null
+  weapons: string | null
+  armors: string | null
+  avatar: string | null
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -101,6 +103,8 @@ export interface CharacterFormStateBase {
   story: string
   languages: string
   tools: string
+  weapons: string
+  armors: string
 }
 
 /** 建立角色表單的 draft 狀態 */
