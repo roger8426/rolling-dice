@@ -83,6 +83,7 @@
                 <th class="pb-2 pr-4 font-normal text-right">生命骰</th>
                 <th class="pb-2 pr-4 font-normal text-right">生命值</th>
                 <th class="pb-2 font-normal text-right">體質補正</th>
+                <th class="pb-2 font-normal text-right">健壯</th>
               </tr>
             </thead>
             <tbody>
@@ -110,21 +111,26 @@
                 <td class="py-2 text-right text-content-soft">
                   {{ formatModifier(row.conBonus) }}
                 </td>
+                <td class="py-2 text-right text-content-soft">
+                  {{ character.isTough ? row.level * 2 : '-' }}
+                </td>
               </tr>
-              <!-- 保留：其他 / 健壯 -->
-              <tr class="border-b border-border-soft text-content-muted">
+              <!-- 其他 / 健壯 -->
+              <!-- <tr class="border-b border-border-soft text-content-muted">
+                <td class="py-2">移動速度</td>
+                <td class="py-2">-</td>
+                <td class="py-2">AC</td>
+                <td class="py-2">10</td>
                 <td class="py-2">其它</td>
                 <td class="py-2 pr-4 text-right">—</td>
-                <td class="py-2 pr-4 text-end">健壯</td>
-                <td class="py-2 text-right" colspan="2">—</td>
-              </tr>
+              </tr> -->
             </tbody>
             <tfoot>
               <tr class="font-bold text-content">
                 <td class="pt-2 pr-4">合計</td>
                 <td class="pt-2 pr-4 text-right">{{ character.totalLevel }}</td>
                 <td class="pt-2 pr-4 text-right">—</td>
-                <td class="pt-2 text-right" colspan="2">{{ totalHp }}</td>
+                <td class="pt-2 text-right" colspan="3">{{ totalHp }}</td>
               </tr>
             </tfoot>
           </table>
@@ -256,8 +262,10 @@ const classHpRows = computed(() =>
   }),
 )
 
-const totalHp = computed(() =>
-  classHpRows.value.reduce((sum, row) => sum + row.hp + row.conBonus, 0),
+const toughBonus = computed(() => (props.character.isTough ? props.character.totalLevel * 2 : 0))
+
+const totalHp = computed(
+  () => classHpRows.value.reduce((sum, row) => sum + row.hp + row.conBonus, 0) + toughBonus.value,
 )
 
 const proficiencyBonus = computed(() => getProficiencyBonus(props.character.totalLevel))

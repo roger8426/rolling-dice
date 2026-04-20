@@ -28,6 +28,7 @@ function createDefaultFormState(): CharacterFormState {
     skills: {},
     background: '',
     isJackOfAllTrades: false,
+    isTough: false,
     faith: '',
     age: null,
     height: '',

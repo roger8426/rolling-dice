@@ -26,6 +26,8 @@ const MOCK_CHARACTER: Character = {
   savingThrowProficiencies: ['strength', 'constitution'],
   skills: { athletics: 'proficient' },
   background: '士兵',
+  isJackOfAllTrades: false,
+  isTough: true,
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -47,6 +49,7 @@ const MOCK_FORM_STATE: CharacterFormState = {
   skills: { arcana: 'proficient' },
   background: '學者',
   isJackOfAllTrades: false,
+  isTough: false,
   faith: '',
   age: null,
   height: '',
@@ -133,6 +136,18 @@ describe('useCharacterStore — addCharacter', () => {
     const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
     expect(stored.some((c: Character) => c.id === created.id)).toBe(true)
   })
+
+  it('isTough 為 true 時應寫入角色資料', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: true })
+    expect(created.isTough).toBe(true)
+  })
+
+  it('isTough 為 false 時不應寫入角色資料', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: false })
+    expect(created.isTough).toBeUndefined()
+  })
 })
 
 describe('useCharacterStore — removeCharacter', () => {
@@ -180,6 +195,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   skills: { arcana: 'proficient', religion: 'proficient' },
   background: '學者',
   isJackOfAllTrades: true,
+  isTough: false,
   faith: '密斯特拉',
   age: 120,
   height: '165cm',

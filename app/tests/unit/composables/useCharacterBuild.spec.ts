@@ -62,6 +62,11 @@ describe('useCharacterBuild — 初始狀態', () => {
     const { canSubmit } = await getComposable()
     expect(canSubmit.value).toBe(false)
   })
+
+  it('formState.isTough 初始值應為 false', async () => {
+    const { formState } = await getComposable()
+    expect(formState.isTough).toBe(false)
+  })
 })
 
 // ─── 職業管理 ──────────────────────────────────────────────────────────────────

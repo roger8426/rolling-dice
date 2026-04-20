@@ -23,6 +23,8 @@ const MOCK_CHARACTER: Character = {
   savingThrowProficiencies: ['strength', 'constitution'],
   skills: { athletics: 'proficient' },
   background: '士兵',
+  isJackOfAllTrades: false,
+  isTough: true,
   faith: '坦帕斯',
   age: 35,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -72,6 +74,11 @@ describe('useCharacterUpdate — 初始狀態', () => {
     expect(formState.faith).toBe('坦帕斯')
     expect(formState.age).toBe(35)
     expect(formState.height).toBe('')
+  })
+
+  it('應正確映射 isTough', async () => {
+    const { formState } = await getComposable('update-001')
+    expect(formState.isTough).toBe(true)
   })
 
   it('應正確映射 professions', async () => {

@@ -63,7 +63,8 @@ export interface Character {
   savingThrowProficiencies: AbilityKey[]
   skills: SkillProficiencies
   background: string
-  isJackOfAllTrades?: boolean // 是否全能高手（1/2 熟練）
+  isJackOfAllTrades: boolean // 是否全能高手（1/2 熟練）
+  isTough?: boolean // 是否具有健壯特質（每等額外 2 HP）
   createdAt: string
   faith?: string
   age?: number
@@ -91,6 +92,7 @@ export interface CharacterFormStateBase {
   skills: SkillProficiencies
   background: string
   isJackOfAllTrades: boolean
+  isTough: boolean
   faith: string
   age: number | null
   height: string
