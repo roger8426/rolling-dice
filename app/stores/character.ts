@@ -1,5 +1,10 @@
 import { ref } from 'vue'
-import type { Character, CharacterFormState, ProfessionEntry } from '~/types/business/character'
+import type {
+  Character,
+  CharacterFormState,
+  CharacterUpdateFormState,
+  ProfessionEntry,
+} from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
 
@@ -203,6 +208,7 @@ export const useCharacterStore = defineStore('character', () => {
       skills: { ...formState.skills },
       background: formState.background,
       createdAt: new Date().toISOString(),
+      ...(formState.isJackOfAllTrades && { isJackOfAllTrades: true }),
       ...(formState.faith && { faith: formState.faith }),
       ...(formState.age != null && { age: formState.age }),
       ...(formState.height && { height: formState.height }),
@@ -222,6 +228,46 @@ export const useCharacterStore = defineStore('character', () => {
     saveToStorage(characters.value)
   }
 
+  function updateCharacter(id: string, formState: CharacterUpdateFormState): Character | undefined {
+    const index = characters.value.findIndex((c) => c.id === id)
+    if (index === -1) return undefined
+
+    const existing = characters.value[index]!
+    const professions = formState.professions as ProfessionEntry[]
+    const primaryProfession = professions[0]?.profession
+
+    const savingThrowProficiencies: AbilityKey[] = primaryProfession
+      ? [...PROFESSION_CONFIG[primaryProfession].savingThrowProficiencies]
+      : []
+
+    const updated: Character = {
+      ...existing,
+      name: formState.name,
+      gender: formState.gender as Character['gender'],
+      race: formState.race as Character['race'],
+      alignment: formState.alignment as Character['alignment'],
+      professions,
+      totalLevel: professions.reduce((sum, p) => sum + p.level, 0),
+      abilities: { ...formState.abilities },
+      savingThrowProficiencies,
+      skills: { ...formState.skills },
+      background: formState.background,
+      isJackOfAllTrades: formState.isJackOfAllTrades || undefined,
+      faith: formState.faith || undefined,
+      age: formState.age ?? undefined,
+      height: formState.height || undefined,
+      weight: formState.weight || undefined,
+      appearance: formState.appearance || undefined,
+      story: formState.story || undefined,
+      languages: formState.languages || undefined,
+      tools: formState.tools || undefined,
+    }
+
+    characters.value[index] = updated
+    saveToStorage(characters.value)
+    return updated
+  }
+
   /**
    * 重設角色資料為預設的 MOCK_CHARACTERS，並儲存到 localStorage。
    * 該方法不進測試，僅供開發階段使用，以快速恢復初始資料狀態。
@@ -231,5 +277,5 @@ export const useCharacterStore = defineStore('character', () => {
     saveToStorage(characters.value)
   }
 
-  return { characters, getById, addCharacter, removeCharacter, resetCharacters }
+  return { characters, getById, addCharacter, updateCharacter, removeCharacter, resetCharacters }
 })

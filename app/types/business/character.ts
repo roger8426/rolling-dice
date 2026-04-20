@@ -81,17 +81,16 @@ export interface Character {
 /** 能力值分配方式 */
 export type AbilityMethod = 'pointBuy' | 'custom' | 'diceRoll'
 
-/** 建立角色表單的 draft 狀態 */
-export interface CharacterFormState {
+/** 角色表單共用基底欄位 */
+export interface CharacterFormStateBase {
   name: string
   gender: GenderKey | ''
   race: RaceKey | ''
   alignment: AlignmentKey | ''
   professions: FormProfessionEntry[]
-  abilities: AbilityScores
-  abilityMethod: AbilityMethod
   skills: SkillProficiencies
   background: string
+  isJackOfAllTrades: boolean
   faith: string
   age: number | null
   height: string
@@ -100,4 +99,16 @@ export interface CharacterFormState {
   story: string
   languages: string
   tools: string
+}
+
+/** 建立角色表單的 draft 狀態 */
+export interface CharacterFormState extends CharacterFormStateBase {
+  abilities: AbilityScores
+  abilityMethod: AbilityMethod
+}
+
+/** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
+export interface CharacterUpdateFormState extends CharacterFormStateBase {
+  id: string
+  abilities: CharacterAbilityScores
 }

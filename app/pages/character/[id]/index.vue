@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 pb-6">
-    <CommonPageHeader title="Detail" :show-back="true">
+    <CommonPageHeader title="Character Detail" :show-back="true">
       <template #actions>
         <NuxtLink
           v-if="character"

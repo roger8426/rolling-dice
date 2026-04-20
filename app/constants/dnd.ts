@@ -64,7 +64,7 @@ export const SKILL_NAMES: Record<SkillKey, string> = {
   religion: '宗教',
   // 感知
   animalHandling: '馴獸',
-  insight: '察言觀色',
+  insight: '洞察',
   medicine: '醫藥',
   perception: '察覺',
   survival: '求生',

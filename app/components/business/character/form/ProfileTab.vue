@@ -86,10 +86,10 @@
 
 <script setup lang="ts">
 import { TextArea } from '@ui'
-import type { CharacterFormState } from '~/types/business/character'
+import type { CharacterFormStateBase } from '~/types/business/character'
 
 defineProps<{
-  formState: CharacterFormState
+  formState: CharacterFormStateBase
 }>()
 
 defineEmits<{
