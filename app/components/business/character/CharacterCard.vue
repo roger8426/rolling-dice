@@ -31,56 +31,74 @@
             :class="{ 'tier-shimmer': isMaxLevel }"
             :style="{ backgroundColor: tierConfig.badgeBg, color: tierConfig.textColor }"
           >
-            Lv.{{ character.level }}
+            Lv.{{ character.totalLevel }}
           </div>
         </div>
       </template>
 
-      <!-- Body: name + race + profession -->
-      <div class="px-4 pb-4 pt-3">
-        <div class="flex items-center gap-2">
-          <img
-            v-show="!professionIconError"
-            :src="professionImages[character.professions[0]!.profession]"
-            alt=""
-            class="size-4"
-            loading="lazy"
-            decoding="async"
-            @error="onProfessionIconError"
-          />
-          <h3
-            class="truncate font-display text-base font-bold"
-            :class="{ 'tier-shimmer': isMaxLevel }"
-            :style="{ color: tierConfig.textColor }"
-          >
-            {{ character.name }}
-          </h3>
+      <!-- Body -->
+      <div class="flex items-end justify-between px-4 pb-4 pt-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <img
+              v-show="!professionIconError"
+              :src="professionImages[character.professions[0]!.profession]"
+              alt=""
+              class="size-4"
+              loading="lazy"
+              decoding="async"
+              @error="onProfessionIconError"
+            />
+            <h3
+              class="truncate font-display text-base font-bold"
+              :class="{ 'tier-shimmer': isMaxLevel }"
+              :style="{ color: tierConfig.textColor }"
+            >
+              {{ character.name }}
+            </h3>
+          </div>
+          <div class="mt-2 flex items-center gap-2">
+            <Badge
+              bg-color="var(--rd--color-surface-2)"
+              text-color="var(--rd--color-text-muted)"
+              :radius="4"
+              size="sm"
+            >
+              {{ RACE_NAMES[character.race] }}
+            </Badge>
+            <span class="text-xs text-content-muted">
+              {{
+                character.professions.map((p) => PROFESSION_CONFIG[p.profession].label).join(' / ')
+              }}
+            </span>
+          </div>
         </div>
-        <div class="mt-2 flex items-center gap-2">
-          <Badge
-            bg-color="var(--rd--color-surface-2)"
-            text-color="var(--rd--color-text-muted)"
-            :radius="4"
-            size="sm"
-          >
-            {{ RACE_NAMES[character.race] }}
-          </Badge>
-          <span class="text-xs text-content-muted">
-            {{ character.professions.map((p) => PROFESSION_NAMES[p.profession]).join(' / ') }}
-          </span>
-        </div>
+        <button
+          v-if="isDeleteMode"
+          type="button"
+          :aria-label="`刪除角色卡 ${character.name}`"
+          class="size-8 flex items-center justify-center bg-danger rounded-md cursor-pointer hover:bg-danger-hover transition-colors duration-150 text-text-inverse"
+          @click.prevent="$emit('delete', character)"
+        >
+          <Icon name="close" :size="20" />
+        </button>
       </div>
     </Card>
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
-import { Badge, Card } from '@ui'
-import { PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
+import { Badge, Card, Icon } from '@ui'
+import { PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
 import type { Character, CharacterTier } from '~/types/business/character'
 
 const props = defineProps<{
   character: Character
+  isDeleteMode: boolean
+}>()
+
+defineEmits<{
+  delete: [Character]
 }>()
 
 const TIER_CONFIG: Record<
@@ -113,12 +131,12 @@ const TIER_CONFIG: Record<
   },
 }
 
-const tier = computed(() => getCharacterTier(props.character.level))
+const tier = computed(() => getCharacterTier(props.character.totalLevel))
 const tierConfig = computed(() => TIER_CONFIG[tier.value])
-const isMaxLevel = computed(() => props.character.level === 20)
+const isMaxLevel = computed(() => props.character.totalLevel === 20)
 
 const cardShadowStyle = computed(() => {
-  const opacity = props.character.level * 0.017 + 0.1
+  const opacity = props.character.totalLevel * 0.017 + 0.1
   return { '--card-shadow': `0 0 24px rgba(${tierConfig.value.shadowRgb}, ${opacity.toFixed(3)})` }
 })
 

@@ -13,10 +13,10 @@
         <template #label>
           <span class="text-content">基本資訊</span>
         </template>
-        <BusinessCharacterBuildBasicTab
+        <BusinessCharacterFormBasicTab
           :form-state="formState"
           :total-level="totalLevel"
-          :point-buy-remaining="pointBuyRemaining"
+          :ability-scores="formState.abilities"
           @update:name="formState.name = $event"
           @update:gender="formState.gender = $event as typeof formState.gender"
           @update:race="formState.race = $event as typeof formState.race"
@@ -26,20 +26,29 @@
           @remove="removeProfession"
           @update:profession="updateProfession"
           @update:level="updateProfessionLevel"
-          @update:method="setAbilityMethod"
-          @update:score="updateAbilityScore"
-          @roll:all="rollAllAbilities"
-          @reset:abilities="resetAbilities"
           @update:background="formState.background = $event"
           @update:skill="setSkillProficiency"
-        />
+          @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
+        >
+          <template #ability-panel>
+            <BusinessCharacterFormAbilityScorePanel
+              :abilities="formState.abilities"
+              :ability-method="formState.abilityMethod"
+              :point-buy-remaining="pointBuyRemaining"
+              @update:method="setAbilityMethod"
+              @update:score="updateAbilityScore"
+              @roll:all="rollAllAbilities"
+              @reset:abilities="resetAbilities"
+            />
+          </template>
+        </BusinessCharacterFormBasicTab>
       </Tab>
 
       <Tab value="profile">
         <template #label>
           <span class="text-content">詳細設定</span>
         </template>
-        <BusinessCharacterBuildProfileTab
+        <BusinessCharacterFormProfileTab
           :form-state="formState"
           @update:age="formState.age = $event ? Number($event) : null"
           @update:height="formState.height = $event"

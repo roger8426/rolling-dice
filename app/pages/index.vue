@@ -28,7 +28,11 @@
           class="orbit-outer"
           :style="{ '--i': i }"
         >
-          <img :src="professionImages[prof]" :alt="PROFESSION_NAMES[prof]" class="ring-img" />
+          <img
+            :src="professionImages[prof]"
+            :alt="PROFESSION_CONFIG[prof].label"
+            class="ring-img"
+          />
         </div>
 
         <!-- Inner ring -->
@@ -38,7 +42,11 @@
           class="orbit-inner"
           :style="{ '--i': i }"
         >
-          <img :src="professionImages[prof]" :alt="PROFESSION_NAMES[prof]" class="ring-img" />
+          <img
+            :src="professionImages[prof]"
+            :alt="PROFESSION_CONFIG[prof].label"
+            class="ring-img"
+          />
         </div>
 
         <!-- Center content -->
@@ -54,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { PROFESSION_NAMES } from '~/constants/dnd'
+import { PROFESSION_CONFIG } from '~/constants/dnd'
 import type { ProfessionKey } from '~/types/business/dnd'
 
 // ─── Profession ring data ──────────────────────────────────────────────────────

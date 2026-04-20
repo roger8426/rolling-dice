@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-2 bg-canvas-elevated p-4 sm:p-6 md:flex-row">
-    <BusinessCharacterBuildCharacterInfoSection
+    <BusinessCharacterFormCharacterInfoSection
       class="w-full md:w-1/3"
       :form-state="formState"
       :total-level="totalLevel"
@@ -18,34 +18,33 @@
       @update:level="(i, l) => emit('update:level', i, l)"
     />
 
-    <BusinessCharacterBuildSkillProficiencyGrid
+    <BusinessCharacterFormSkillProficiencyGrid
       class="w-full md:w-1/3"
       :skills="formState.skills"
+      :is-jack-of-all-trades="formState.isJackOfAllTrades"
+      :ability-scores="abilityScores"
+      :proficiency-bonus="proficiencyBonus"
       @update:skill="(s, l) => emit('update:skill', s, l)"
+      @update:jack-of-all-trades="emit('update:jackOfAllTrades', $event)"
     />
 
-    <BusinessCharacterBuildAbilityScorePanel
-      class="w-full md:w-1/3"
-      :abilities="formState.abilities"
-      :ability-method="formState.abilityMethod"
-      :point-buy-remaining="pointBuyRemaining"
-      @update:method="emit('update:method', $event)"
-      @update:score="(k, s) => emit('update:score', k, s)"
-      @roll:all="emit('roll:all')"
-      @reset:abilities="emit('reset:abilities')"
-    />
+    <div class="w-full md:w-1/3">
+      <slot name="ability-panel" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { AbilityMethod, CharacterFormState } from '~/types/business/character'
-import type { AbilityKey, ProfessionKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
+import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
+import type { ProfessionKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
-defineProps<{
-  formState: CharacterFormState
+const props = defineProps<{
+  formState: CharacterFormStateBase
   totalLevel: number
-  pointBuyRemaining: number
+  abilityScores: AbilityScores
 }>()
+
+const proficiencyBonus = computed(() => getProficiencyBonus(props.totalLevel))
 
 const emit = defineEmits<{
   'update:name': [value: string]
@@ -60,10 +59,7 @@ const emit = defineEmits<{
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]
   'update:level': [index: number, level: number]
-  'update:method': [method: AbilityMethod]
-  'update:score': [key: AbilityKey, score: number]
   'update:skill': [skill: SkillKey, level: ProficiencyLevel]
-  'roll:all': []
-  'reset:abilities': []
+  'update:jackOfAllTrades': [value: boolean]
 }>()
 </script>

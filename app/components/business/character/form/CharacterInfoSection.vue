@@ -177,12 +177,12 @@
 <script setup lang="ts">
 import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_NAMES, RACE_NAMES } from '~/constants/dnd'
-import type { CharacterFormState } from '~/types/business/character'
+import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
+import type { CharacterFormStateBase } from '~/types/business/character'
 import type { ProfessionKey } from '~/types/business/dnd'
 
 const props = defineProps<{
-  formState: CharacterFormState
+  formState: CharacterFormStateBase
   totalLevel: number
 }>()
 
@@ -216,8 +216,8 @@ const alignmentOptions: SelectOption[] = Object.entries(ALIGNMENT_NAMES).map(([v
   label,
 }))
 
-const professionOptions: SelectOption[] = Object.entries(PROFESSION_NAMES).map(
-  ([value, label]) => ({ value, label }),
+const professionOptions: SelectOption[] = Object.entries(PROFESSION_CONFIG).map(
+  ([value, { label }]) => ({ value, label }),
 )
 
 const getProfessionOptions = (index: number): SelectOption[] => {

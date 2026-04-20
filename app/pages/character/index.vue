@@ -4,6 +4,14 @@
     <CommonPageHeader title="Characters" show-back>
       <template v-if="characterStore.characters.length > 0" #actions>
         <div class="flex flex-col items-end gap-2 xs:flex-row xs:items-center">
+          <!-- 測試用按鈕 -->
+          <Button
+            v-if="isDev"
+            bg-color="var(--color-danger)"
+            @click="characterStore.resetCharacters"
+          >
+            重設 mock 資料
+          </Button>
           <!-- 排序模式 -->
           <Select
             v-model="sortKey"
@@ -45,6 +53,15 @@
               <Icon name="list" :size="24" />
             </span>
           </button>
+
+          <button
+            type="button"
+            aria-label="刪除所有角色卡"
+            class="size-10 flex items-center justify-center bg-danger rounded-md cursor-pointer hover:bg-danger-hover transition-colors duration-150 text-text-inverse"
+            @click="openDeleteMode"
+          >
+            <Icon name="trash" :size="24" />
+          </button>
         </div>
       </template>
     </CommonPageHeader>
@@ -58,6 +75,8 @@
         v-for="character in sortedCharacters"
         :key="character.id"
         :character="character"
+        :is-delete-mode="deleteMode"
+        @delete="handleDeleteRequest"
       />
       <NuxtLink
         to="/character/build"
@@ -74,6 +93,8 @@
         v-for="character in sortedCharacters"
         :key="character.id"
         :character="character"
+        :is-delete-mode="deleteMode"
+        @delete="handleDeleteRequest"
       />
       <NuxtLink
         to="/character/build"
@@ -110,24 +131,79 @@
         </p>
       </div>
     </NuxtLink>
+
+    <!-- Delete confirm modal -->
+    <Modal
+      v-model="showDeleteModal"
+      :title="`刪除角色卡 ${deleteTarget?.name}？`"
+      :show-close-button="false"
+      :close-on-escape="false"
+      :close-on-click-outside="false"
+      size="sm"
+      bg-color="var(--color-canvas-elevated)"
+      text-color="var(--color-content)"
+      border-color="var(--color-border)"
+    >
+      <p class="text-md text-content-muted">刪除後無法復原，確定要刪除這張角色卡嗎？</p>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            outline
+            size="sm"
+            border-color="var(--color-border)"
+            text-color="var(--color-content)"
+            :radius="8"
+            @click="showDeleteModal = false"
+          >
+            取消
+          </Button>
+          <Button bg-color="var(--color-danger)" size="sm" :radius="8" @click="handleDeleteConfirm">
+            確認刪除
+          </Button>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Icon, Select } from '@ui'
+import { Icon, Select, Button, Modal } from '@ui'
 import type { SelectOption } from '@ui'
+import type { Character } from '~/types/business/character'
 
 useHead({ title: '角色卡 | Rolling Dice' })
 
+const isDev = computed(() => import.meta.dev)
 const characterStore = useCharacterStore()
 
 const VIEW_MODE_KEY = 'rd:character-view-mode'
 const storedMode = getLocalStorage<string>(VIEW_MODE_KEY)
 const isListMode = ref(storedMode === 'list')
+const deleteMode = ref(false)
+const showDeleteModal = ref(false)
+const deleteTarget = ref<Character | null>(null)
 
 watch(isListMode, (val) => {
   setLocalStorage(VIEW_MODE_KEY, val ? 'list' : 'grid')
+  deleteMode.value = false
 })
+
+const openDeleteMode = () => {
+  deleteMode.value = !deleteMode.value
+}
+
+const handleDeleteRequest = (character: Character) => {
+  deleteTarget.value = character
+  showDeleteModal.value = true
+}
+
+const handleDeleteConfirm = () => {
+  if (deleteTarget.value) {
+    characterStore.removeCharacter(deleteTarget.value.id)
+  }
+  showDeleteModal.value = false
+  deleteTarget.value = null
+}
 
 // ── Sort ──────────────────────────────────────────────────────────────────────
 
@@ -143,18 +219,8 @@ const sortKey = ref<SortKey>('default')
 
 const sortedCharacters = computed(() => {
   const list = [...characterStore.characters]
-  if (sortKey.value === 'level-asc') return list.sort((a, b) => a.level - b.level)
-  if (sortKey.value === 'level-desc') return list.sort((a, b) => b.level - a.level)
+  if (sortKey.value === 'level-asc') return list.sort((a, b) => a.totalLevel - b.totalLevel)
+  if (sortKey.value === 'level-desc') return list.sort((a, b) => b.totalLevel - a.totalLevel)
   return list.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 })
 </script>
-
-<style scoped>
-/* 將 @ui Select 的淺色預設 token 覆蓋成專案暗色主題 */
-.sort-select {
-  --rui-color-surface-hover: var(--rd--color-surface-2);
-  --rui-color-select-selected: var(--rd--color-surface-3);
-  --rui-color-text-muted: var(--rd--color-text-muted);
-  --rui-color-default: var(--rd--color-primary);
-}
-</style>
