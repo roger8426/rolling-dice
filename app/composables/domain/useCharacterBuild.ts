@@ -66,12 +66,10 @@ export function useCharacterBuild() {
   function setAbilityMethod(method: AbilityMethod): void {
     formState.abilityMethod = method
 
-    if (method === 'pointBuy') {
-      formState.abilities = createDefaultAbilities()
-    } else if (method === 'custom') {
-      formState.abilities = createDefaultAbilities()
-    } else if (method === 'diceRoll') {
+    if (method === 'diceRoll') {
       rollAllAbilities()
+    } else {
+      formState.abilities = createDefaultAbilities()
     }
   }
 
