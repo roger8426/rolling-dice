@@ -280,7 +280,9 @@ export const useCharacterStore = defineStore('character', () => {
   }
 
   function addCharacter(formState: CharacterFormState): Character {
-    const professions = formState.professions as ProfessionEntry[]
+    const professions = formState.professions.filter(
+      (p): p is ProfessionEntry => p.profession !== '',
+    )
     const primaryProfession = professions[0]?.profession
 
     const abilities = Object.fromEntries(
@@ -294,7 +296,7 @@ export const useCharacterStore = defineStore('character', () => {
     const character: Character = {
       id: crypto.randomUUID(),
       name: formState.name,
-      gender: formState.gender as Character['gender'],
+      gender: formState.gender || 'nonBinary',
       race: formState.race as Character['race'],
       alignment: formState.alignment as Character['alignment'],
       professions,
@@ -336,7 +338,9 @@ export const useCharacterStore = defineStore('character', () => {
     if (index === -1) return undefined
 
     const existing = characters.value[index]!
-    const professions = formState.professions as ProfessionEntry[]
+    const professions = formState.professions.filter(
+      (p): p is ProfessionEntry => p.profession !== '',
+    )
     const primaryProfession = professions[0]?.profession
 
     const savingThrowProficiencies: AbilityKey[] = primaryProfession
@@ -346,7 +350,7 @@ export const useCharacterStore = defineStore('character', () => {
     const updated: Character = {
       ...existing,
       name: formState.name,
-      gender: formState.gender as Character['gender'],
+      gender: formState.gender || 'nonBinary',
       race: formState.race as Character['race'],
       alignment: formState.alignment as Character['alignment'],
       professions,

@@ -144,7 +144,12 @@ export function useCharacterUpdate(id: string) {
   // ─── Validation ───────────────────────────────────────────────────────
 
   const isSubmitting = ref(false)
-  const canSubmit = computed(() => !isSubmitting.value && formState.name.trim() !== '')
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim() !== '' &&
+      formState.professions.some((p) => p.profession !== ''),
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 

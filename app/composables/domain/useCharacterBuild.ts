@@ -127,7 +127,12 @@ export function useCharacterBuild() {
 
   // ─── Validation ───────────────────────────────────────────────────────
 
-  const canSubmit = computed(() => !isSubmitting.value && formState.name.trim() !== '')
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim() !== '' &&
+      formState.professions.some((p) => p.profession !== ''),
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 

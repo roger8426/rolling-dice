@@ -146,6 +146,7 @@
         <div class="min-w-16 flex-1">
           <label :for="`prof-${index}`" class="mb-1 block text-xs text-content">
             職業 {{ index + 1 }}
+            <span class="text-danger">*</span>
           </label>
           <CommonAppSelect
             :id="`prof-${index}`"

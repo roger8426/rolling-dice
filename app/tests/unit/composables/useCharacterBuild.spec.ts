@@ -200,9 +200,10 @@ describe('useCharacterBuild — 技能熟練度', () => {
 // ─── canSubmit ──────────────────────────────────────────────────────────────
 
 describe('useCharacterBuild — canSubmit', () => {
-  it('角色名稱有填寫時 canSubmit 應為 true', async () => {
+  it('名稱與職業皆填寫時 canSubmit 應為 true', async () => {
     const { formState, canSubmit } = await getComposable()
     formState.name = '完整角色'
+    formState.professions[0]!.profession = 'fighter'
     expect(canSubmit.value).toBe(true)
   })
 
@@ -214,6 +215,14 @@ describe('useCharacterBuild — canSubmit', () => {
   it('角色名稱為空白時 canSubmit 應為 false', async () => {
     const { formState, canSubmit } = await getComposable()
     formState.name = '   '
+    formState.professions[0]!.profession = 'fighter'
+    expect(canSubmit.value).toBe(false)
+  })
+
+  it('職業未選擇時 canSubmit 應為 false', async () => {
+    const { formState, canSubmit } = await getComposable()
+    formState.name = '有名稱'
+    // professions[0].profession 預設為 ''
     expect(canSubmit.value).toBe(false)
   })
 })
@@ -228,6 +237,7 @@ describe('useCharacterBuild — submit', () => {
 
     const { formState, submit } = await getComposable()
     formState.name = '提交角色'
+    formState.professions[0]!.profession = 'fighter'
 
     submit()
     expect(addSpy).toHaveBeenCalledOnce()
@@ -237,6 +247,7 @@ describe('useCharacterBuild — submit', () => {
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false（防重複點擊）', async () => {
     const { formState, submit, isSubmitting, canSubmit } = await getComposable()
     formState.name = '防重複角色'
+    formState.professions[0]!.profession = 'fighter'
 
     expect(isSubmitting.value).toBe(false)
     submit()
@@ -251,6 +262,7 @@ describe('useCharacterBuild — submit', () => {
 
     const { formState, submit } = await getComposable()
     formState.name = '重複測試'
+    formState.professions[0]!.profession = 'fighter'
 
     submit()
     submit()
