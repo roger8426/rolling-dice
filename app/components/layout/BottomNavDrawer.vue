@@ -53,7 +53,9 @@
 <script setup lang="ts">
 import { Drawer, Icon } from '@ui'
 
-const { navItems, isNavOpen, toggleNav, closeNav } = useNavigation()
+const navStore = useNavigationStore()
+const { isNavOpen } = storeToRefs(navStore)
+const { navItems, toggleNav, closeNav } = navStore
 
 const hintRef = useTemplateRef<HTMLElement>('hintRef')
 const drawerPortal = useTemplateRef<HTMLElement>('drawerPortal')

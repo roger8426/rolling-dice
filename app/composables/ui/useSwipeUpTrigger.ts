@@ -6,7 +6,9 @@ const SCROLL_BOTTOM_TOLERANCE = 20
 const TRIGGER_ZONE_HEIGHT = 100
 
 export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
-  const { isNavOpen, openNav } = useNavigation()
+  const navStore = useNavigationStore()
+  const { isNavOpen } = storeToRefs(navStore)
+  const { openNav } = navStore
 
   let touchStartY = 0
   let touchStartX = 0
