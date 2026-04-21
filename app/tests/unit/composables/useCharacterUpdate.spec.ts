@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import type { Character } from '~/types/business/character'
 
 const mockNavigateTo = vi.fn()
@@ -54,7 +55,7 @@ beforeEach(() => {
   vi.resetModules()
   setActivePinia(createPinia())
   vi.stubGlobal('navigateTo', mockNavigateTo)
-  localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+  localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
 })
 
 afterEach(() => {

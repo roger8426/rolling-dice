@@ -7,17 +7,16 @@ import type {
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
+import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import { createDefaultArmorClass } from '~/helpers/character'
 import { MOCK_CHARACTERS } from '~/mocks/characters'
 
-const STORAGE_KEY = 'roll-dice:characters'
-
 function loadFromStorage(): Character[] {
-  return getLocalStorage<Character[]>(STORAGE_KEY) ?? [...MOCK_CHARACTERS]
+  return getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY) ?? [...MOCK_CHARACTERS]
 }
 
 function saveToStorage(characters: Character[]): void {
-  setLocalStorage(STORAGE_KEY, characters)
+  setLocalStorage(CHARACTERS_STORAGE_KEY, characters)
 }
 
 export const useCharacterStore = defineStore('character', () => {

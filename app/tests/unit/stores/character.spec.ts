@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import { useCharacterStore } from '~/stores/character'
 import type {
   Character,
@@ -96,7 +97,7 @@ describe('useCharacterStore — 初始化', () => {
   })
 
   it('localStorage 有資料時應從 storage 載入，不覆寫', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     expect(store.characters).toHaveLength(1)
     expect(store.characters[0]!.id).toBe('test-001')
@@ -105,7 +106,7 @@ describe('useCharacterStore — 初始化', () => {
 
 describe('useCharacterStore — getById', () => {
   it('存在的 id 應回傳對應的 Character', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const result = store.getById('test-001')
     expect(result).toBeDefined()
@@ -149,7 +150,7 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後應同步寫入 localStorage', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
+    const stored = JSON.parse(localStorage.getItem(CHARACTERS_STORAGE_KEY)!)
     expect(stored.some((c: Character) => c.id === created.id)).toBe(true)
   })
 
@@ -168,17 +169,17 @@ describe('useCharacterStore — addCharacter', () => {
 
 describe('useCharacterStore — removeCharacter', () => {
   it('刪除後該角色不應出現在 characters 中', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     store.removeCharacter('test-001')
     expect(store.getById('test-001')).toBeUndefined()
   })
 
   it('刪除後應同步更新 localStorage', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     store.removeCharacter('test-001')
-    const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
+    const stored = JSON.parse(localStorage.getItem(CHARACTERS_STORAGE_KEY)!)
     expect(stored.some((c: Character) => c.id === 'test-001')).toBe(false)
   })
 
@@ -230,7 +231,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
 
 describe('useCharacterStore — updateCharacter', () => {
   it('更新後角色名稱與欄位應反映新值', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated).toBeDefined()
@@ -242,21 +243,21 @@ describe('useCharacterStore — updateCharacter', () => {
   })
 
   it('更新後 totalLevel 應為各職業等級的加總', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.totalLevel).toBe(8)
   })
 
   it('更新後 savingThrowProficiencies 應根據主職業重新計算', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
   })
 
   it('更新後 abilities 應保留 basicScore 與 bonusScore', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.abilities.strength).toEqual({ basicScore: 15, bonusScore: 2 })
@@ -264,7 +265,7 @@ describe('useCharacterStore — updateCharacter', () => {
   })
 
   it('更新後應保留原始 id 與 createdAt', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.id).toBe('test-001')
@@ -272,15 +273,15 @@ describe('useCharacterStore — updateCharacter', () => {
   })
 
   it('更新後應同步寫入 localStorage', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    const stored = JSON.parse(localStorage.getItem('roll-dice:characters')!)
+    const stored = JSON.parse(localStorage.getItem(CHARACTERS_STORAGE_KEY)!)
     expect(stored[0].name).toBe('更新後角色')
   })
 
   it('更新不存在的 id 時應回傳 undefined 且 characters 不變', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const before = store.characters.length
     const result = store.updateCharacter('non-existent-id', MOCK_UPDATE_FORM_STATE)
@@ -289,7 +290,7 @@ describe('useCharacterStore — updateCharacter', () => {
   })
 
   it('空字串的 optional 欄位更新後應為 null', () => {
-    localStorage.setItem('roll-dice:characters', JSON.stringify([MOCK_CHARACTER]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
       ...MOCK_UPDATE_FORM_STATE,
