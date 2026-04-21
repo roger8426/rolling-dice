@@ -7,6 +7,7 @@ import type {
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
+import { createDefaultArmorClass } from '~/helpers/character'
 
 const STORAGE_KEY = 'roll-dice:characters'
 
@@ -47,6 +48,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
   {
     id: 'char-002',
@@ -81,6 +85,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
   {
     id: 'char-003',
@@ -120,6 +127,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
   {
     id: 'char-004',
@@ -157,6 +167,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
   {
     id: 'char-005',
@@ -199,6 +212,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
   {
     id: 'char-006',
@@ -242,6 +258,9 @@ const MOCK_CHARACTERS: Character[] = [
     weaponProficiencies: null,
     armorProficiencies: null,
     avatar: null,
+    extraHp: 0,
+    armorClass: createDefaultArmorClass(),
+    attacks: [],
   },
 ]
 
@@ -298,6 +317,9 @@ export const useCharacterStore = defineStore('character', () => {
       weaponProficiencies: formState.weaponProficiencies || null,
       armorProficiencies: formState.armorProficiencies || null,
       avatar: null,
+      extraHp: 0,
+      armorClass: createDefaultArmorClass(),
+      attacks: [],
     }
     characters.value.push(character)
     saveToStorage(characters.value)
@@ -345,6 +367,9 @@ export const useCharacterStore = defineStore('character', () => {
       tools: formState.tools || null,
       weaponProficiencies: formState.weaponProficiencies || null,
       armorProficiencies: formState.armorProficiencies || null,
+      extraHp: formState.extraHp,
+      armorClass: { ...formState.armorClass },
+      attacks: formState.attacks.map((a) => ({ ...a })),
     }
 
     characters.value[index] = updated

@@ -40,6 +40,9 @@ const MOCK_CHARACTER: Character = {
   weaponProficiencies: null,
   armorProficiencies: null,
   avatar: null,
+  extraHp: 0,
+  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
+  attacks: [],
 }
 
 const MOCK_FORM_STATE: CharacterFormState = {
@@ -219,8 +222,10 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   tools: '書法工具',
   weaponProficiencies: '',
   armorProficiencies: '',
-  armorClass: { type: '', value: null, abilities: '' },
+  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
   speedBonus: null,
+  extraHp: 0,
+  attacks: [],
 }
 
 describe('useCharacterStore — updateCharacter', () => {

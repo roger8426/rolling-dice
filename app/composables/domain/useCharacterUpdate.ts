@@ -1,12 +1,14 @@
 import { ABILITY_KEYS } from '~/constants/dnd'
+import { createDefaultArmorClass } from '~/helpers/character'
 import type {
+  AttackEntry,
   Character,
   CharacterUpdateFormState,
   SkillProficiencies,
 } from '~/types/business/character'
-import type { AbilityKey, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
+import type { AbilityKey, ArmorType, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
 
-export type UpdateTab = 'basic' | 'profile'
+export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
 
 function characterToFormState(character: Character): CharacterUpdateFormState {
   return {
@@ -39,8 +41,10 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     tools: character.tools ?? '',
     weaponProficiencies: character.weaponProficiencies ?? '',
     armorProficiencies: character.armorProficiencies ?? '',
-    armorClass: { type: '', value: null, abilities: '' },
+    armorClass: character.armorClass ? { ...character.armorClass } : createDefaultArmorClass(),
     speedBonus: null,
+    extraHp: character.extraHp ?? 0,
+    attacks: character.attacks?.map((a) => ({ ...a })) ?? [],
   }
 }
 
@@ -92,7 +96,51 @@ export function useCharacterUpdate(id: string) {
       ;(formState.skills as SkillProficiencies)[skill as keyof SkillProficiencies] = level
     }
   }
+  // ─── Combat ───────────────────────────────────────────────────────
 
+  function updateExtraHp(value: number): void {
+    formState.extraHp = value
+  }
+
+  function updateArmorType(type: ArmorType | ''): void {
+    formState.armorClass.type = type
+  }
+
+  function updateArmorValue(value: number | null): void {
+    formState.armorClass.value = value
+  }
+
+  function updateArmorAbilityKey(abilityKey: AbilityKey | ''): void {
+    formState.armorClass.abilityKey = abilityKey
+  }
+
+  function updateShieldValue(value: number): void {
+    formState.armorClass.shieldValue = value
+  }
+
+  function addAttack(): void {
+    formState.attacks.push({
+      id: crypto.randomUUID(),
+      name: '',
+      hitBonus: null,
+      damage: '',
+      modifier: '',
+    })
+  }
+
+  function removeAttack(id: string): void {
+    const index = formState.attacks.findIndex((a) => a.id === id)
+    if (index !== -1) formState.attacks.splice(index, 1)
+  }
+
+  function updateAttack<K extends keyof AttackEntry>(
+    id: string,
+    field: K,
+    value: AttackEntry[K],
+  ): void {
+    const attack = formState.attacks.find((a) => a.id === id)
+    if (attack) attack[field] = value
+  }
   // ─── Validation ───────────────────────────────────────────────────────
 
   const isSubmitting = ref(false)
@@ -124,6 +172,16 @@ export function useCharacterUpdate(id: string) {
 
     // skills
     setSkillProficiency,
+
+    // combat
+    updateExtraHp,
+    updateArmorType,
+    updateArmorValue,
+    updateArmorAbilityKey,
+    updateShieldValue,
+    addAttack,
+    removeAttack,
+    updateAttack,
 
     // validation
     canSubmit,
@@ -159,7 +217,9 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     tools: '',
     weaponProficiencies: '',
     armorProficiencies: '',
-    armorClass: { type: '', value: null, abilities: '' },
+    armorClass: createDefaultArmorClass(),
     speedBonus: null,
+    extraHp: 0,
+    attacks: [],
   }
 }

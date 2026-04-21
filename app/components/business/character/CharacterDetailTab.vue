@@ -253,7 +253,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Character } from '~/types/business/character'
+import type { AbilityScores, Character } from '~/types/business/character'
 import type { AbilityKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 import {
   ABILITY_KEYS,
@@ -278,11 +278,16 @@ const conModifier = computed(() =>
   getAbilityModifier(getTotalScore(props.character.abilities.constitution)),
 )
 
-const dexModifier = computed(() =>
-  getAbilityModifier(getTotalScore(props.character.abilities.dexterity)),
+const totalAbilityScores = computed(
+  () =>
+    Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, getTotalScore(props.character.abilities[key])]),
+    ) as AbilityScores,
 )
 
-const baseAC = computed(() => getBaseArmorClass(dexModifier.value))
+const baseAC = computed(() =>
+  getTotalArmorClass(props.character.armorClass, totalAbilityScores.value),
+)
 
 const passivePerception = computed(() => {
   const skill = skillList.value.find((s) => s.key === 'perception')

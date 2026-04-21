@@ -41,6 +41,7 @@
             @update:background="formState.background = $event"
             @update:skill="setSkillProficiency"
             @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
+            @update:is-tough="formState.isTough = $event"
           >
             <template #ability-panel>
               <BusinessCharacterFormAbilityScoreUpdatePanel
@@ -63,6 +64,42 @@
             @update:appearance="formState.appearance = $event"
             @update:story="formState.story = $event"
           />
+        </Tab>
+
+        <Tab value="combat">
+          <template #label>
+            <span class="text-content">戰鬥模組</span>
+          </template>
+          <BusinessCharacterFormCombatTab
+            :armor-class="formState.armorClass"
+            :attacks="formState.attacks"
+            :ability-scores="totalAbilityScores"
+            :extra-hp="formState.extraHp"
+            @update:armor-type="updateArmorType"
+            @update:armor-value="updateArmorValue"
+            @update:armor-ability-key="updateArmorAbilityKey"
+            @update:shield-value="updateShieldValue"
+            @update:extra-hp="updateExtraHp"
+            @add-attack="addAttack"
+            @remove-attack="removeAttack"
+            @update:attack="updateAttack"
+          />
+        </Tab>
+
+        <!-- TODO: 法術列表功能開發中，待實作後移除 v-if -->
+        <Tab v-if="false" value="spells">
+          <template #label>
+            <span class="text-content">法術列表</span>
+          </template>
+          <p class="py-8 text-center text-content-muted">法術列表（開發中）</p>
+        </Tab>
+
+        <!-- TODO: 背包功能開發中，待實作後移除 v-if -->
+        <Tab v-if="false" value="backpack">
+          <template #label>
+            <span class="text-content">背包</span>
+          </template>
+          <p class="py-8 text-center text-content-muted">背包（開發中）</p>
         </Tab>
       </Tabs>
 
@@ -102,6 +139,14 @@ const {
   updateProfessionLevel,
   updateBonusScore,
   setSkillProficiency,
+  updateArmorType,
+  updateArmorValue,
+  updateArmorAbilityKey,
+  updateShieldValue,
+  updateExtraHp,
+  addAttack,
+  removeAttack,
+  updateAttack,
   canSubmit,
   isSubmitting,
   submit,

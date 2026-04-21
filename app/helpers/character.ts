@@ -1,5 +1,6 @@
-import type { CharacterTier } from '~/types/business/character'
-import type { ProficiencyLevel } from '~/types/business/dnd'
+import type { AbilityScores, ArmorClassConfig, CharacterTier } from '~/types/business/character'
+import type { ArmorType, ProficiencyLevel } from '~/types/business/dnd'
+import { getAbilityModifier } from '~/helpers/ability'
 
 export function getCharacterTier(level: number): CharacterTier {
   if (level >= 17) return 'legendary'
@@ -57,10 +58,43 @@ export function getClassHitPoints(hitDie: number, level: number, isPrimary: bool
 }
 
 /**
- * 計算基礎護甲等級（無甲）：10 + 敏捷調整值
+ * 計算護甲基礎值（AC base + DEX 調整）：
+ * - 重甲：baseValue（不加 DEX）
+ * - 中甲：baseValue + min(DEX, +2)
+ * - 輕甲 / 無甲 / 未選：baseValue + 完整 DEX
  */
-export function getBaseArmorClass(dexModifier: number): number {
-  return 10 + dexModifier
+export function getBaseArmorClass(
+  baseValue: number,
+  dexModifier: number,
+  type: ArmorType | '',
+): number {
+  if (type === 'heavy') return baseValue
+  if (type === 'medium') return baseValue + Math.min(dexModifier, 2)
+  return baseValue + dexModifier
+}
+
+/**
+ * 由護甲設定與屬性分數計算最終 AC：
+ * base（依護甲類型處理 DEX）+ 額外屬性加值 + 盾牌加值。
+ */
+export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: AbilityScores): number {
+  const baseValue = config.value ?? 10
+  const dexModifier = getAbilityModifier(abilityScores.dexterity)
+  let ac = getBaseArmorClass(baseValue, dexModifier, config.type)
+
+  if (config.abilityKey) {
+    ac += getAbilityModifier(abilityScores[config.abilityKey])
+  }
+
+  return ac + config.shieldValue
+}
+
+/**
+ * 建立 Character 預設的護甲設定：無甲、基礎值 10、無額外屬性、無盾牌。
+ * 用於新增角色或尚未設定戰鬥資訊時的初始值。
+ */
+export function createDefaultArmorClass(): ArmorClassConfig {
+  return { type: 'none', value: 10, abilityKey: '', shieldValue: 0 }
 }
 
 /**

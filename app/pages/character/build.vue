@@ -33,6 +33,7 @@
           @update:background="formState.background = $event"
           @update:skill="setSkillProficiency"
           @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
+          @update:is-tough="formState.isTough = $event"
         >
           <template #ability-panel>
             <BusinessCharacterFormAbilityScorePanel

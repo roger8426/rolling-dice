@@ -37,6 +37,9 @@ const MOCK_CHARACTER: Character = {
   armorProficiencies: '鎧甲',
   avatar: null,
   createdAt: '2026-01-01T00:00:00.000Z',
+  extraHp: 0,
+  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
+  attacks: [],
 }
 
 async function getComposable(characterId: string) {
@@ -175,6 +178,107 @@ describe('useCharacterUpdate — 技能熟練度', () => {
     const { formState, setSkillProficiency } = await getComposable('update-001')
     setSkillProficiency('athletics', 'none')
     expect(formState.skills.athletics).toBeUndefined()
+  })
+})
+
+// ─── Combat — 護甲設定 ───────────────────────────────────────────────────────
+
+describe('useCharacterUpdate — 護甲設定', () => {
+  it('updateArmorType 應更新護甲類型', async () => {
+    const { formState, updateArmorType } = await getComposable('update-001')
+    updateArmorType('heavy')
+    expect(formState.armorClass.type).toBe('heavy')
+  })
+
+  it('updateArmorValue 應更新護甲基礎值', async () => {
+    const { formState, updateArmorValue } = await getComposable('update-001')
+    updateArmorValue(16)
+    expect(formState.armorClass.value).toBe(16)
+  })
+
+  it('updateArmorValue 可設為 null（清空）', async () => {
+    const { formState, updateArmorValue } = await getComposable('update-001')
+    updateArmorValue(null)
+    expect(formState.armorClass.value).toBeNull()
+  })
+
+  it('updateArmorAbilityKey 應更新額外屬性鍵', async () => {
+    const { formState, updateArmorAbilityKey } = await getComposable('update-001')
+    updateArmorAbilityKey('wisdom')
+    expect(formState.armorClass.abilityKey).toBe('wisdom')
+  })
+
+  it('updateShieldValue 應更新盾牌加值', async () => {
+    const { formState, updateShieldValue } = await getComposable('update-001')
+    updateShieldValue(2)
+    expect(formState.armorClass.shieldValue).toBe(2)
+  })
+})
+
+// ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
+
+describe('useCharacterUpdate — 自訂攻擊', () => {
+  it('addAttack 應新增一筆空白攻擊', async () => {
+    const { formState, addAttack } = await getComposable('update-001')
+    addAttack()
+    expect(formState.attacks).toHaveLength(1)
+    expect(formState.attacks[0]).toMatchObject({
+      name: '',
+      hitBonus: null,
+      damage: '',
+      modifier: '',
+    })
+    expect(formState.attacks[0]!.id).toBeTypeOf('string')
+  })
+
+  it('每次 addAttack 產生的 id 應不重複', async () => {
+    const { formState, addAttack } = await getComposable('update-001')
+    addAttack()
+    addAttack()
+    const [a, b] = formState.attacks
+    expect(a!.id).not.toBe(b!.id)
+  })
+
+  it('removeAttack 應移除指定 id 的攻擊', async () => {
+    const { formState, addAttack, removeAttack } = await getComposable('update-001')
+    addAttack()
+    addAttack()
+    const targetId = formState.attacks[0]!.id
+    removeAttack(targetId)
+    expect(formState.attacks).toHaveLength(1)
+    expect(formState.attacks[0]!.id).not.toBe(targetId)
+  })
+
+  it('removeAttack 找不到對應 id 時不應拋錯', async () => {
+    const { formState, addAttack, removeAttack } = await getComposable('update-001')
+    addAttack()
+    expect(() => removeAttack('non-existent')).not.toThrow()
+    expect(formState.attacks).toHaveLength(1)
+  })
+
+  it('updateAttack 應只修改指定欄位', async () => {
+    const { formState, addAttack, updateAttack } = await getComposable('update-001')
+    addAttack()
+    const id = formState.attacks[0]!.id
+    updateAttack(id, 'name', '長劍')
+    updateAttack(id, 'damage', '1d8+3')
+    updateAttack(id, 'hitBonus', 5)
+    expect(formState.attacks[0]).toMatchObject({
+      name: '長劍',
+      damage: '1d8+3',
+      hitBonus: 5,
+      modifier: '',
+    })
+  })
+})
+
+// ─── 額外生命值 ────────────────────────────────────────────────────────────
+
+describe('useCharacterUpdate — 額外生命值', () => {
+  it('updateExtraHp 應更新 extraHp', async () => {
+    const { formState, updateExtraHp } = await getComposable('update-001')
+    updateExtraHp(12)
+    expect(formState.extraHp).toBe(12)
   })
 })
 

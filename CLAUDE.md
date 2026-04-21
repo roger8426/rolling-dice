@@ -31,17 +31,21 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 ## 架構總覽
 
 ### Monorepo 結構
+
 - pnpm workspace（`pnpm-workspace.yaml`），兩個子專案：
   - `app/` — Nuxt 應用（主產品），本 CLAUDE.md 與 `.claude/skills/` 的規範**只**適用於此。
   - `packages/ui/` — Vue 元件庫，**git submodule**，獨立開發與 build pipeline。app 端**只消費、不修改**其原始碼；customize 請在 `app/components/` 自己重寫。
 - `@ui` alias 在 `nuxt.config.ts` 與 `vitest.config.ts` 皆有定義：Nuxt 端指向 `packages/ui/dist/index.js`（build 產物），測試端指向 `packages/ui`。**submodule 未 init 或未 build 時 app 會跑不起來**——首次 clone 需 `pnpm init:ui`。
 
 ### 執行環境
+
 - **SPA 模式**（`ssr: false`）。所有 `.claude/skills/` 中關於 SSR / server route 的規則為前瞻性保留，當前不強制；CSR 規則為現行標準。
 - 靜態部署（GitHub Pages），base URL 由 `NUXT_APP_BASE_URL` env 控制，見 `nuxt.config.ts`。
 
 ### Auto-import 設定
+
 `nuxt.config.ts` 擴充了 `imports.dirs`：
+
 - `helpers/` — 業務邏輯純函式（規則計算、分級判斷）
 - `composables/domain/` — 領域邏輯 composable
 - `composables/ui/` — UI 層 composable
@@ -49,6 +53,7 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 這三個目錄**不需 import 也能使用**。`utils/` 則走 Nuxt 預設 auto-import。
 
 ### `app/` 分層
+
 - `components/{common,layout,business}/` — UI 層，business 為特定領域元件
 - `composables/{domain,ui}/` — 可重用邏輯，`domain` 為業務、`ui` 為 UI 行為
 - `helpers/` vs `utils/` — helpers 含業務語意（D&D 規則等），utils 為泛用工具
@@ -57,6 +62,7 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 - `pages/` — Nuxt file-based routing，page 僅組裝與 orchestration
 
 ### 測試
+
 - Vitest + `@vue/test-utils` + `happy-dom`/`jsdom` 雙環境（config 使用 jsdom）
 - setup 檔：`app/tests/setup.ts`
 - 測試檔位置：`app/tests/**/*.spec.ts`（**不是** colocated）
@@ -64,6 +70,7 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 - `@vue/devtools-api` 有 mock（見 `vitest.config.ts`），pinia 被 inline 處理
 
 ### Lint 雙層
+
 `lint` 依序執行 `oxlint --fix` 再 `eslint --fix`。oxlint 為快速第一關，eslint（含 `@nuxt/eslint`）為完整規則。兩者皆通過才算合格。
 
 ## 專案範圍
@@ -71,7 +78,7 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 1. 本專案為 pnpm monorepo，包含 `app/`（Nuxt 應用）與 `packages/ui/`（Vue 元件庫）。
 2. 所有 `.claude/skills/` 下的規範**僅適用於 `app/` 內的程式碼**。
 3. `packages/ui/` 為獨立子專案，有各自的開發慣例與 build pipeline，不受 Nuxt 生態規範約束。
-4. app 可消費 UI library 的元件與 CSS token（透過 `@ui` alias），但不應修改 UI library 的內部實作。
+4. app 可消費 UI library 的元件與 CSS `token（透過 `@ui` alias），但不應修改 UI library 的內部實作。
 5. **禁止**從 app 修改 `packages/ui/` 的程式碼。元件問題應另提需求描述；客製化需求應在 `app/components/` 自行實作。
 
 ## 執行環境
@@ -141,20 +148,20 @@ Git hooks 走 `.githooks/`（由 `prepare` script 設定 `core.hooksPath`）。
 
 各主題詳細規範存放於 `.claude/skills/`，Claude 會依編輯的檔案路徑自動載入相應 skill：
 
-| Skill | 主題 | 觸發範圍 |
-| --- | --- | --- |
-| `vue-conventions` | Vue SFC 結構、reactivity、元件責任 | `app/**/*.vue` |
-| `nuxt-conventions` | SSR/CSR 邊界、data fetching、error.vue | `app/{pages,layouts,middleware,plugins,composables,server}/**` |
-| `pinia-conventions` | Store 設計、storeToRefs、非同步 action | `app/stores/**`、`app/**/*store*.ts` |
-| `typescript-conventions` | 型別設計、安全性、命名慣例 | `app/**/*.{ts,tsx,vue}` |
-| `tailwind-conventions` | Class 排列、響應式、token、@apply | `app/**/*.{vue,tsx,jsx}`、`app/components/**` |
-| `testing-conventions` | Vitest、@vue/test-utils、覆蓋率 | `app/**/*.spec.ts`、`app/tests/**`、`vitest.config.*` |
-| `accessibility-conventions` | 語意 HTML、ARIA、鍵盤、WCAG AA | `app/**/*.vue`、`app/components/**`、`app/pages/**` |
-| `security-conventions` | XSS、敏感資料、server route 驗證 | `app/**/*.{vue,ts}`、`app/server/**`、`app/composables/**`、`app/plugins/**` |
-| `error-handling-conventions` | 三態處理、API 錯誤、表單錯誤 | `app/**/*.{vue,ts}`、`app/pages/**`、`app/composables/**`、`app/server/**` |
-| `performance-conventions` | 載入優化、Web Vitals、Bundle 管理 | `app/**/*.{vue,ts}`、`app/pages/**`、`app/composables/**`、`nuxt.config.ts` |
-| `structure-conventions` | Monorepo 架構、資料夾結構、分層原則 | `app/**` |
-| `review-conventions` | Code review 完整檢查清單 | `app/**` |
+| Skill                        | 主題                                   | 觸發範圍                                                                     |
+| ---------------------------- | -------------------------------------- | ---------------------------------------------------------------------------- |
+| `vue-conventions`            | Vue SFC 結構、reactivity、元件責任     | `app/**/*.vue`                                                               |
+| `nuxt-conventions`           | SSR/CSR 邊界、data fetching、error.vue | `app/{pages,layouts,middleware,plugins,composables,server}/**`               |
+| `pinia-conventions`          | Store 設計、storeToRefs、非同步 action | `app/stores/**`、`app/**/*store*.ts`                                         |
+| `typescript-conventions`     | 型別設計、安全性、命名慣例             | `app/**/*.{ts,tsx,vue}`                                                      |
+| `tailwind-conventions`       | Class 排列、響應式、token、@apply      | `app/**/*.{vue,tsx,jsx}`、`app/components/**`                                |
+| `testing-conventions`        | Vitest、@vue/test-utils、覆蓋率        | `app/**/*.spec.ts`、`app/tests/**`、`vitest.config.*`                        |
+| `accessibility-conventions`  | 語意 HTML、ARIA、鍵盤、WCAG AA         | `app/**/*.vue`、`app/components/**`、`app/pages/**`                          |
+| `security-conventions`       | XSS、敏感資料、server route 驗證       | `app/**/*.{vue,ts}`、`app/server/**`、`app/composables/**`、`app/plugins/**` |
+| `error-handling-conventions` | 三態處理、API 錯誤、表單錯誤           | `app/**/*.{vue,ts}`、`app/pages/**`、`app/composables/**`、`app/server/**`   |
+| `performance-conventions`    | 載入優化、Web Vitals、Bundle 管理      | `app/**/*.{vue,ts}`、`app/pages/**`、`app/composables/**`、`nuxt.config.ts`  |
+| `structure-conventions`      | Monorepo 架構、資料夾結構、分層原則    | `app/**`                                                                     |
+| `review-conventions`         | Code review 完整檢查清單               | `app/**`                                                                     |
 
 ## 預設輸出期待
 

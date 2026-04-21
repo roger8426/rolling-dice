@@ -78,6 +78,12 @@ export interface Character {
   weaponProficiencies: string | null
   armorProficiencies: string | null
   avatar: string | null
+  /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
+  extraHp: number
+  /** 護甲等級設定 */
+  armorClass: ArmorClassConfig
+  /** 自訂攻擊列表 */
+  attacks: AttackEntry[]
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -120,10 +126,28 @@ export interface CharacterFormState extends CharacterFormStateBase {
 export interface ArmorClassConfig {
   /** 護甲類型 */
   type: ArmorType | ''
-  /** 護甲值（使用者自定義） */
+  /** 護甲基礎值（使用者自定義，如皮甲 11、鎖甲 16） */
   value: number | null
-  /** 屬性調整值（使用者從六種屬性自選） */
-  abilities: AbilityKey | ''
+  /** 額外屬性調整值所使用的屬性鍵（使用者從六種屬性自選，空字串表示無） */
+  abilityKey: AbilityKey | ''
+  /** 盾牌加值（預設 0） */
+  shieldValue: number
+}
+
+// ─── Attack ───────────────────────────────────────────────────────────────────
+
+/** 自訂攻擊項目 */
+export interface AttackEntry {
+  /** 唯一識別 */
+  id: string
+  /** 攻擊名稱 */
+  name: string
+  /** 命中加值 */
+  hitBonus: number | null
+  /** 傷害（如 "1d8+3"） */
+  damage: string
+  /** 加值/備註 */
+  modifier: string
 }
 
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
@@ -134,4 +158,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   armorClass: ArmorClassConfig
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */
   speedBonus: number | null
+  /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
+  extraHp: number
+  /** 自訂攻擊列表 */
+  attacks: AttackEntry[]
 }

@@ -18,6 +18,7 @@
       @remove="emit('remove', $event)"
       @update:profession="(i, k) => emit('update:profession', i, k)"
       @update:level="(i, l) => emit('update:level', i, l)"
+      @update:is-tough="emit('update:isTough', $event)"
     />
 
     <BusinessCharacterFormSkillProficiencyGrid
@@ -65,5 +66,6 @@ const emit = defineEmits<{
   'update:level': [index: number, level: number]
   'update:skill': [skill: SkillKey, level: ProficiencyLevel]
   'update:jackOfAllTrades': [value: boolean]
+  'update:isTough': [value: boolean]
 }>()
 </script>
