@@ -52,11 +52,10 @@ export function useCharacterUpdate(id: string) {
   const store = useCharacterStore()
   const activeTab = ref<UpdateTab>('basic')
 
-  const character = store.getById(id)
-  const notFound = !character
+  const character = computed(() => store.getById(id))
 
   const formState = reactive<CharacterUpdateFormState>(
-    character ? characterToFormState(character) : createEmptyUpdateFormState(),
+    character.value ? characterToFormState(character.value) : createEmptyUpdateFormState(),
   )
 
   // ─── Professions ──────────────────────────────────────────────────────
@@ -162,8 +161,8 @@ export function useCharacterUpdate(id: string) {
 
   return {
     activeTab,
+    character,
     formState,
-    notFound,
 
     // professions
     totalLevel,

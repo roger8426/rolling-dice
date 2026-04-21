@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-6xl px-4 pb-6">
     <CommonPageHeader title="Edit Character" :show-back="true" />
 
-    <div v-if="notFound" class="py-12 text-center">
+    <div v-if="!character" class="py-12 text-center">
       <p class="text-content-muted">找不到此角色</p>
       <NuxtLink to="/character" class="mt-4 inline-block text-primary underline">
         返回角色列表
@@ -130,8 +130,8 @@ useHead({ title: '編輯角色卡 | Rolling Dice' })
 
 const {
   activeTab,
+  character,
   formState,
-  notFound,
   totalLevel,
   addProfession,
   removeProfession,

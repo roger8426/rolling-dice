@@ -67,8 +67,8 @@ afterEach(() => {
 
 describe('useCharacterUpdate — 初始狀態', () => {
   it('應從 store 載入角色並映射至 formState', async () => {
-    const { formState, notFound } = await getComposable('update-001')
-    expect(notFound).toBe(false)
+    const { formState, character } = await getComposable('update-001')
+    expect(character.value).toBeTruthy()
     expect(formState.id).toBe('update-001')
     expect(formState.name).toBe('測試角色')
     expect(formState.gender).toBe('male')
@@ -109,9 +109,9 @@ describe('useCharacterUpdate — 初始狀態', () => {
     expect(activeTab.value).toBe('basic')
   })
 
-  it('找不到角色時 notFound 應為 true', async () => {
-    const { notFound } = await getComposable('non-existent')
-    expect(notFound).toBe(true)
+  it('找不到角色時 character 應為 undefined', async () => {
+    const { character } = await getComposable('non-existent')
+    expect(character.value).toBeUndefined()
   })
 })
 
