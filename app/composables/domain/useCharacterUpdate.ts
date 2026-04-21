@@ -1,12 +1,14 @@
 import { ABILITY_KEYS } from '~/constants/dnd'
 import { createDefaultArmorClass } from '~/helpers/character'
+import { applySkillProficiency } from '~/helpers/skill'
+import type { AttackEntry, Character, CharacterUpdateFormState } from '~/types/business/character'
 import type {
-  AttackEntry,
-  Character,
-  CharacterUpdateFormState,
-  SkillProficiencies,
-} from '~/types/business/character'
-import type { AbilityKey, ArmorType, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
+  AbilityKey,
+  ArmorType,
+  ProficiencyLevel,
+  ProfessionKey,
+  SkillKey,
+} from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
 
@@ -87,13 +89,8 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Skills ───────────────────────────────────────────────────────────
 
-  function setSkillProficiency(skill: string, level: ProficiencyLevel): void {
-    if (level === 'none') {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete (formState.skills as SkillProficiencies)[skill as keyof SkillProficiencies]
-    } else {
-      ;(formState.skills as SkillProficiencies)[skill as keyof SkillProficiencies] = level
-    }
+  function setSkillProficiency(skill: SkillKey, level: ProficiencyLevel): void {
+    formState.skills = applySkillProficiency(formState.skills, skill, level)
   }
   // ─── Combat ───────────────────────────────────────────────────────
 

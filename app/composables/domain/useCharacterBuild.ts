@@ -1,12 +1,8 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { getRemainingPoints } from '~/helpers/ability'
-import type {
-  AbilityMethod,
-  AbilityScores,
-  CharacterFormState,
-  SkillProficiencies,
-} from '~/types/business/character'
-import type { AbilityKey, ProficiencyLevel, ProfessionKey } from '~/types/business/dnd'
+import { applySkillProficiency } from '~/helpers/skill'
+import type { AbilityMethod, AbilityScores, CharacterFormState } from '~/types/business/character'
+import type { AbilityKey, ProficiencyLevel, ProfessionKey, SkillKey } from '~/types/business/dnd'
 
 export type BuildTab = 'basic' | 'profile'
 
@@ -116,13 +112,8 @@ export function useCharacterBuild() {
 
   // ─── Skills ───────────────────────────────────────────────────────────
 
-  function setSkillProficiency(skill: string, level: ProficiencyLevel): void {
-    if (level === 'none') {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete (formState.skills as SkillProficiencies)[skill as keyof SkillProficiencies]
-    } else {
-      ;(formState.skills as SkillProficiencies)[skill as keyof SkillProficiencies] = level
-    }
+  function setSkillProficiency(skill: SkillKey, level: ProficiencyLevel): void {
+    formState.skills = applySkillProficiency(formState.skills, skill, level)
   }
 
   // ─── Validation ───────────────────────────────────────────────────────
