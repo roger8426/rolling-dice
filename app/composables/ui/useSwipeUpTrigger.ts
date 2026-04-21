@@ -23,8 +23,8 @@ export function useSwipeUpTrigger(elementRef: Ref<HTMLElement | null>) {
   function isAtBottom(): boolean {
     const scrollY = getScrollY()
     const innerHeight = getInnerHeight()
-    if (scrollY === null || innerHeight === null) return false
-    const { scrollHeight } = document.documentElement
+    const scrollHeight = getScrollHeight()
+    if (scrollY === null || innerHeight === null || scrollHeight === null) return false
     return scrollHeight - (scrollY + innerHeight) <= SCROLL_BOTTOM_TOLERANCE
   }
 
