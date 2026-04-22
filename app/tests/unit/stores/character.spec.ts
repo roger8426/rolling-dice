@@ -225,6 +225,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   armorProficiencies: '',
   armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
   speedBonus: null,
+  initiativeBonus: null,
+  passivePerceptionBonus: null,
   extraHp: 0,
   attacks: [],
 }
