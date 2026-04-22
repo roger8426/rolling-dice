@@ -1,6 +1,18 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 pb-6">
-    <CommonPageHeader title="Edit Character" :show-back="true" />
+    <CommonPageHeader title="Edit Character" :show-back="true">
+      <template #actions>
+        <Button
+          :disabled="!canSubmit"
+          :loading="isSubmitting"
+          :radius="4"
+          bg-color="var(--color-primary)"
+          @click="submit"
+        >
+          儲存變更
+        </Button>
+      </template>
+    </CommonPageHeader>
 
     <div v-if="!character" class="py-12 text-center">
       <p class="text-content-muted">找不到此角色</p>
@@ -74,12 +86,24 @@
             :armor-class="formState.armorClass"
             :attacks="formState.attacks"
             :ability-scores="totalAbilityScores"
+            :skills="formState.skills"
             :extra-hp="formState.extraHp"
+            :total-hp="totalHp"
+            :is-tough="formState.isTough"
+            :is-jack-of-all-trades="formState.isJackOfAllTrades"
+            :proficiency-bonus="proficiencyBonus"
+            :speed-bonus="formState.speedBonus"
+            :initiative-bonus="formState.initiativeBonus"
+            :passive-perception-bonus="formState.passivePerceptionBonus"
             @update:armor-type="updateArmorType"
             @update:armor-value="updateArmorValue"
             @update:armor-ability-key="updateArmorAbilityKey"
             @update:shield-value="updateShieldValue"
             @update:extra-hp="updateExtraHp"
+            @update:is-tough="formState.isTough = $event"
+            @update:speed-bonus="updateSpeedBonus"
+            @update:initiative-bonus="updateInitiativeBonus"
+            @update:passive-perception-bonus="updatePassivePerceptionBonus"
             @add-attack="addAttack"
             @remove-attack="removeAttack"
             @update:attack="updateAttack"
@@ -102,26 +126,15 @@
           <p class="py-8 text-center text-content-muted">背包（開發中）</p>
         </Tab>
       </Tabs>
-
-      <div class="mt-8 flex justify-end">
-        <Button
-          :disabled="!canSubmit"
-          :loading="isSubmitting"
-          :radius="4"
-          bg-color="var(--color-primary)"
-          @click="submit"
-        >
-          儲存變更
-        </Button>
-      </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
-import { ABILITY_KEYS } from '~/constants/dnd'
+import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
 import type { AbilityScores } from '~/types/business/character'
+import type { ProfessionKey } from '~/types/business/dnd'
 
 const route = useRoute()
 const id = String(route.params.id)
@@ -143,6 +156,9 @@ const {
   updateArmorValue,
   updateArmorAbilityKey,
   updateShieldValue,
+  updateSpeedBonus,
+  updateInitiativeBonus,
+  updatePassivePerceptionBonus,
   updateExtraHp,
   addAttack,
   removeAttack,
@@ -158,4 +174,20 @@ const totalAbilityScores = computed(
       ABILITY_KEYS.map((key) => [key, getTotalScore(formState.abilities[key])]),
     ) as AbilityScores,
 )
+
+const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
+
+const totalHp = computed(() => {
+  const conMod = getAbilityModifier(totalAbilityScores.value.constitution)
+  const validProfessions = formState.professions.filter(
+    (e): e is { profession: ProfessionKey; level: number } => e.profession !== '',
+  )
+  const classHp = validProfessions.reduce((sum, entry, index) => {
+    const config = PROFESSION_CONFIG[entry.profession]
+    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
+    return sum + hp + conMod * entry.level
+  }, 0)
+  const toughBonus = formState.isTough ? totalLevel.value * 2 : 0
+  return classHp + toughBonus + formState.extraHp
+})
 </script>

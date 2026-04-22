@@ -218,32 +218,41 @@ describe('useCharacterUpdate — 護甲設定', () => {
 
 // ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
 
+const defaultEntry = (): Omit<import('~/types/business/character').AttackEntry, 'id'> => ({
+  name: '',
+  abilityKey: '',
+  damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+  extraHitBonus: null,
+  extraDamageBonus: null,
+})
+
 describe('useCharacterUpdate — 自訂攻擊', () => {
-  it('addAttack 應新增一筆空白攻擊', async () => {
+  it('addAttack 應新增一筆攻擊', async () => {
     const { formState, addAttack } = await getComposable('update-001')
-    addAttack()
+    addAttack(defaultEntry())
     expect(formState.attacks).toHaveLength(1)
     expect(formState.attacks[0]).toMatchObject({
       name: '',
-      hitBonus: null,
-      damage: '',
-      modifier: '',
+      abilityKey: '',
+      damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+      extraHitBonus: null,
+      extraDamageBonus: null,
     })
     expect(formState.attacks[0]!.id).toBeTypeOf('string')
   })
 
   it('每次 addAttack 產生的 id 應不重複', async () => {
     const { formState, addAttack } = await getComposable('update-001')
-    addAttack()
-    addAttack()
+    addAttack(defaultEntry())
+    addAttack(defaultEntry())
     const [a, b] = formState.attacks
     expect(a!.id).not.toBe(b!.id)
   })
 
   it('removeAttack 應移除指定 id 的攻擊', async () => {
     const { formState, addAttack, removeAttack } = await getComposable('update-001')
-    addAttack()
-    addAttack()
+    addAttack(defaultEntry())
+    addAttack(defaultEntry())
     const targetId = formState.attacks[0]!.id
     removeAttack(targetId)
     expect(formState.attacks).toHaveLength(1)
@@ -252,24 +261,73 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
 
   it('removeAttack 找不到對應 id 時不應拋錯', async () => {
     const { formState, addAttack, removeAttack } = await getComposable('update-001')
-    addAttack()
+    addAttack(defaultEntry())
     expect(() => removeAttack('non-existent')).not.toThrow()
     expect(formState.attacks).toHaveLength(1)
   })
 
-  it('updateAttack 應只修改指定欄位', async () => {
+  it('updateAttack 應以新資料取代整筆攻擊', async () => {
     const { formState, addAttack, updateAttack } = await getComposable('update-001')
-    addAttack()
+    addAttack(defaultEntry())
     const id = formState.attacks[0]!.id
-    updateAttack(id, 'name', '長劍')
-    updateAttack(id, 'damage', '1d8+3')
-    updateAttack(id, 'hitBonus', 5)
-    expect(formState.attacks[0]).toMatchObject({
+    updateAttack(id, {
       name: '長劍',
-      damage: '1d8+3',
-      hitBonus: 5,
-      modifier: '',
+      abilityKey: 'strength',
+      damageDice: { d4: 0, d6: 0, d8: 1, d10: 0, d12: 0 },
+      extraHitBonus: 2,
+      extraDamageBonus: 3,
     })
+    expect(formState.attacks[0]).toMatchObject({
+      id,
+      name: '長劍',
+      abilityKey: 'strength',
+      damageDice: { d8: 1 },
+      extraHitBonus: 2,
+      extraDamageBonus: 3,
+    })
+  })
+})
+
+// ─── Combat — 其他屬性 ───────────────────────────────────────────────────────
+
+describe('useCharacterUpdate — 其他屬性', () => {
+  it('updateSpeedBonus 應更新 speedBonus', async () => {
+    const { formState, updateSpeedBonus } = await getComposable('update-001')
+    updateSpeedBonus(10)
+    expect(formState.speedBonus).toBe(10)
+  })
+
+  it('updateSpeedBonus 可設為 null（清空）', async () => {
+    const { formState, updateSpeedBonus } = await getComposable('update-001')
+    updateSpeedBonus(10)
+    updateSpeedBonus(null)
+    expect(formState.speedBonus).toBeNull()
+  })
+
+  it('updateInitiativeBonus 應更新 initiativeBonus', async () => {
+    const { formState, updateInitiativeBonus } = await getComposable('update-001')
+    updateInitiativeBonus(3)
+    expect(formState.initiativeBonus).toBe(3)
+  })
+
+  it('updateInitiativeBonus 可設為 null（清空）', async () => {
+    const { formState, updateInitiativeBonus } = await getComposable('update-001')
+    updateInitiativeBonus(3)
+    updateInitiativeBonus(null)
+    expect(formState.initiativeBonus).toBeNull()
+  })
+
+  it('updatePassivePerceptionBonus 應更新 passivePerceptionBonus', async () => {
+    const { formState, updatePassivePerceptionBonus } = await getComposable('update-001')
+    updatePassivePerceptionBonus(2)
+    expect(formState.passivePerceptionBonus).toBe(2)
+  })
+
+  it('updatePassivePerceptionBonus 可設為 null（清空）', async () => {
+    const { formState, updatePassivePerceptionBonus } = await getComposable('update-001')
+    updatePassivePerceptionBonus(2)
+    updatePassivePerceptionBonus(null)
+    expect(formState.passivePerceptionBonus).toBeNull()
   })
 })
 

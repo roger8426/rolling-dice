@@ -45,8 +45,10 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     armorProficiencies: character.armorProficiencies ?? '',
     armorClass: character.armorClass ? { ...character.armorClass } : createDefaultArmorClass(),
     speedBonus: null,
+    initiativeBonus: null,
+    passivePerceptionBonus: null,
     extraHp: character.extraHp ?? 0,
-    attacks: character.attacks?.map((a) => ({ ...a })) ?? [],
+    attacks: character.attacks?.map((a) => ({ ...a, damageDice: { ...a.damageDice } })) ?? [],
   }
 }
 
@@ -114,14 +116,20 @@ export function useCharacterUpdate(id: string) {
     formState.armorClass.shieldValue = value
   }
 
-  function addAttack(): void {
-    formState.attacks.push({
-      id: crypto.randomUUID(),
-      name: '',
-      hitBonus: null,
-      damage: '',
-      modifier: '',
-    })
+  function updateSpeedBonus(value: number | null): void {
+    formState.speedBonus = value
+  }
+
+  function updateInitiativeBonus(value: number | null): void {
+    formState.initiativeBonus = value
+  }
+
+  function updatePassivePerceptionBonus(value: number | null): void {
+    formState.passivePerceptionBonus = value
+  }
+
+  function addAttack(entry: Omit<AttackEntry, 'id'>): void {
+    formState.attacks.push({ id: crypto.randomUUID(), ...entry })
   }
 
   function removeAttack(id: string): void {
@@ -129,13 +137,9 @@ export function useCharacterUpdate(id: string) {
     if (index !== -1) formState.attacks.splice(index, 1)
   }
 
-  function updateAttack<K extends keyof AttackEntry>(
-    id: string,
-    field: K,
-    value: AttackEntry[K],
-  ): void {
-    const attack = formState.attacks.find((a) => a.id === id)
-    if (attack) attack[field] = value
+  function updateAttack(id: string, data: Omit<AttackEntry, 'id'>): void {
+    const index = formState.attacks.findIndex((a) => a.id === id)
+    if (index !== -1) formState.attacks[index] = { id, ...data }
   }
   // ─── Validation ───────────────────────────────────────────────────────
 
@@ -180,6 +184,9 @@ export function useCharacterUpdate(id: string) {
     updateArmorValue,
     updateArmorAbilityKey,
     updateShieldValue,
+    updateSpeedBonus,
+    updateInitiativeBonus,
+    updatePassivePerceptionBonus,
     addAttack,
     removeAttack,
     updateAttack,
@@ -220,6 +227,8 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     armorProficiencies: '',
     armorClass: createDefaultArmorClass(),
     speedBonus: null,
+    initiativeBonus: null,
+    passivePerceptionBonus: null,
     extraHp: 0,
     attacks: [],
   }

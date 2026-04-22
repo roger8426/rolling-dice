@@ -2,6 +2,7 @@ import type {
   AbilityKey,
   AlignmentKey,
   ArmorType,
+  DamageDieType,
   GenderKey,
   ProfessionKey,
   ProficiencyLevel,
@@ -142,12 +143,14 @@ export interface AttackEntry {
   id: string
   /** 攻擊名稱 */
   name: string
-  /** 命中加值 */
-  hitBonus: number | null
-  /** 傷害（如 "1d8+3"） */
-  damage: string
-  /** 加值/備註 */
-  modifier: string
+  /** 命中使用的屬性（空字串表示未選擇） */
+  abilityKey: AbilityKey | ''
+  /** 傷害骰數量（0 表示不使用該骰型） */
+  damageDice: Record<DamageDieType, number>
+  /** 額外命中加值（疊加於屬性調整值 + 熟練加值之上） */
+  extraHitBonus: number | null
+  /** 額外傷害加值（疊加於傷害骰之上） */
+  extraDamageBonus: number | null
 }
 
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
@@ -158,6 +161,10 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   armorClass: ArmorClassConfig
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */
   speedBonus: number | null
+  /** 額外先攻加值 */
+  initiativeBonus: number | null
+  /** 額外被動察覺加值 */
+  passivePerceptionBonus: number | null
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
   extraHp: number
   /** 自訂攻擊列表 */

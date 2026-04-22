@@ -193,29 +193,18 @@
         >
           + 新增職業
         </Button>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-content">健壯</span>
-            <Toggle
-              :model-value="formState.isTough"
-              size="sm"
-              aria-label="是否持有健壯"
-              @update:model-value="emit('update:isTough', $event)"
-            />
-          </div>
-          <p class="text-sm text-content-muted">
-            總等級：
-            <span :class="totalLevel > 20 ? 'text-red-400 font-bold' : ''">{{ totalLevel }}</span>
-            / 20
-          </p>
-        </div>
+        <p class="text-sm text-content-muted">
+          總等級：
+          <span :class="totalLevel > 20 ? 'text-danger font-bold' : ''">{{ totalLevel }}</span>
+          / 20
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Button, Icon, Toggle } from '@ui'
+import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
 import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
 import type { CharacterFormStateBase } from '~/types/business/character'
