@@ -42,7 +42,10 @@ const MOCK_CHARACTER: Character = {
   armorProficiencies: null,
   avatar: null,
   extraHp: 0,
-  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
+  speedBonus: null,
+  initiativeBonus: null,
+  passivePerceptionBonus: null,
+  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
@@ -67,16 +70,16 @@ const MOCK_FORM_STATE: CharacterFormState = {
   background: '學者',
   isJackOfAllTrades: false,
   isTough: false,
-  faith: '',
+  faith: null,
   age: null,
-  height: '',
-  weight: '',
-  appearance: '',
-  story: '',
-  languages: '',
-  tools: '',
-  weaponProficiencies: '',
-  armorProficiencies: '',
+  height: null,
+  weight: null,
+  appearance: null,
+  story: null,
+  languages: null,
+  tools: null,
+  weaponProficiencies: null,
+  armorProficiencies: null,
 }
 
 beforeEach(() => {
@@ -167,6 +170,14 @@ describe('useCharacterStore — addCharacter', () => {
     const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: false })
     expect(created.isTough).toBe(false)
   })
+
+  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 null', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created.speedBonus).toBeNull()
+    expect(created.initiativeBonus).toBeNull()
+    expect(created.passivePerceptionBonus).toBeNull()
+  })
 })
 
 describe('useCharacterStore — removeCharacter', () => {
@@ -223,9 +234,9 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   story: '來自遠方的精靈法師',
   languages: '通用語, 精靈語',
   tools: '書法工具',
-  weaponProficiencies: '',
-  armorProficiencies: '',
-  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
+  weaponProficiencies: null,
+  armorProficiencies: null,
+  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
   speedBonus: null,
   initiativeBonus: null,
   passivePerceptionBonus: null,
@@ -293,6 +304,29 @@ describe('useCharacterStore — updateCharacter', () => {
     const result = store.updateCharacter('non-existent-id', MOCK_UPDATE_FORM_STATE)
     expect(result).toBeUndefined()
     expect(store.characters).toHaveLength(before)
+  })
+
+  it('更新後 speedBonus / initiativeBonus / passivePerceptionBonus 應從 formState 寫入', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      speedBonus: 10,
+      initiativeBonus: 3,
+      passivePerceptionBonus: 2,
+    })
+    expect(updated!.speedBonus).toBe(10)
+    expect(updated!.initiativeBonus).toBe(3)
+    expect(updated!.passivePerceptionBonus).toBe(2)
+  })
+
+  it('formState 的 speedBonus 等為 null 時應寫入 null', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
+    expect(updated!.speedBonus).toBeNull()
+    expect(updated!.initiativeBonus).toBeNull()
+    expect(updated!.passivePerceptionBonus).toBeNull()
   })
 
   it('空字串的 optional 欄位更新後應為 null', () => {

@@ -69,9 +69,9 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:armorType': [value: ArmorType | '']
+  'update:armorType': [value: ArmorType | null]
   'update:armorValue': [value: number | null]
-  'update:armorAbilityKey': [value: AbilityKey | '']
+  'update:armorAbilityKey': [value: AbilityKey | null]
   'update:shieldValue': [value: number]
   'update:extraHp': [value: number]
   'update:isTough': [value: boolean]

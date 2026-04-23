@@ -59,8 +59,8 @@ describe('getBaseArmorClass', () => {
     expect(getBaseArmorClass(10, -2, 'none')).toBe(8)
   })
 
-  it('未選擇護甲類型（空字串）時，AC = baseValue + 完整 dexModifier', () => {
-    expect(getBaseArmorClass(10, 3, '')).toBe(13)
+  it('未選擇護甲類型（null）時，AC = baseValue + 完整 dexModifier', () => {
+    expect(getBaseArmorClass(10, 3, null)).toBe(13)
   })
 
   it('中甲時，DEX 調整值應上限為 +2（DEX > 2）', () => {
@@ -102,7 +102,7 @@ describe('getTotalArmorClass', () => {
     const config: ArmorClassConfig = {
       type: 'light',
       value: 11,
-      abilityKey: '',
+      abilityKey: null,
       shieldValue: 2,
     }
     expect(getTotalArmorClass(config, baseScores)).toBe(16)
@@ -112,7 +112,7 @@ describe('getTotalArmorClass', () => {
     const config: ArmorClassConfig = {
       type: 'medium',
       value: 14,
-      abilityKey: '',
+      abilityKey: null,
       shieldValue: 2,
     }
     expect(getTotalArmorClass(config, baseScores)).toBe(18)
@@ -122,7 +122,7 @@ describe('getTotalArmorClass', () => {
     const config: ArmorClassConfig = {
       type: 'heavy',
       value: 18,
-      abilityKey: '',
+      abilityKey: null,
       shieldValue: 2,
     }
     expect(getTotalArmorClass(config, baseScores)).toBe(20)
@@ -140,9 +140,9 @@ describe('getTotalArmorClass', () => {
 
   it('value 為 null 時，fallback 為 10', () => {
     const config: ArmorClassConfig = {
-      type: '',
+      type: null,
       value: null,
-      abilityKey: '',
+      abilityKey: null,
       shieldValue: 0,
     }
     expect(getTotalArmorClass(config, baseScores)).toBe(13)
@@ -150,11 +150,11 @@ describe('getTotalArmorClass', () => {
 })
 
 describe('createDefaultArmorClass', () => {
-  it('應回傳 type=none, value=10, abilityKey 空字串, shield 0', () => {
+  it('應回傳 type=none, value=10, abilityKey=null, shield=0', () => {
     expect(createDefaultArmorClass()).toEqual({
       type: 'none',
       value: 10,
-      abilityKey: '',
+      abilityKey: null,
       shieldValue: 0,
     })
   })

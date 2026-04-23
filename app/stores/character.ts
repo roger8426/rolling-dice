@@ -28,7 +28,7 @@ export const useCharacterStore = defineStore('character', () => {
 
   function addCharacter(formState: CharacterFormState): Character {
     const professions = formState.professions.filter(
-      (p): p is ProfessionEntry => p.profession !== '',
+      (p): p is ProfessionEntry => p.profession !== null,
     )
     const primaryProfession = professions[0]?.profession
 
@@ -51,7 +51,7 @@ export const useCharacterStore = defineStore('character', () => {
       abilities,
       savingThrowProficiencies,
       skills: { ...formState.skills },
-      background: formState.background,
+      background: formState.background || null,
       isTough: formState.isTough,
       isJackOfAllTrades: formState.isJackOfAllTrades,
       createdAt: new Date().toISOString(),
@@ -67,6 +67,9 @@ export const useCharacterStore = defineStore('character', () => {
       armorProficiencies: formState.armorProficiencies || null,
       avatar: null,
       extraHp: 0,
+      speedBonus: null,
+      initiativeBonus: null,
+      passivePerceptionBonus: null,
       armorClass: createDefaultArmorClass(),
       attacks: [],
       learnedSpells: [],
@@ -88,7 +91,7 @@ export const useCharacterStore = defineStore('character', () => {
 
     const existing = characters.value[index]!
     const professions = formState.professions.filter(
-      (p): p is ProfessionEntry => p.profession !== '',
+      (p): p is ProfessionEntry => p.profession !== null,
     )
     const primaryProfession = professions[0]?.profession
 
@@ -107,7 +110,7 @@ export const useCharacterStore = defineStore('character', () => {
       abilities: { ...formState.abilities },
       savingThrowProficiencies,
       skills: { ...formState.skills },
-      background: formState.background,
+      background: formState.background || null,
       isJackOfAllTrades: formState.isJackOfAllTrades,
       isTough: formState.isTough,
       faith: formState.faith || null,
@@ -121,6 +124,9 @@ export const useCharacterStore = defineStore('character', () => {
       weaponProficiencies: formState.weaponProficiencies || null,
       armorProficiencies: formState.armorProficiencies || null,
       extraHp: formState.extraHp,
+      speedBonus: formState.speedBonus,
+      initiativeBonus: formState.initiativeBonus,
+      passivePerceptionBonus: formState.passivePerceptionBonus,
       armorClass: { ...formState.armorClass },
       attacks: formState.attacks.map((a) => ({ ...a })),
       learnedSpells: [...formState.learnedSpells],

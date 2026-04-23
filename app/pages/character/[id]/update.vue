@@ -186,7 +186,7 @@ const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 const totalHp = computed(() => {
   const conMod = getAbilityModifier(totalAbilityScores.value.constitution)
   const validProfessions = formState.professions.filter(
-    (e): e is { profession: ProfessionKey; level: number } => e.profession !== '',
+    (e): e is { profession: ProfessionKey; level: number } => e.profession !== null,
   )
   const classHp = validProfessions.reduce((sum, entry, index) => {
     const config = PROFESSION_CONFIG[entry.profession]

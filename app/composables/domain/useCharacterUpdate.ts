@@ -30,23 +30,23 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
       ]),
     ) as CharacterUpdateFormState['abilities'],
     skills: { ...character.skills },
-    background: character.background,
+    background: character.background ?? null,
     isJackOfAllTrades: character.isJackOfAllTrades ?? false,
     isTough: character.isTough ?? false,
-    faith: character.faith ?? '',
+    faith: character.faith ?? null,
     age: character.age ?? null,
-    height: character.height ?? '',
-    weight: character.weight ?? '',
-    appearance: character.appearance ?? '',
-    story: character.story ?? '',
-    languages: character.languages ?? '',
-    tools: character.tools ?? '',
-    weaponProficiencies: character.weaponProficiencies ?? '',
-    armorProficiencies: character.armorProficiencies ?? '',
+    height: character.height ?? null,
+    weight: character.weight ?? null,
+    appearance: character.appearance ?? null,
+    story: character.story ?? null,
+    languages: character.languages ?? null,
+    tools: character.tools ?? null,
+    weaponProficiencies: character.weaponProficiencies ?? null,
+    armorProficiencies: character.armorProficiencies ?? null,
     armorClass: character.armorClass ? { ...character.armorClass } : createDefaultArmorClass(),
-    speedBonus: null,
-    initiativeBonus: null,
-    passivePerceptionBonus: null,
+    speedBonus: character.speedBonus ?? null,
+    initiativeBonus: character.initiativeBonus ?? null,
+    passivePerceptionBonus: character.passivePerceptionBonus ?? null,
     extraHp: character.extraHp ?? 0,
     attacks: character.attacks?.map((a) => ({ ...a, damageDice: { ...a.damageDice } })) ?? [],
     learnedSpells: [...(character.learnedSpells ?? [])],
@@ -69,7 +69,7 @@ export function useCharacterUpdate(id: string) {
   const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
 
   function addProfession(): void {
-    formState.professions.push({ profession: '', level: 1 })
+    formState.professions.push({ profession: null, level: 1 })
   }
 
   function removeProfession(index: number): void {
@@ -102,7 +102,7 @@ export function useCharacterUpdate(id: string) {
     formState.extraHp = value
   }
 
-  function updateArmorType(type: ArmorType | ''): void {
+  function updateArmorType(type: ArmorType | null): void {
     formState.armorClass.type = type
   }
 
@@ -110,7 +110,7 @@ export function useCharacterUpdate(id: string) {
     formState.armorClass.value = value
   }
 
-  function updateArmorAbilityKey(abilityKey: AbilityKey | ''): void {
+  function updateArmorAbilityKey(abilityKey: AbilityKey | null): void {
     formState.armorClass.abilityKey = abilityKey
   }
 
@@ -174,7 +174,7 @@ export function useCharacterUpdate(id: string) {
     () =>
       !isSubmitting.value &&
       formState.name.trim() !== '' &&
-      formState.professions.some((p) => p.profession !== ''),
+      formState.professions.some((p) => p.profession !== null),
   )
 
   // ─── Submit ───────────────────────────────────────────────────────────
@@ -234,27 +234,27 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
   return {
     id: '',
     name: '',
-    gender: '',
-    race: '',
-    alignment: '',
-    professions: [{ profession: '', level: 1 }],
+    gender: null,
+    race: null,
+    alignment: null,
+    professions: [{ profession: null, level: 1 }],
     abilities: Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, { basicScore: 8, bonusScore: 0 }]),
     ) as CharacterUpdateFormState['abilities'],
     skills: {},
-    background: '',
+    background: null,
     isJackOfAllTrades: false,
     isTough: false,
-    faith: '',
+    faith: null,
     age: null,
-    height: '',
-    weight: '',
-    appearance: '',
-    story: '',
-    languages: '',
-    tools: '',
-    weaponProficiencies: '',
-    armorProficiencies: '',
+    height: null,
+    weight: null,
+    appearance: null,
+    story: null,
+    languages: null,
+    tools: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
     armorClass: createDefaultArmorClass(),
     speedBonus: null,
     initiativeBonus: null,

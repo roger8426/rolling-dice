@@ -51,10 +51,10 @@ const proficiencyBonus = computed(() => getProficiencyBonus(props.totalLevel))
 
 const emit = defineEmits<{
   'update:name': [value: string]
-  'update:gender': [value: string]
-  'update:race': [value: string]
+  'update:gender': [value: string | null]
+  'update:race': [value: string | null]
   'update:background': [value: string]
-  'update:alignment': [value: string]
+  'update:alignment': [value: string | null]
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]

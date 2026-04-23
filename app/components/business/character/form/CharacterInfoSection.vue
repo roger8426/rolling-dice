@@ -51,7 +51,7 @@
           id="char-background"
           class="w-full"
           :radius="0"
-          :model-value="formState.background"
+          :model-value="formState.background ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:background', $event)"
@@ -76,7 +76,7 @@
         <CommonAppInput
           id="char-faith"
           class="w-full"
-          :model-value="formState.faith"
+          :model-value="formState.faith ?? ''"
           placeholder=""
           size="sm"
           @update:model-value="emit('update:faith', $event)"
@@ -91,7 +91,7 @@
           id="char-languages"
           class="w-full"
           :radius="0"
-          :model-value="formState.languages"
+          :model-value="formState.languages ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:languages', $event)"
@@ -103,7 +103,7 @@
           id="char-tools"
           class="w-full"
           :radius="0"
-          :model-value="formState.tools"
+          :model-value="formState.tools ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:tools', $event)"
@@ -117,7 +117,7 @@
           id="char-weapons"
           class="w-full"
           :radius="0"
-          :model-value="formState.weaponProficiencies"
+          :model-value="formState.weaponProficiencies ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:weaponProficiencies', $event)"
@@ -129,7 +129,7 @@
           id="char-armor"
           class="w-full"
           :radius="0"
-          :model-value="formState.armorProficiencies"
+          :model-value="formState.armorProficiencies ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:armorProficiencies', $event)"
@@ -217,10 +217,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:name': [value: string]
-  'update:gender': [value: string]
-  'update:race': [value: string]
+  'update:gender': [value: string | null]
+  'update:race': [value: string | null]
   'update:background': [value: string]
-  'update:alignment': [value: string]
+  'update:alignment': [value: string | null]
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]

@@ -11,7 +11,7 @@
           size="sm"
           placeholder="選擇護甲"
           class="w-18"
-          @update:model-value="emit('update:armorType', ($event as ArmorType | '') ?? '')"
+          @update:model-value="emit('update:armorType', ($event || null) as ArmorType | null)"
         />
       </div>
 
@@ -45,12 +45,14 @@
         <label for="armor-ability" class="mb-1 block text-xs text-content">無甲防禦</label>
         <CommonAppSelect
           id="armor-ability"
-          :model-value="armorClass.abilityKey"
+          :model-value="armorClass.abilityKey ?? ''"
           :options="abilityOptions"
           size="sm"
           placeholder="無"
           class="w-18"
-          @update:model-value="emit('update:armorAbilityKey', ($event as AbilityKey | '') ?? '')"
+          @update:model-value="
+            emit('update:armorAbilityKey', ($event || null) as AbilityKey | null)
+          "
         />
       </div>
 
@@ -94,9 +96,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:armorType': [value: ArmorType | '']
+  'update:armorType': [value: ArmorType | null]
   'update:armorValue': [value: number | null]
-  'update:armorAbilityKey': [value: AbilityKey | '']
+  'update:armorAbilityKey': [value: AbilityKey | null]
   'update:shieldValue': [value: number]
 }>()
 

@@ -66,7 +66,7 @@ export function getClassHitPoints(hitDie: number, level: number, isPrimary: bool
 export function getBaseArmorClass(
   baseValue: number,
   dexModifier: number,
-  type: ArmorType | '',
+  type: ArmorType | null,
 ): number {
   if (type === 'heavy') return baseValue
   if (type === 'medium') return baseValue + Math.min(dexModifier, 2)
@@ -94,7 +94,7 @@ export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: Abil
  * 用於新增角色或尚未設定戰鬥資訊時的初始值。
  */
 export function createDefaultArmorClass(): ArmorClassConfig {
-  return { type: 'none', value: 10, abilityKey: '', shieldValue: 0 }
+  return { type: 'none', value: 10, abilityKey: null, shieldValue: 0 }
 }
 
 /**

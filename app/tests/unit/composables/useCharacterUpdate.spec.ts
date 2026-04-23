@@ -39,7 +39,10 @@ const MOCK_CHARACTER: Character = {
   avatar: null,
   createdAt: '2026-01-01T00:00:00.000Z',
   extraHp: 0,
-  armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
+  speedBonus: null,
+  initiativeBonus: null,
+  passivePerceptionBonus: null,
+  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
@@ -222,7 +225,7 @@ describe('useCharacterUpdate — 護甲設定', () => {
 
 const defaultEntry = (): Omit<import('~/types/business/character').AttackEntry, 'id'> => ({
   name: '',
-  abilityKey: '',
+  abilityKey: null,
   damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
   extraHitBonus: null,
   extraDamageBonus: null,
@@ -235,7 +238,7 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
     expect(formState.attacks).toHaveLength(1)
     expect(formState.attacks[0]).toMatchObject({
       name: '',
-      abilityKey: '',
+      abilityKey: null,
       damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
       extraHitBonus: null,
       extraDamageBonus: null,

@@ -81,12 +81,12 @@
           <label for="attack-modal-ability" class="mb-1 block text-xs text-content">屬性</label>
           <CommonAppSelect
             id="attack-modal-ability"
-            :model-value="draft.abilityKey"
+            :model-value="draft.abilityKey ?? ''"
             :options="abilityOptions"
             size="sm"
             placeholder="選擇屬性"
             class="w-28"
-            @update:model-value="draft.abilityKey = ($event as AbilityKey | '') ?? ''"
+            @update:model-value="draft.abilityKey = ($event || null) as AbilityKey | null"
           />
         </div>
         <div>
@@ -195,7 +195,7 @@ const editingId = ref<string | null>(null)
 function createEmptyDraft(): Omit<AttackEntry, 'id'> {
   return {
     name: '',
-    abilityKey: '',
+    abilityKey: null,
     damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
     extraHitBonus: null,
     extraDamageBonus: null,

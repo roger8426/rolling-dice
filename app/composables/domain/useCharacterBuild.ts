@@ -15,26 +15,26 @@ function createDefaultAbilities(): AbilityScores {
 function createDefaultFormState(): CharacterFormState {
   return {
     name: '',
-    gender: '',
-    race: '',
-    alignment: '',
-    professions: [{ profession: '', level: 1 }],
+    gender: null,
+    race: null,
+    alignment: null,
+    professions: [{ profession: null, level: 1 }],
     abilities: createDefaultAbilities(),
     abilityMethod: 'custom',
     skills: {},
-    background: '',
+    background: null,
     isJackOfAllTrades: false,
     isTough: false,
-    faith: '',
+    faith: null,
     age: null,
-    height: '',
-    weight: '',
-    appearance: '',
-    story: '',
-    languages: '',
-    tools: '',
-    weaponProficiencies: '',
-    armorProficiencies: '',
+    height: null,
+    weight: null,
+    appearance: null,
+    story: null,
+    languages: null,
+    tools: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
   }
 }
 
@@ -86,7 +86,7 @@ export function useCharacterBuild() {
 
   function addProfession(): void {
     formState.professions.push({
-      profession: '',
+      profession: null,
       level: 1,
     })
   }
@@ -120,7 +120,7 @@ export function useCharacterBuild() {
     () =>
       !isSubmitting.value &&
       formState.name.trim() !== '' &&
-      formState.professions.some((p) => p.profession !== ''),
+      formState.professions.some((p) => p.profession !== null),
   )
 
   // ─── Submit ───────────────────────────────────────────────────────────
