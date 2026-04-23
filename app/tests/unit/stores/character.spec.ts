@@ -44,6 +44,8 @@ const MOCK_CHARACTER: Character = {
   extraHp: 0,
   armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
   attacks: [],
+  learnedSpells: [],
+  preparedSpells: [],
 }
 
 const MOCK_FORM_STATE: CharacterFormState = {
@@ -229,6 +231,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   passivePerceptionBonus: null,
   extraHp: 0,
   attacks: [],
+  learnedSpells: [],
+  preparedSpells: [],
 }
 
 describe('useCharacterStore — updateCharacter', () => {

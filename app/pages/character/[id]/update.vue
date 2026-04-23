@@ -110,12 +110,16 @@
           />
         </Tab>
 
-        <!-- TODO: 法術列表功能開發中，待實作後移除 v-if -->
-        <Tab v-if="false" value="spells">
+        <Tab value="spells">
           <template #label>
-            <span class="text-content">法術列表</span>
+            <span class="text-content">法術書</span>
           </template>
-          <p class="py-8 text-center text-content-muted">法術列表（開發中）</p>
+          <BusinessCharacterFormSpellsTab
+            :learned-spells="formState.learnedSpells"
+            :prepared-spells="formState.preparedSpells"
+            @toggle-learned="toggleLearnedSpell"
+            @toggle-prepared="togglePreparedSpell"
+          />
         </Tab>
 
         <!-- TODO: 背包功能開發中，待實作後移除 v-if -->
@@ -163,6 +167,8 @@ const {
   addAttack,
   removeAttack,
   updateAttack,
+  toggleLearnedSpell,
+  togglePreparedSpell,
   canSubmit,
   isSubmitting,
   submit,

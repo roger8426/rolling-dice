@@ -41,6 +41,8 @@ const MOCK_CHARACTER: Character = {
   extraHp: 0,
   armorClass: { type: 'none', value: 10, abilityKey: '', shieldValue: 0 },
   attacks: [],
+  learnedSpells: [],
+  preparedSpells: [],
 }
 
 async function getComposable(characterId: string) {
@@ -328,6 +330,44 @@ describe('useCharacterUpdate — 其他屬性', () => {
     updatePassivePerceptionBonus(2)
     updatePassivePerceptionBonus(null)
     expect(formState.passivePerceptionBonus).toBeNull()
+  })
+})
+
+// ─── Spells ────────────────────────────────────────────────────────────────
+
+describe('useCharacterUpdate — 法術', () => {
+  it('toggleLearnedSpell 可新增與移除掌握的法術', async () => {
+    const { formState, toggleLearnedSpell } = await getComposable('update-001')
+    toggleLearnedSpell('火球術')
+    expect(formState.learnedSpells).toContain('火球術')
+    toggleLearnedSpell('火球術')
+    expect(formState.learnedSpells).not.toContain('火球術')
+  })
+
+  it('取消掌握某法術時，應同步從 preparedSpells 移除', async () => {
+    const { formState, toggleLearnedSpell, togglePreparedSpell } = await getComposable('update-001')
+    toggleLearnedSpell('火球術')
+    togglePreparedSpell('火球術')
+    expect(formState.preparedSpells).toContain('火球術')
+
+    toggleLearnedSpell('火球術')
+    expect(formState.learnedSpells).not.toContain('火球術')
+    expect(formState.preparedSpells).not.toContain('火球術')
+  })
+
+  it('togglePreparedSpell 只允許 learnedSpells 內的名稱', async () => {
+    const { formState, togglePreparedSpell } = await getComposable('update-001')
+    togglePreparedSpell('未掌握的法術')
+    expect(formState.preparedSpells).toHaveLength(0)
+  })
+
+  it('togglePreparedSpell 可在已掌握的法術上切換準備狀態', async () => {
+    const { formState, toggleLearnedSpell, togglePreparedSpell } = await getComposable('update-001')
+    toggleLearnedSpell('火球術')
+    togglePreparedSpell('火球術')
+    expect(formState.preparedSpells).toContain('火球術')
+    togglePreparedSpell('火球術')
+    expect(formState.preparedSpells).not.toContain('火球術')
   })
 })
 

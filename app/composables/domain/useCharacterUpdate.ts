@@ -49,6 +49,8 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     passivePerceptionBonus: null,
     extraHp: character.extraHp ?? 0,
     attacks: character.attacks?.map((a) => ({ ...a, damageDice: { ...a.damageDice } })) ?? [],
+    learnedSpells: [...(character.learnedSpells ?? [])],
+    preparedSpells: [...(character.preparedSpells ?? [])],
   }
 }
 
@@ -141,6 +143,30 @@ export function useCharacterUpdate(id: string) {
     const index = formState.attacks.findIndex((a) => a.id === id)
     if (index !== -1) formState.attacks[index] = { id, ...data }
   }
+
+  // ─── Spells ───────────────────────────────────────────────────────────
+
+  function toggleLearnedSpell(name: string): void {
+    const index = formState.learnedSpells.indexOf(name)
+    if (index === -1) {
+      formState.learnedSpells.push(name)
+      return
+    }
+    formState.learnedSpells.splice(index, 1)
+    const preparedIndex = formState.preparedSpells.indexOf(name)
+    if (preparedIndex !== -1) formState.preparedSpells.splice(preparedIndex, 1)
+  }
+
+  function togglePreparedSpell(name: string): void {
+    if (!formState.learnedSpells.includes(name)) return
+    const index = formState.preparedSpells.indexOf(name)
+    if (index === -1) {
+      formState.preparedSpells.push(name)
+    } else {
+      formState.preparedSpells.splice(index, 1)
+    }
+  }
+
   // ─── Validation ───────────────────────────────────────────────────────
 
   const isSubmitting = ref(false)
@@ -191,6 +217,10 @@ export function useCharacterUpdate(id: string) {
     removeAttack,
     updateAttack,
 
+    // spells
+    toggleLearnedSpell,
+    togglePreparedSpell,
+
     // validation
     canSubmit,
 
@@ -231,5 +261,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     passivePerceptionBonus: null,
     extraHp: 0,
     attacks: [],
+    learnedSpells: [],
+    preparedSpells: [],
   }
 }

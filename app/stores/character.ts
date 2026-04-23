@@ -69,6 +69,8 @@ export const useCharacterStore = defineStore('character', () => {
       extraHp: 0,
       armorClass: createDefaultArmorClass(),
       attacks: [],
+      learnedSpells: [],
+      preparedSpells: [],
     }
     characters.value.push(character)
     saveToStorage(characters.value)
@@ -121,6 +123,8 @@ export const useCharacterStore = defineStore('character', () => {
       extraHp: formState.extraHp,
       armorClass: { ...formState.armorClass },
       attacks: formState.attacks.map((a) => ({ ...a })),
+      learnedSpells: [...formState.learnedSpells],
+      preparedSpells: [...formState.preparedSpells],
     }
 
     characters.value[index] = updated

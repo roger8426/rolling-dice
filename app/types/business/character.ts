@@ -85,6 +85,10 @@ export interface Character {
   armorClass: ArmorClassConfig
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
+  /** 已掌握的法術名稱列表 */
+  learnedSpells: string[]
+  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
+  preparedSpells: string[]
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -169,4 +173,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   extraHp: number
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
+  /** 已掌握的法術名稱列表 */
+  learnedSpells: string[]
+  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
+  preparedSpells: string[]
 }
