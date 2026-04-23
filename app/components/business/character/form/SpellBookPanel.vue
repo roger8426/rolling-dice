@@ -29,7 +29,7 @@
             :options="levelOptions"
             size="sm"
             class="w-24"
-            @update:model-value="filter.level = ($event as string) ?? ''"
+            @update:model-value="filter.level = toFilterString($event)"
           />
         </div>
         <div>
@@ -40,7 +40,7 @@
             :options="schoolOptions"
             size="sm"
             class="w-24"
-            @update:model-value="filter.school = ($event as string) ?? ''"
+            @update:model-value="filter.school = toFilterString($event)"
           />
         </div>
       </div>
@@ -100,16 +100,16 @@
                       <Badge
                         v-if="spell.ritual"
                         size="sm"
-                        bg-color="var(--color-info-soft)"
-                        text-color="var(--color-info)"
+                        bg-color="var(--color-info)"
+                        text-color="var(--color-info-soft)"
                       >
                         儀式
                       </Badge>
                       <Badge
                         v-if="spell.concentration"
                         size="sm"
-                        bg-color="var(--color-warning-soft)"
-                        text-color="var(--color-warning)"
+                        bg-color="var(--color-warning)"
+                        text-color="var(--color-warning-soft)"
                       >
                         專注
                       </Badge>
@@ -184,6 +184,11 @@ const filter = reactive<SpellFilter>({
   concentration: false,
 })
 
+/** 將 Select emit 的 `string | number | null` 收斂為 filter 用的字串 */
+function toFilterString(value: string | number | null): string {
+  return value == null ? '' : String(value)
+}
+
 const levelOptions: SelectOption[] = [
   { value: '', label: '全部' },
   { value: '0', label: '戲法' },
@@ -213,20 +218,7 @@ const filteredSpells = computed<Spell[]>(() => {
   })
 })
 
-const groupedSpells = computed(() => {
-  const groups = new Map<number, Spell[]>()
-  for (const spell of filteredSpells.value) {
-    const bucket = groups.get(spell.level) ?? []
-    bucket.push(spell)
-    groups.set(spell.level, bucket)
-  }
-  return Array.from(groups.entries())
-    .sort(([a], [b]) => a - b)
-    .map(([level, spellsOfLevel]) => ({
-      level,
-      spells: [...spellsOfLevel].sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant')),
-    }))
-})
+const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
 function isLearned(name: string): boolean {
   return props.learnedSpells.includes(name)

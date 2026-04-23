@@ -10,7 +10,9 @@
       </span>
     </header>
 
-    <p v-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
+    <p v-if="pending" class="py-6 text-center text-sm text-content-muted">法術資料載入中…</p>
+    <p v-else-if="error" class="py-6 text-center text-sm text-danger">法術資料載入失敗</p>
+    <p v-else-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未習得任何法術
     </p>
     <div v-else class="space-y-4 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pr-1">
@@ -54,26 +56,13 @@ const emit = defineEmits<{
   togglePrepared: [name: string]
 }>()
 
-const { getSpell } = useSpells()
+const { getSpell, pending, error } = useSpells()
 
 const learnedSpellDetails = computed<Spell[]>(() =>
   props.learnedSpells.map((name) => getSpell(name)).filter((s): s is Spell => s !== undefined),
 )
 
-const groupedSpells = computed(() => {
-  const groups = new Map<number, Spell[]>()
-  for (const spell of learnedSpellDetails.value) {
-    const bucket = groups.get(spell.level) ?? []
-    bucket.push(spell)
-    groups.set(spell.level, bucket)
-  }
-  return Array.from(groups.entries())
-    .sort(([a], [b]) => a - b)
-    .map(([level, spellsOfLevel]) => ({
-      level,
-      spells: [...spellsOfLevel].sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant')),
-    }))
-})
+const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value))
 
 function isPrepared(name: string): boolean {
   return props.preparedSpells.includes(name)
