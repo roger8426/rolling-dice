@@ -5,8 +5,8 @@
         已掌握法術
       </h2>
       <span class="text-xs text-content-muted">
-        已準備 <span class="font-bold text-content">{{ preparedSpells.length }}</span> /
-        {{ learnedSpells.length }}
+        已準備 <span class="font-bold text-content">{{ preparedCount }}</span> /
+        {{ preparableCount }}
       </span>
     </header>
 
@@ -30,6 +30,7 @@
             class="flex items-center gap-3 rounded-md border border-border-soft bg-surface px-3 py-2"
           >
             <Checkbox
+              v-if="group.level !== 0"
               :model-value="isPrepared(spell.name)"
               size="sm"
               :aria-label="`準備 ${spell.name}`"
@@ -63,6 +64,16 @@ const learnedSpellDetails = computed<Spell[]>(() =>
 )
 
 const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value))
+
+const preparableNames = computed(
+  () => new Set(learnedSpellDetails.value.filter((s) => s.level > 0).map((s) => s.name)),
+)
+
+const preparableCount = computed(() => preparableNames.value.size)
+
+const preparedCount = computed(
+  () => props.preparedSpells.filter((name) => preparableNames.value.has(name)).length,
+)
 
 function isPrepared(name: string): boolean {
   return props.preparedSpells.includes(name)
