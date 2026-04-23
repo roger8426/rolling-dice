@@ -1,5 +1,13 @@
-import type { AbilityScores, ArmorClassConfig, CharacterTier } from '~/types/business/character'
-import type { ArmorType, ProficiencyLevel } from '~/types/business/dnd'
+import type {
+  AbilityScores,
+  ArmorClassConfig,
+  CharacterFormStateBase,
+  CharacterTier,
+  CharacterWritablePatch,
+  ProfessionEntry,
+} from '~/types/business/character'
+import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
+import { PROFESSION_CONFIG } from '~/constants/dnd'
 import { getAbilityModifier } from '~/helpers/ability'
 
 export function getCharacterTier(level: number): CharacterTier {
@@ -102,4 +110,81 @@ export function createDefaultArmorClass(): ArmorClassConfig {
  */
 export function getPassivePerception(perceptionBonus: number): number {
   return 10 + perceptionBonus
+}
+
+/**
+ * 由（已過濾的）職業陣列取得豁免熟練屬性，
+ * 規則：取主職業（第一個 entry）的 savingThrowProficiencies；無主職業時回傳空陣列。
+ */
+export function calculateSavingThrowProficiencies(professions: ProfessionEntry[]): AbilityKey[] {
+  const primary = professions[0]
+  if (!primary) return []
+  return [...PROFESSION_CONFIG[primary.profession].savingThrowProficiencies]
+}
+
+/**
+ * 將 form state 的共用欄位轉為 Character 可寫入的 patch。
+ * 僅處理 build/update 兩端共用的欄位；abilities / armorClass / attacks / spells /
+ * bonus 欄位 / savingThrowProficiencies 由呼叫端個別拼接。
+ *
+ * 內部依領域分段組織（identity / progression / profile / proficiencies），
+ * 未來領域切片（方案 B）時可對應拆為子 mapper。
+ */
+export function formStateToCharacterPatch(
+  formState: CharacterFormStateBase,
+): CharacterWritablePatch {
+  // identity
+  const name = formState.name
+  const gender = formState.gender || 'nonBinary'
+  const race = formState.race as CharacterWritablePatch['race']
+  const alignment = formState.alignment as CharacterWritablePatch['alignment']
+
+  // progression
+  const professions = formState.professions.filter(
+    (p): p is ProfessionEntry => p.profession !== null,
+  )
+  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
+
+  // skills & toggles
+  const skills = { ...formState.skills }
+  const isJackOfAllTrades = formState.isJackOfAllTrades
+  const isTough = formState.isTough
+
+  // profile
+  const background = formState.background || null
+  const faith = formState.faith || null
+  const age = formState.age ?? null
+  const height = formState.height || null
+  const weight = formState.weight || null
+  const appearance = formState.appearance || null
+  const story = formState.story || null
+
+  // proficiencies
+  const languages = formState.languages || null
+  const tools = formState.tools || null
+  const weaponProficiencies = formState.weaponProficiencies || null
+  const armorProficiencies = formState.armorProficiencies || null
+
+  return {
+    name,
+    gender,
+    race,
+    alignment,
+    professions,
+    totalLevel,
+    skills,
+    isJackOfAllTrades,
+    isTough,
+    background,
+    faith,
+    age,
+    height,
+    weight,
+    appearance,
+    story,
+    languages,
+    tools,
+    weaponProficiencies,
+    armorProficiencies,
+  }
 }

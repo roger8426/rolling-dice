@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calculateSavingThrowProficiencies,
   createDefaultArmorClass,
+  formStateToCharacterPatch,
   getBaseArmorClass,
   getCharacterTier,
   getPassivePerception,
   getTotalArmorClass,
 } from '~/helpers/character'
-import type { AbilityScores, ArmorClassConfig } from '~/types/business/character'
+import type {
+  AbilityScores,
+  ArmorClassConfig,
+  CharacterFormStateBase,
+} from '~/types/business/character'
 
 describe('getCharacterTier', () => {
   describe('common 等級 (1–4)', () => {
@@ -178,5 +184,144 @@ describe('getPassivePerception', () => {
 
   it('感知加值為負數時，被動感知 < 10', () => {
     expect(getPassivePerception(-1)).toBe(9)
+  })
+})
+
+describe('calculateSavingThrowProficiencies', () => {
+  it('主職業為 fighter 時，回傳 strength + constitution', () => {
+    expect(calculateSavingThrowProficiencies([{ profession: 'fighter', level: 3 }])).toEqual([
+      'strength',
+      'constitution',
+    ])
+  })
+
+  it('多職業時，以第一個職業為主職業決定豁免熟練', () => {
+    expect(
+      calculateSavingThrowProficiencies([
+        { profession: 'wizard', level: 5 },
+        { profession: 'fighter', level: 3 },
+      ]),
+    ).toEqual(['intelligence', 'wisdom'])
+  })
+
+  it('空陣列時，回傳空陣列', () => {
+    expect(calculateSavingThrowProficiencies([])).toEqual([])
+  })
+
+  it('回傳陣列為新的陣列（不與 PROFESSION_CONFIG 共享參照）', () => {
+    const result = calculateSavingThrowProficiencies([{ profession: 'wizard', level: 1 }])
+    result.push('charisma')
+    // 第二次呼叫仍為原始結果，代表回傳陣列是獨立副本
+    expect(calculateSavingThrowProficiencies([{ profession: 'wizard', level: 1 }])).toEqual([
+      'intelligence',
+      'wisdom',
+    ])
+  })
+})
+
+describe('formStateToCharacterPatch', () => {
+  function createBaseFormState(
+    overrides: Partial<CharacterFormStateBase> = {},
+  ): CharacterFormStateBase {
+    return {
+      name: '測試角色',
+      gender: 'male',
+      race: 'human',
+      alignment: 'trueNeutral',
+      professions: [{ profession: 'fighter', level: 3 }],
+      skills: {},
+      background: null,
+      isJackOfAllTrades: false,
+      isTough: false,
+      faith: null,
+      age: null,
+      height: null,
+      weight: null,
+      appearance: null,
+      story: null,
+      languages: null,
+      tools: null,
+      weaponProficiencies: null,
+      armorProficiencies: null,
+      ...overrides,
+    }
+  }
+
+  it('基本 happy path：欄位原樣帶入，professions 不變', () => {
+    const form = createBaseFormState({
+      name: '法師小明',
+      professions: [{ profession: 'wizard', level: 5 }],
+      faith: '無神論',
+      age: 25,
+    })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.name).toBe('法師小明')
+    expect(patch.professions).toEqual([{ profession: 'wizard', level: 5 }])
+    expect(patch.totalLevel).toBe(5)
+    expect(patch.faith).toBe('無神論')
+    expect(patch.age).toBe(25)
+  })
+
+  it('gender 為 null 時，回傳 fallback nonBinary', () => {
+    const form = createBaseFormState({ gender: null })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.gender).toBe('nonBinary')
+  })
+
+  it('professions 含 null 條目時應過濾，totalLevel 僅加總有效職業', () => {
+    const form = createBaseFormState({
+      professions: [
+        { profession: 'fighter', level: 3 },
+        { profession: null, level: 2 },
+        { profession: 'wizard', level: 1 },
+      ],
+    })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.professions).toEqual([
+      { profession: 'fighter', level: 3 },
+      { profession: 'wizard', level: 1 },
+    ])
+    expect(patch.totalLevel).toBe(4)
+  })
+
+  it('professions 全為 null 時，professions 為空陣列、totalLevel 為 0', () => {
+    const form = createBaseFormState({
+      professions: [
+        { profession: null, level: 1 },
+        { profession: null, level: 2 },
+      ],
+    })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.professions).toEqual([])
+    expect(patch.totalLevel).toBe(0)
+  })
+
+  it('所有可選文字欄位為 null 時，patch 欄位保持 null', () => {
+    const form = createBaseFormState()
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.background).toBeNull()
+    expect(patch.faith).toBeNull()
+    expect(patch.height).toBeNull()
+    expect(patch.weight).toBeNull()
+    expect(patch.appearance).toBeNull()
+    expect(patch.story).toBeNull()
+    expect(patch.languages).toBeNull()
+    expect(patch.tools).toBeNull()
+    expect(patch.weaponProficiencies).toBeNull()
+    expect(patch.armorProficiencies).toBeNull()
+  })
+
+  it('age 為 0 時應保留為 0，不視為 null', () => {
+    const form = createBaseFormState({ age: 0 })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.age).toBe(0)
+  })
+
+  it('skills 物件應為淺層複製（與原 form state 不共享參照）', () => {
+    const skills = { acrobatics: 'proficient' as const }
+    const form = createBaseFormState({ skills })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.skills).toEqual(skills)
+    expect(patch.skills).not.toBe(skills)
   })
 })

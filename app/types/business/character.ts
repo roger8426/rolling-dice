@@ -53,6 +53,34 @@ export type SkillProficiencies = Partial<Record<SkillKey, ProficiencyLevel>>
 
 // ─── Character ────────────────────────────────────────────────────────────────
 
+/**
+ * Character 中可由 form state 直接產生的欄位子集。
+ * 僅供 store 邊界使用（mapper 的輸出 + action 消費），composable/page 不應 import。
+ */
+export type CharacterWritablePatch = Pick<
+  Character,
+  | 'name'
+  | 'gender'
+  | 'race'
+  | 'alignment'
+  | 'professions'
+  | 'totalLevel'
+  | 'skills'
+  | 'background'
+  | 'isJackOfAllTrades'
+  | 'isTough'
+  | 'faith'
+  | 'age'
+  | 'height'
+  | 'weight'
+  | 'appearance'
+  | 'story'
+  | 'languages'
+  | 'tools'
+  | 'weaponProficiencies'
+  | 'armorProficiencies'
+>
+
 export interface Character {
   id: string
   name: string

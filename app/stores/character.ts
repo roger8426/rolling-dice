@@ -3,12 +3,15 @@ import type {
   Character,
   CharacterFormState,
   CharacterUpdateFormState,
-  ProfessionEntry,
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
-import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
+import { ABILITY_KEYS } from '~/constants/dnd'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
-import { createDefaultArmorClass } from '~/helpers/character'
+import {
+  calculateSavingThrowProficiencies,
+  createDefaultArmorClass,
+  formStateToCharacterPatch,
+} from '~/helpers/character'
 import { MOCK_CHARACTERS } from '~/mocks/characters'
 
 function loadFromStorage(): Character[] {
@@ -27,44 +30,19 @@ export const useCharacterStore = defineStore('character', () => {
   }
 
   function addCharacter(formState: CharacterFormState): Character {
-    const professions = formState.professions.filter(
-      (p): p is ProfessionEntry => p.profession !== null,
-    )
-    const primaryProfession = professions[0]?.profession
+    const patch = formStateToCharacterPatch(formState)
+    const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
     const abilities = Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, { basicScore: formState.abilities[key], bonusScore: 0 }]),
     ) as Record<AbilityKey, { basicScore: number; bonusScore: number }>
 
-    const savingThrowProficiencies: AbilityKey[] = primaryProfession
-      ? [...PROFESSION_CONFIG[primaryProfession].savingThrowProficiencies]
-      : []
-
     const character: Character = {
       id: crypto.randomUUID(),
-      name: formState.name,
-      gender: formState.gender || 'nonBinary',
-      race: formState.race as Character['race'],
-      alignment: formState.alignment as Character['alignment'],
-      professions,
-      totalLevel: formState.professions.reduce((sum, p) => sum + p.level, 0),
+      createdAt: new Date().toISOString(),
+      ...patch,
       abilities,
       savingThrowProficiencies,
-      skills: { ...formState.skills },
-      background: formState.background || null,
-      isTough: formState.isTough,
-      isJackOfAllTrades: formState.isJackOfAllTrades,
-      createdAt: new Date().toISOString(),
-      faith: formState.faith || null,
-      age: formState.age ?? null,
-      height: formState.height || null,
-      weight: formState.weight || null,
-      appearance: formState.appearance || null,
-      story: formState.story || null,
-      languages: formState.languages || null,
-      tools: formState.tools || null,
-      weaponProficiencies: formState.weaponProficiencies || null,
-      armorProficiencies: formState.armorProficiencies || null,
       avatar: null,
       extraHp: 0,
       speedBonus: null,
@@ -90,39 +68,14 @@ export const useCharacterStore = defineStore('character', () => {
     if (index === -1) return undefined
 
     const existing = characters.value[index]!
-    const professions = formState.professions.filter(
-      (p): p is ProfessionEntry => p.profession !== null,
-    )
-    const primaryProfession = professions[0]?.profession
-
-    const savingThrowProficiencies: AbilityKey[] = primaryProfession
-      ? [...PROFESSION_CONFIG[primaryProfession].savingThrowProficiencies]
-      : []
+    const patch = formStateToCharacterPatch(formState)
+    const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
     const updated: Character = {
       ...existing,
-      name: formState.name,
-      gender: formState.gender || 'nonBinary',
-      race: formState.race as Character['race'],
-      alignment: formState.alignment as Character['alignment'],
-      professions,
-      totalLevel: professions.reduce((sum, p) => sum + p.level, 0),
+      ...patch,
       abilities: { ...formState.abilities },
       savingThrowProficiencies,
-      skills: { ...formState.skills },
-      background: formState.background || null,
-      isJackOfAllTrades: formState.isJackOfAllTrades,
-      isTough: formState.isTough,
-      faith: formState.faith || null,
-      age: formState.age ?? null,
-      height: formState.height || null,
-      weight: formState.weight || null,
-      appearance: formState.appearance || null,
-      story: formState.story || null,
-      languages: formState.languages || null,
-      tools: formState.tools || null,
-      weaponProficiencies: formState.weaponProficiencies || null,
-      armorProficiencies: formState.armorProficiencies || null,
       extraHp: formState.extraHp,
       speedBonus: formState.speedBonus,
       initiativeBonus: formState.initiativeBonus,
