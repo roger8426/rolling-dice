@@ -37,6 +37,7 @@
             :form-state="formState"
             :total-level="totalLevel"
             :ability-scores="totalAbilityScores"
+            :lock-primary-profession="true"
             @update:name="formState.name = $event"
             @update:gender="formState.gender = $event as typeof formState.gender"
             @update:race="formState.race = $event as typeof formState.race"
