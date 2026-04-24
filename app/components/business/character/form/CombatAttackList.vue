@@ -102,7 +102,7 @@
             outline
             placeholder="0"
             class="w-16"
-            @update:model-value="draft.extraHitBonus = $event ? Number($event) : null"
+            @update:model-value="draft.extraHitBonus = parseIntegerInput($event)"
           />
         </div>
       </div>
@@ -119,7 +119,7 @@
             outline
             placeholder="0"
             class="w-12"
-            @update:model-value="draft.damageDice[die] = Number($event) || 0"
+            @update:model-value="draft.damageDice[die] = parseIntegerInput($event, 0)"
           />
         </div>
         <div class="flex flex-col gap-1">
@@ -133,7 +133,7 @@
             outline
             placeholder="0"
             class="w-14"
-            @update:model-value="draft.extraDamageBonus = $event ? Number($event) : null"
+            @update:model-value="draft.extraDamageBonus = parseIntegerInput($event)"
           />
         </div>
       </div>

@@ -20,7 +20,7 @@
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:extraHp', Number($event) || 0)"
+            @update:model-value="emit('update:extraHp', parseIntegerInput($event, 0))"
           />
         </div>
         <div class="mt-2 flex items-center gap-2">
@@ -51,7 +51,7 @@
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:speedBonus', $event ? Number($event) : null)"
+            @update:model-value="emit('update:speedBonus', parseIntegerInput($event))"
           />
         </div>
       </div>
@@ -76,7 +76,7 @@
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:initiativeBonus', $event ? Number($event) : null)"
+            @update:model-value="emit('update:initiativeBonus', parseIntegerInput($event))"
           />
         </div>
       </div>
@@ -100,9 +100,7 @@
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="
-              emit('update:passivePerceptionBonus', $event ? Number($event) : null)
-            "
+            @update:model-value="emit('update:passivePerceptionBonus', parseIntegerInput($event))"
           />
         </div>
       </div>

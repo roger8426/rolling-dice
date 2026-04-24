@@ -26,7 +26,7 @@
           size="sm"
           outline
           :placeholder="String(UNARMORED_AC_BASE)"
-          @update:model-value="emit('update:armorValue', $event ? Number($event) : null)"
+          @update:model-value="emit('update:armorValue', parseIntegerInput($event))"
         />
       </div>
 
@@ -67,7 +67,7 @@
           size="sm"
           outline
           placeholder="0"
-          @update:model-value="emit('update:shieldValue', toNumber($event, 0))"
+          @update:model-value="emit('update:shieldValue', parseIntegerInput($event, 0))"
         />
       </div>
     </div>
@@ -128,9 +128,4 @@ const dexModifierTextColor = computed(() => {
   if (v < 0) return 'text-danger'
   return 'text-content-muted'
 })
-
-function toNumber(value: string, fallback: number): number {
-  const num = Number(value)
-  return Number.isNaN(num) ? fallback : num
-}
 </script>

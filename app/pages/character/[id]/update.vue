@@ -70,7 +70,7 @@
           </template>
           <BusinessCharacterFormProfileTab
             :form-state="formState"
-            @update:age="formState.age = $event ? Number($event) : null"
+            @update:age="formState.age = $event"
             @update:height="formState.height = $event"
             @update:weight="formState.weight = $event"
             @update:appearance="formState.appearance = $event"

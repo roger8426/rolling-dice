@@ -12,7 +12,7 @@
             :model-value="formState.age !== null ? String(formState.age) : ''"
             size="sm"
             outline
-            @update:model-value="$emit('update:age', $event)"
+            @update:model-value="$emit('update:age', parseIntegerInput($event))"
           />
         </div>
         <div>
@@ -93,7 +93,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  'update:age': [value: string]
+  'update:age': [value: number | null]
   'update:height': [value: string]
   'update:weight': [value: string]
   'update:appearance': [value: string]
