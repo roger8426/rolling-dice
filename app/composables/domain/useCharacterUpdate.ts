@@ -139,11 +139,24 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
-  function submit(): void {
+  const logger = createLogger('[CharacterUpdate]')
+
+  async function submit(): Promise<void> {
     if (!core.canSubmit.value) return
     core.isSubmitting.value = true
-    store.updateCharacter(id, formState)
-    navigateTo(`/character/${id}`)
+    try {
+      const updated = store.updateCharacter(id, formState)
+      if (!updated) {
+        useToast().error('儲存失敗，請稍後再試')
+        core.isSubmitting.value = false
+        return
+      }
+      await navigateTo(`/character/${id}`)
+    } catch (error) {
+      logger.error('submit failed:', error)
+      useToast().error('儲存失敗，請稍後再試')
+      core.isSubmitting.value = false
+    }
   }
 
   return {

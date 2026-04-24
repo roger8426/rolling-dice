@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import { useCharacterStore } from '~/stores/character'
 import type {
@@ -87,6 +87,10 @@ beforeEach(() => {
   setActivePinia(createPinia())
 })
 
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
 describe('useCharacterStore — 初始化', () => {
   it('localStorage 為空時應載入預設 mock 角色（至少一筆，且每筆具備必要欄位）', () => {
     const store = useCharacterStore()
@@ -135,48 +139,61 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後應可透過 getById 查到新角色', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(store.getById(created.id)).toBeDefined()
-    expect(store.getById(created.id)?.name).toBe('新角色')
+    expect(created).not.toBeNull()
+    expect(store.getById(created!.id)).toBeDefined()
+    expect(store.getById(created!.id)?.name).toBe('新角色')
   })
 
   it('新增後應自動生成 id 與 createdAt', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created.id).toBeTruthy()
-    expect(created.createdAt).toBeTruthy()
+    expect(created!.id).toBeTruthy()
+    expect(created!.createdAt).toBeTruthy()
   })
 
   it('新增後 level 應為各職業等級的加總', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created.totalLevel).toBe(3)
+    expect(created!.totalLevel).toBe(3)
   })
 
   it('新增後應同步寫入 localStorage', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
     const stored = JSON.parse(localStorage.getItem(CHARACTERS_STORAGE_KEY)!)
-    expect(stored.some((c: Character) => c.id === created.id)).toBe(true)
+    expect(stored.some((c: Character) => c.id === created!.id)).toBe(true)
   })
 
   it('isTough 為 true 時應寫入角色資料', () => {
     const store = useCharacterStore()
     const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: true })
-    expect(created.isTough).toBe(true)
+    expect(created!.isTough).toBe(true)
   })
 
   it('isTough 為 false 時應寫入 false', () => {
     const store = useCharacterStore()
     const created = store.addCharacter({ ...MOCK_FORM_STATE, isTough: false })
-    expect(created.isTough).toBe(false)
+    expect(created!.isTough).toBe(false)
   })
 
   it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 null', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created.speedBonus).toBeNull()
-    expect(created.initiativeBonus).toBeNull()
-    expect(created.passivePerceptionBonus).toBeNull()
+    expect(created!.speedBonus).toBeNull()
+    expect(created!.initiativeBonus).toBeNull()
+    expect(created!.passivePerceptionBonus).toBeNull()
+  })
+
+  it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const store = useCharacterStore()
+    const before = store.characters.length
+    const result = store.addCharacter(MOCK_FORM_STATE)
+    expect(result).toBeNull()
+    expect(store.characters).toHaveLength(before)
   })
 })
 
@@ -297,13 +314,25 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(stored[0].name).toBe('更新後角色')
   })
 
-  it('更新不存在的 id 時應回傳 undefined 且 characters 不變', () => {
+  it('更新不存在的 id 時應回傳 null 且 characters 不變', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const before = store.characters.length
     const result = store.updateCharacter('non-existent-id', MOCK_UPDATE_FORM_STATE)
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
     expect(store.characters).toHaveLength(before)
+  })
+
+  it('寫入 localStorage 失敗時應回傳 null 且保留原本角色資料', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const result = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
+    expect(result).toBeNull()
+    expect(store.getById('test-001')?.name).toBe('測試角色')
   })
 
   it('更新後 speedBonus / initiativeBonus / passivePerceptionBonus 應從 formState 寫入', () => {

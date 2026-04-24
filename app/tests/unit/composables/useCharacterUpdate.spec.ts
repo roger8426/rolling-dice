@@ -48,6 +48,8 @@ const MOCK_CHARACTER: Character = {
   preparedSpells: [],
 }
 
+const mockToastError = vi.fn()
+
 async function getComposable(characterId: string) {
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
@@ -57,6 +59,8 @@ async function getComposable(characterId: string) {
 
   const { useCharacterDerivedStats } = await import('~/composables/domain/useCharacterDerivedStats')
   vi.stubGlobal('useCharacterDerivedStats', useCharacterDerivedStats)
+
+  vi.stubGlobal('useToast', () => ({ error: mockToastError }))
 
   const { useCharacterUpdate } = await import('~/composables/domain/useCharacterUpdate')
   return useCharacterUpdate(characterId)
@@ -420,16 +424,17 @@ describe('useCharacterUpdate — submit', () => {
     const updateSpy = vi.spyOn(store, 'updateCharacter')
 
     const { submit } = await getComposable('update-001')
-    submit()
+    await submit()
     expect(updateSpy).toHaveBeenCalledOnce()
     expect(mockNavigateTo).toHaveBeenCalledWith('/character/update-001')
   })
 
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false', async () => {
     const { core, submit } = await getComposable('update-001')
-    submit()
+    const pending = submit()
     expect(core.isSubmitting.value).toBe(true)
     expect(core.canSubmit.value).toBe(false)
+    await pending
   })
 
   it('submit 後再次呼叫 submit 不應重複執行', async () => {
@@ -438,8 +443,7 @@ describe('useCharacterUpdate — submit', () => {
     const updateSpy = vi.spyOn(store, 'updateCharacter')
 
     const { submit } = await getComposable('update-001')
-    submit()
-    submit()
+    await Promise.all([submit(), submit()])
     expect(updateSpy).toHaveBeenCalledOnce()
     expect(mockNavigateTo).toHaveBeenCalledOnce()
   })
@@ -451,8 +455,35 @@ describe('useCharacterUpdate — submit', () => {
 
     const { formState, submit } = await getComposable('update-001')
     formState.name = ''
-    submit()
+    await submit()
     expect(updateSpy).not.toHaveBeenCalled()
     expect(mockNavigateTo).not.toHaveBeenCalled()
+  })
+
+  it('store.updateCharacter 回傳 null 時應顯示錯誤 toast 且不導航', async () => {
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    vi.spyOn(store, 'updateCharacter').mockReturnValue(null)
+
+    const { core, submit } = await getComposable('update-001')
+    await submit()
+    expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
+    expect(mockNavigateTo).not.toHaveBeenCalled()
+    expect(core.isSubmitting.value).toBe(false)
+  })
+
+  it('store.updateCharacter 拋出例外時應顯示錯誤 toast 且不導航', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    vi.spyOn(store, 'updateCharacter').mockImplementation(() => {
+      throw new Error('unexpected')
+    })
+
+    const { core, submit } = await getComposable('update-001')
+    await submit()
+    expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
+    expect(mockNavigateTo).not.toHaveBeenCalled()
+    expect(core.isSubmitting.value).toBe(false)
   })
 })

@@ -18,8 +18,8 @@ function loadFromStorage(): Character[] {
   return getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY) ?? [...MOCK_CHARACTERS]
 }
 
-function saveToStorage(characters: Character[]): void {
-  setLocalStorage(CHARACTERS_STORAGE_KEY, characters)
+function saveToStorage(characters: Character[]): boolean {
+  return setLocalStorage(CHARACTERS_STORAGE_KEY, characters)
 }
 
 export const useCharacterStore = defineStore('character', () => {
@@ -29,7 +29,7 @@ export const useCharacterStore = defineStore('character', () => {
     return characters.value.find((c) => c.id === id)
   }
 
-  function addCharacter(formState: CharacterFormState): Character {
+  function addCharacter(formState: CharacterFormState): Character | null {
     const patch = formStateToCharacterPatch(formState)
     const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
@@ -54,7 +54,10 @@ export const useCharacterStore = defineStore('character', () => {
       preparedSpells: [],
     }
     characters.value.push(character)
-    saveToStorage(characters.value)
+    if (!saveToStorage(characters.value)) {
+      characters.value.pop()
+      return null
+    }
     return character
   }
 
@@ -63,16 +66,16 @@ export const useCharacterStore = defineStore('character', () => {
     saveToStorage(characters.value)
   }
 
-  function updateCharacter(id: string, formState: CharacterUpdateFormState): Character | undefined {
+  function updateCharacter(id: string, formState: CharacterUpdateFormState): Character | null {
     const index = characters.value.findIndex((c) => c.id === id)
-    if (index === -1) return undefined
+    if (index === -1) return null
 
-    const existing = characters.value[index]!
+    const previous = characters.value[index]!
     const patch = formStateToCharacterPatch(formState)
     const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
     const updated: Character = {
-      ...existing,
+      ...previous,
       ...patch,
       abilities: { ...formState.abilities },
       savingThrowProficiencies,
@@ -87,7 +90,10 @@ export const useCharacterStore = defineStore('character', () => {
     }
 
     characters.value[index] = updated
-    saveToStorage(characters.value)
+    if (!saveToStorage(characters.value)) {
+      characters.value[index] = previous
+      return null
+    }
     return updated
   }
 

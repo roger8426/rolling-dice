@@ -6,12 +6,16 @@ const mockNavigateTo = vi.fn()
 // 固定能力值擲骰結果：每次呼叫都回傳 15
 const mockRollAbilityScore = vi.fn(() => 15)
 
+const mockToastError = vi.fn()
+
 async function getComposable() {
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
 
   const { useCharacterFormCore } = await import('~/composables/domain/useCharacterFormCore')
   vi.stubGlobal('useCharacterFormCore', useCharacterFormCore)
+
+  vi.stubGlobal('useToast', () => ({ error: mockToastError }))
 
   const { useCharacterBuild } = await import('~/composables/domain/useCharacterBuild')
   return useCharacterBuild()
@@ -240,7 +244,7 @@ describe('useCharacterBuild — submit', () => {
     formState.name = '提交角色'
     formState.professions[0]!.profession = 'fighter'
 
-    submit()
+    await submit()
     expect(addSpy).toHaveBeenCalledOnce()
     expect(mockNavigateTo).toHaveBeenCalledWith('/character')
   })
@@ -251,9 +255,10 @@ describe('useCharacterBuild — submit', () => {
     formState.professions[0]!.profession = 'fighter'
 
     expect(core.isSubmitting.value).toBe(false)
-    submit()
+    const pending = submit()
     expect(core.isSubmitting.value).toBe(true)
     expect(core.canSubmit.value).toBe(false)
+    await pending
   })
 
   it('submit 後再次呼叫 submit 不應重複執行', async () => {
@@ -265,8 +270,7 @@ describe('useCharacterBuild — submit', () => {
     formState.name = '重複測試'
     formState.professions[0]!.profession = 'fighter'
 
-    submit()
-    submit()
+    await Promise.all([submit(), submit()])
     expect(addSpy).toHaveBeenCalledOnce()
     expect(mockNavigateTo).toHaveBeenCalledOnce()
   })
@@ -277,8 +281,41 @@ describe('useCharacterBuild — submit', () => {
     const addSpy = vi.spyOn(store, 'addCharacter')
 
     const { submit } = await getComposable()
-    submit()
+    await submit()
     expect(addSpy).not.toHaveBeenCalled()
     expect(mockNavigateTo).not.toHaveBeenCalled()
+  })
+
+  it('store.addCharacter 回傳 null 時應顯示錯誤 toast 且不導航', async () => {
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    vi.spyOn(store, 'addCharacter').mockReturnValue(null)
+
+    const { formState, core, submit } = await getComposable()
+    formState.name = '失敗角色'
+    formState.professions[0]!.profession = 'fighter'
+
+    await submit()
+    expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
+    expect(mockNavigateTo).not.toHaveBeenCalled()
+    expect(core.isSubmitting.value).toBe(false)
+  })
+
+  it('store.addCharacter 拋出例外時應顯示錯誤 toast 且不導航', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    vi.spyOn(store, 'addCharacter').mockImplementation(() => {
+      throw new Error('unexpected')
+    })
+
+    const { formState, core, submit } = await getComposable()
+    formState.name = '例外角色'
+    formState.professions[0]!.profession = 'fighter'
+
+    await submit()
+    expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
+    expect(mockNavigateTo).not.toHaveBeenCalled()
+    expect(core.isSubmitting.value).toBe(false)
   })
 })
