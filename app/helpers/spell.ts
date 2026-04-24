@@ -14,6 +14,11 @@ export const SPELL_SCHOOL_LABELS: Record<SpellSchool, string> = {
   transmutation: '變化',
 }
 
+/** 所有 SpellSchool，用於迭代 */
+export const SPELL_SCHOOLS: readonly SpellSchool[] = Object.keys(
+  SPELL_SCHOOL_LABELS,
+) as SpellSchool[]
+
 const CN_TO_SCHOOL: Record<string, SpellSchool> = Object.fromEntries(
   Object.entries(SPELL_SCHOOL_LABELS).map(([key, label]) => [label, key as SpellSchool]),
 )

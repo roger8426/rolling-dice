@@ -203,3 +203,27 @@ export const ABILITY_KEYS: readonly AbilityKey[] = [
   'wisdom',
   'charisma',
 ] as const
+
+// ─── Iteration Keys ───────────────────────────────────────────────────────────
+
+/** 所有 SkillKey，用於迭代 */
+export const SKILL_KEYS: readonly SkillKey[] = Object.keys(SKILL_NAMES) as SkillKey[]
+
+/** 所有 ProfessionKey，用於迭代 */
+export const PROFESSION_KEYS: readonly ProfessionKey[] = Object.keys(
+  PROFESSION_CONFIG,
+) as ProfessionKey[]
+
+/** 所有 RaceKey，用於迭代 */
+export const RACE_KEYS: readonly RaceKey[] = Object.keys(RACE_NAMES) as RaceKey[]
+
+/** 所有 AlignmentKey，用於迭代 */
+export const ALIGNMENT_KEYS: readonly AlignmentKey[] = Object.keys(
+  ALIGNMENT_NAMES,
+) as AlignmentKey[]
+
+/** 所有 ArmorType，用於迭代 */
+export const ARMOR_TYPES: readonly ArmorType[] = Object.keys(ARMOR_TYPE_NAMES) as ArmorType[]
+
+/** 所有 SizeKey，用於迭代 */
+export const SIZE_KEYS: readonly SizeKey[] = Object.keys(SIZE_NAMES) as SizeKey[]
