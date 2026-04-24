@@ -154,7 +154,14 @@
     </div>
 
     <template #footer>
-      <Button :radius="4" bg-color="var(--color-primary)" @click="saveAttack"> 確認 </Button>
+      <Button
+        :radius="4"
+        :disabled="!draft.name.trim()"
+        bg-color="var(--color-primary)"
+        @click="saveAttack"
+      >
+        確認
+      </Button>
     </template>
   </Modal>
 </template>

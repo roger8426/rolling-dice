@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import type {
   Character,
   CharacterFormState,

@@ -155,6 +155,7 @@
             class="w-full"
             size="sm"
             :placeholder="index === 0 ? '主職業' : '兼職'"
+            :disabled="lockPrimaryProfession && index === 0"
             @update:model-value="updateProfessionKey(index, $event as string)"
           />
         </div>
@@ -210,10 +211,14 @@ import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/
 import type { CharacterFormStateBase } from '~/types/business/character'
 import type { ProfessionKey } from '~/types/business/dnd'
 
-const props = defineProps<{
-  formState: CharacterFormStateBase
-  totalLevel: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    formState: CharacterFormStateBase
+    totalLevel: number
+    lockPrimaryProfession?: boolean
+  }>(),
+  { lockPrimaryProfession: false },
+)
 
 const emit = defineEmits<{
   'update:name': [value: string]
@@ -230,7 +235,6 @@ const emit = defineEmits<{
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]
   'update:level': [index: number, level: number]
-  'update:isTough': [value: boolean]
 }>()
 
 const genderOptions: SelectOption[] = Object.entries(GENDER_NAMES).map(([value, label]) => ({

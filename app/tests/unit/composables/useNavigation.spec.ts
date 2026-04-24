@@ -3,15 +3,15 @@ import { nextTick, reactive } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { navItems, useNavigationStore } from '~/stores/navigation'
 
-// mockRoute 必須為 reactive，Vue 的 watch() 才能偵測到 fullPath 的變更
-const mockRoute = reactive({ fullPath: '/initial' })
+// mockRoute 必須為 reactive，Vue 的 watch() 才能偵測到 path 的變更
+const mockRoute = reactive({ path: '/initial' })
 
 beforeEach(() => {
   setActivePinia(createPinia())
   // useNavigationStore 透過 Nuxt auto-import 使用 useRoute（globalThis），
   // 不是直接 import from 'vue-router'，所以需要用 vi.stubGlobal 而非 vi.mock
   vi.stubGlobal('useRoute', () => mockRoute)
-  mockRoute.fullPath = '/initial'
+  mockRoute.path = '/initial'
 })
 
 afterEach(() => {
@@ -66,13 +66,13 @@ describe('useNavigationStore — toggleNav', () => {
 })
 
 describe('useNavigationStore — route 變更自動關閉', () => {
-  it('route.fullPath 變更後 isNavOpen 應自動變為 false', async () => {
+  it('route.path 變更後 isNavOpen 應自動變為 false', async () => {
     const store = useNavigationStore()
 
     store.openNav()
     expect(store.isNavOpen).toBe(true)
 
-    mockRoute.fullPath = '/character'
+    mockRoute.path = '/character'
     await nextTick()
 
     expect(store.isNavOpen).toBe(false)

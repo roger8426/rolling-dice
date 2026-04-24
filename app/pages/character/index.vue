@@ -56,9 +56,10 @@
 
           <button
             type="button"
-            aria-label="刪除所有角色卡"
+            :aria-label="deleteMode ? '離開刪除模式' : '進入刪除模式'"
+            :aria-pressed="deleteMode"
             class="size-10 flex items-center justify-center bg-danger rounded-md cursor-pointer hover:bg-danger-hover transition-colors duration-150 text-text-inverse"
-            @click="openDeleteMode"
+            @click="toggleDeleteMode"
           >
             <Icon name="trash" :size="24" />
           </button>
@@ -169,26 +170,26 @@
 <script setup lang="ts">
 import { Icon, Select, Button, Modal } from '@ui'
 import type { SelectOption } from '@ui'
+import { CHARACTER_VIEW_MODE_KEY } from '~/constants/storage'
 import type { Character } from '~/types/business/character'
 
 useHead({ title: '角色卡 | Rolling Dice' })
 
-const isDev = computed(() => import.meta.dev)
+const isDev = import.meta.dev
 const characterStore = useCharacterStore()
 
-const VIEW_MODE_KEY = 'rd:character-view-mode'
-const storedMode = getLocalStorage<string>(VIEW_MODE_KEY)
+const storedMode = getLocalStorage<string>(CHARACTER_VIEW_MODE_KEY)
 const isListMode = ref(storedMode === 'list')
 const deleteMode = ref(false)
 const showDeleteModal = ref(false)
 const deleteTarget = ref<Character | null>(null)
 
 watch(isListMode, (val) => {
-  setLocalStorage(VIEW_MODE_KEY, val ? 'list' : 'grid')
+  setLocalStorage(CHARACTER_VIEW_MODE_KEY, val ? 'list' : 'grid')
   deleteMode.value = false
 })
 
-const openDeleteMode = () => {
+const toggleDeleteMode = () => {
   deleteMode.value = !deleteMode.value
 }
 
@@ -219,8 +220,11 @@ const sortKey = ref<SortKey>('default')
 
 const sortedCharacters = computed(() => {
   const list = [...characterStore.characters]
-  if (sortKey.value === 'level-asc') return list.sort((a, b) => a.totalLevel - b.totalLevel)
-  if (sortKey.value === 'level-desc') return list.sort((a, b) => b.totalLevel - a.totalLevel)
-  return list.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  const byCreated = (a: Character, b: Character) => a.createdAt.localeCompare(b.createdAt)
+  if (sortKey.value === 'level-asc')
+    return list.sort((a, b) => a.totalLevel - b.totalLevel || byCreated(a, b))
+  if (sortKey.value === 'level-desc')
+    return list.sort((a, b) => b.totalLevel - a.totalLevel || byCreated(a, b))
+  return list.sort(byCreated)
 })
 </script>

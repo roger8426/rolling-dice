@@ -4,6 +4,7 @@
       class="w-full md:w-1/3"
       :form-state="formState"
       :total-level="totalLevel"
+      :lock-primary-profession="lockPrimaryProfession"
       @update:name="emit('update:name', $event)"
       @update:gender="emit('update:gender', $event)"
       @update:race="emit('update:race', $event)"
@@ -18,7 +19,6 @@
       @remove="emit('remove', $event)"
       @update:profession="(i, k) => emit('update:profession', i, k)"
       @update:level="(i, l) => emit('update:level', i, l)"
-      @update:is-tough="emit('update:isTough', $event)"
     />
 
     <BusinessCharacterFormSkillProficiencyGrid
@@ -41,11 +41,15 @@
 import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
 import type { ProfessionKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
-const props = defineProps<{
-  formState: CharacterFormStateBase
-  totalLevel: number
-  abilityScores: AbilityScores
-}>()
+const props = withDefaults(
+  defineProps<{
+    formState: CharacterFormStateBase
+    totalLevel: number
+    abilityScores: AbilityScores
+    lockPrimaryProfession?: boolean
+  }>(),
+  { lockPrimaryProfession: false },
+)
 
 const proficiencyBonus = computed(() => getProficiencyBonus(props.totalLevel))
 
@@ -66,6 +70,5 @@ const emit = defineEmits<{
   'update:level': [index: number, level: number]
   'update:skill': [skill: SkillKey, level: ProficiencyLevel]
   'update:jackOfAllTrades': [value: boolean]
-  'update:isTough': [value: boolean]
 }>()
 </script>

@@ -53,7 +53,6 @@
             @update:background="formState.background = $event"
             @update:skill="setSkillProficiency"
             @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
-            @update:is-tough="formState.isTough = $event"
           >
             <template #ability-panel>
               <BusinessCharacterFormAbilityScoreUpdatePanel
@@ -121,14 +120,6 @@
             @toggle-learned="toggleLearnedSpell"
             @toggle-prepared="togglePreparedSpell"
           />
-        </Tab>
-
-        <!-- TODO: 背包功能開發中，待實作後移除 v-if -->
-        <Tab v-if="false" value="backpack">
-          <template #label>
-            <span class="text-content">背包</span>
-          </template>
-          <p class="py-8 text-center text-content-muted">背包（開發中）</p>
         </Tab>
       </Tabs>
     </template>

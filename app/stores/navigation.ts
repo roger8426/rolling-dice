@@ -11,7 +11,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   const isNavOpen = ref(false)
 
   watch(
-    () => route.fullPath,
+    () => route.path,
     () => {
       isNavOpen.value = false
     },
