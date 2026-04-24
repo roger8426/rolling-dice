@@ -207,7 +207,13 @@
 <script setup lang="ts">
 import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
+import {
+  ALIGNMENT_NAMES,
+  GENDER_NAMES,
+  PROFESSION_CONFIG,
+  PROFESSION_KEYS,
+  RACE_NAMES,
+} from '~/constants/dnd'
 import type { CharacterFormStateBase } from '~/types/business/character'
 import type { AlignmentKey, GenderKey, ProfessionKey, RaceKey } from '~/types/business/dnd'
 
@@ -265,9 +271,9 @@ const getProfessionOptions = (index: number): SelectOption[] => {
 }
 
 const isButtonDisabled = computed(() => {
-  const professionsOver = props.formState.professions.length >= 13
-  const everSelected = props.formState.professions.some((entry) => !entry.profession)
-  return professionsOver || everSelected
+  const professionsOver = props.formState.professions.length >= PROFESSION_KEYS.length
+  const hasUnselected = props.formState.professions.some((entry) => !entry.profession)
+  return professionsOver || hasUnselected
 })
 
 function updateProfessionKey(index: number, value: string): void {
