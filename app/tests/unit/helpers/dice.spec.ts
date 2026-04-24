@@ -27,6 +27,22 @@ describe('rollDice', () => {
       expect(Number.isInteger(value)).toBe(true)
     }
   })
+
+  it('sides=0 應拋 RangeError', () => {
+    expect(() => rollDice(0)).toThrow(RangeError)
+  })
+
+  it('sides=-1 應拋 RangeError', () => {
+    expect(() => rollDice(-1)).toThrow(RangeError)
+  })
+
+  it('times=0 應拋 RangeError', () => {
+    expect(() => rollDice(6, 0)).toThrow(RangeError)
+  })
+
+  it('times=2.7 應拋 RangeError', () => {
+    expect(() => rollDice(6, 2.7)).toThrow(RangeError)
+  })
 })
 
 describe('rollAbilityScore', () => {
