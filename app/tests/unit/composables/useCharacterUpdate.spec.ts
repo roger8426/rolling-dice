@@ -52,6 +52,9 @@ async function getComposable(characterId: string) {
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
 
+  const { useCharacterDerivedStats } = await import('~/composables/domain/useCharacterDerivedStats')
+  vi.stubGlobal('useCharacterDerivedStats', useCharacterDerivedStats)
+
   const { useCharacterUpdate } = await import('~/composables/domain/useCharacterUpdate')
   return useCharacterUpdate(characterId)
 }

@@ -86,15 +86,16 @@
             :armor-class="formState.armorClass"
             :attacks="formState.attacks"
             :ability-scores="totalAbilityScores"
-            :skills="formState.skills"
             :extra-hp="formState.extraHp"
             :total-hp="totalHp"
             :is-tough="formState.isTough"
-            :is-jack-of-all-trades="formState.isJackOfAllTrades"
             :proficiency-bonus="proficiencyBonus"
             :speed-bonus="formState.speedBonus"
             :initiative-bonus="formState.initiativeBonus"
             :passive-perception-bonus="formState.passivePerceptionBonus"
+            :total-speed="totalSpeed"
+            :total-initiative="totalInitiative"
+            :total-passive-perception="totalPassivePerception"
             @update:armor-type="updateArmorType"
             @update:armor-value="updateArmorValue"
             @update:armor-ability-key="updateArmorAbilityKey"
@@ -136,9 +137,6 @@
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
-import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
-import type { AbilityScores } from '~/types/business/character'
-import type { ProfessionKey } from '~/types/business/dnd'
 
 const route = useRoute()
 const id = String(route.params.id)
@@ -169,31 +167,18 @@ const {
   updateAttack,
   toggleLearnedSpell,
   togglePreparedSpell,
+  derived,
   canSubmit,
   isSubmitting,
   submit,
 } = useCharacterUpdate(id)
 
-const totalAbilityScores = computed(
-  () =>
-    Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, getTotalScore(formState.abilities[key])]),
-    ) as AbilityScores,
-)
-
-const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
-
-const totalHp = computed(() => {
-  const conMod = getAbilityModifier(totalAbilityScores.value.constitution)
-  const validProfessions = formState.professions.filter(
-    (e): e is { profession: ProfessionKey; level: number } => e.profession !== null,
-  )
-  const classHp = validProfessions.reduce((sum, entry, index) => {
-    const config = PROFESSION_CONFIG[entry.profession]
-    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
-    return sum + hp + conMod * entry.level
-  }, 0)
-  const toughBonus = formState.isTough ? totalLevel.value * 2 : 0
-  return classHp + toughBonus + formState.extraHp
-})
+const {
+  totalAbilityScores,
+  proficiencyBonus,
+  totalHp,
+  totalInitiative,
+  totalSpeed,
+  totalPassivePerception,
+} = derived
 </script>

@@ -3,16 +3,15 @@
     <!-- 左欄：基礎數據 + 護甲等級 -->
     <div class="w-full space-y-8 md:w-1/3">
       <BusinessCharacterFormCombatOtherAttributesPanel
-        :ability-scores="abilityScores"
-        :skills="skills"
-        :proficiency-bonus="proficiencyBonus"
-        :is-jack-of-all-trades="isJackOfAllTrades"
         :extra-hp="extraHp"
         :total-hp="totalHp"
         :is-tough="isTough"
         :speed-bonus="speedBonus"
         :initiative-bonus="initiativeBonus"
         :passive-perception-bonus="passivePerceptionBonus"
+        :total-speed="totalSpeed"
+        :total-initiative="totalInitiative"
+        :total-passive-perception="totalPassivePerception"
         @update:extra-hp="emit('update:extraHp', $event)"
         @update:is-tough="emit('update:isTough', $event)"
         @update:speed-bonus="emit('update:speedBonus', $event)"
@@ -45,27 +44,23 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  AbilityScores,
-  ArmorClassConfig,
-  AttackEntry,
-  SkillProficiencies,
-} from '~/types/business/character'
+import type { AbilityScores, ArmorClassConfig, AttackEntry } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 defineProps<{
   armorClass: ArmorClassConfig
   attacks: AttackEntry[]
   abilityScores: AbilityScores
-  skills: SkillProficiencies
   extraHp: number
   totalHp: number
   isTough: boolean
-  isJackOfAllTrades: boolean
   proficiencyBonus: number
   speedBonus: number | null
   initiativeBonus: number | null
   passivePerceptionBonus: number | null
+  totalSpeed: number
+  totalInitiative: number
+  totalPassivePerception: number
 }>()
 
 const emit = defineEmits<{

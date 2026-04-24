@@ -112,19 +112,17 @@
 
 <script setup lang="ts">
 import { Toggle } from '@ui'
-import type { AbilityScores, SkillProficiencies } from '~/types/business/character'
 
 const props = defineProps<{
-  abilityScores: AbilityScores
-  skills: SkillProficiencies
-  proficiencyBonus: number
-  isJackOfAllTrades: boolean
   extraHp: number
   totalHp: number
   isTough: boolean
   speedBonus: number | null
   initiativeBonus: number | null
   passivePerceptionBonus: number | null
+  totalSpeed: number
+  totalInitiative: number
+  totalPassivePerception: number
 }>()
 
 const emit = defineEmits<{
@@ -135,28 +133,10 @@ const emit = defineEmits<{
   'update:passivePerceptionBonus': [value: number | null]
 }>()
 
-const totalSpeed = computed(() => 30 + (props.speedBonus ?? 0))
-
-const dexModifier = computed(() => getAbilityModifier(props.abilityScores.dexterity))
-const totalInitiative = computed(() => dexModifier.value + (props.initiativeBonus ?? 0))
-
 const initiativeTextColor = computed(() => {
-  const v = totalInitiative.value
+  const v = props.totalInitiative
   if (v > 0) return 'text-success'
   if (v < 0) return 'text-danger'
   return 'text-content-muted'
 })
-
-const perceptionBonus = computed(() => {
-  const wis = getAbilityModifier(props.abilityScores.wisdom)
-  const level = props.skills.perception ?? 'none'
-  if (level === 'none' && props.isJackOfAllTrades) {
-    return wis + Math.floor(props.proficiencyBonus / 2)
-  }
-  return getSkillBonus(wis, level, props.proficiencyBonus)
-})
-
-const totalPassivePerception = computed(
-  () => getPassivePerception(perceptionBonus.value) + (props.passivePerceptionBonus ?? 0),
-)
 </script>

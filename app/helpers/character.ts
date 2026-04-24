@@ -1,14 +1,18 @@
 import type {
   AbilityScores,
   ArmorClassConfig,
+  CharacterAbilityScores,
   CharacterFormStateBase,
   CharacterTier,
   CharacterWritablePatch,
   ProfessionEntry,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
-import { PROFESSION_CONFIG } from '~/constants/dnd'
-import { getAbilityModifier } from '~/helpers/ability'
+import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
+import { getAbilityModifier, getTotalScore } from '~/helpers/ability'
+
+/** D&D 5e 角色預設移動速度（呎/回合） */
+export const BASE_MOVEMENT_SPEED = 30
 
 export function getCharacterTier(level: number): CharacterTier {
   if (level >= 17) return 'legendary'
@@ -110,6 +114,79 @@ export function createDefaultArmorClass(): ArmorClassConfig {
  */
 export function getPassivePerception(perceptionBonus: number): number {
   return 10 + perceptionBonus
+}
+
+/**
+ * 由完整屬性單元（basicScore + bonusScore）計算六項屬性的總分字典。
+ */
+export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): AbilityScores {
+  return Object.fromEntries(
+    ABILITY_KEYS.map((key) => [key, getTotalScore(abilities[key])]),
+  ) as AbilityScores
+}
+
+/**
+ * 計算總生命值：依序累加各職業 HP（第一個為主職業，第 1 級滿骰）、
+ * 每等 CON 調整值、健壯加值（totalLevel × 2）、額外加值。
+ */
+export function calculateTotalHp(input: {
+  professions: ProfessionEntry[]
+  conModifier: number
+  isTough: boolean
+  extraHp: number
+}): number {
+  const classHp = input.professions.reduce((sum, entry, index) => {
+    const config = PROFESSION_CONFIG[entry.profession]
+    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
+    return sum + hp + input.conModifier * entry.level
+  }, 0)
+  const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
+  const toughBonus = input.isTough ? totalLevel * 2 : 0
+  return classHp + toughBonus + input.extraHp
+}
+
+/**
+ * 計算總移動速度：30 呎 + 額外加值（null 視為 0）。
+ */
+export function calculateTotalSpeed(speedBonus: number | null): number {
+  return BASE_MOVEMENT_SPEED + (speedBonus ?? 0)
+}
+
+/**
+ * 計算總先攻加值：DEX 調整值 + 額外加值（null 視為 0）。
+ */
+export function calculateTotalInitiative(
+  dexModifier: number,
+  initiativeBonus: number | null,
+): number {
+  return dexModifier + (initiativeBonus ?? 0)
+}
+
+/**
+ * 計算感知（Perception）技能加值，含全能高手半熟練規則：
+ * - 若 perception 未熟練且具備 isJackOfAllTrades，加 floor(proficiencyBonus / 2)
+ * - 其餘依 proficiencyLevel 走標準 getSkillBonus
+ */
+export function calculatePerceptionSkillBonus(input: {
+  wisdomModifier: number
+  perceptionLevel: ProficiencyLevel
+  proficiencyBonus: number
+  isJackOfAllTrades: boolean
+}): number {
+  if (input.perceptionLevel === 'none' && input.isJackOfAllTrades) {
+    return input.wisdomModifier + Math.floor(input.proficiencyBonus / 2)
+  }
+  return getSkillBonus(input.wisdomModifier, input.perceptionLevel, input.proficiencyBonus)
+}
+
+/**
+ * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值（null 視為 0）。
+ */
+export function calculateTotalPassivePerception(
+  perceptionBonus: number,
+  extraBonus: number | null,
+): number {
+  return getPassivePerception(perceptionBonus) + (extraBonus ?? 0)
 }
 
 /**

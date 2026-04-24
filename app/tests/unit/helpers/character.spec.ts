@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calculatePerceptionSkillBonus,
   calculateSavingThrowProficiencies,
+  calculateTotalAbilityScores,
+  calculateTotalHp,
+  calculateTotalInitiative,
+  calculateTotalPassivePerception,
+  calculateTotalSpeed,
   createDefaultArmorClass,
   formStateToCharacterPatch,
   getBaseArmorClass,
@@ -11,6 +17,7 @@ import {
 import type {
   AbilityScores,
   ArmorClassConfig,
+  CharacterAbilityScores,
   CharacterFormStateBase,
 } from '~/types/business/character'
 
@@ -323,5 +330,169 @@ describe('formStateToCharacterPatch', () => {
     const patch = formStateToCharacterPatch(form)
     expect(patch.skills).toEqual(skills)
     expect(patch.skills).not.toBe(skills)
+  })
+})
+
+describe('calculateTotalAbilityScores', () => {
+  it('每項屬性應加總 basicScore + bonusScore', () => {
+    const abilities: CharacterAbilityScores = {
+      strength: { basicScore: 15, bonusScore: 2 },
+      dexterity: { basicScore: 14, bonusScore: 0 },
+      constitution: { basicScore: 13, bonusScore: 1 },
+      intelligence: { basicScore: 12, bonusScore: 0 },
+      wisdom: { basicScore: 10, bonusScore: 0 },
+      charisma: { basicScore: 8, bonusScore: 0 },
+    }
+    expect(calculateTotalAbilityScores(abilities)).toEqual({
+      strength: 17,
+      dexterity: 14,
+      constitution: 14,
+      intelligence: 12,
+      wisdom: 10,
+      charisma: 8,
+    })
+  })
+})
+
+describe('calculateTotalHp', () => {
+  it('單職業：主職業第 1 級滿骰 + 每等 CON', () => {
+    // fighter hitDie=10, level 3, conMod +2
+    // class HP: 10 + avg(6) × 2 = 22；CON 加值：2 × 3 = 6；total = 28
+    expect(
+      calculateTotalHp({
+        professions: [{ profession: 'fighter', level: 3 }],
+        conModifier: 2,
+        isTough: false,
+        extraHp: 0,
+      }),
+    ).toBe(28)
+  })
+
+  it('多職業：僅第一個職業第 1 級滿骰，後續職業全走平均值', () => {
+    // fighter (primary) lv2: 10 + avg(6)×1 = 16；CON 2×2=4
+    // wizard lv1: avg(4)×1 = 4；CON 2×1=2
+    // total = 16 + 4 + 4 + 2 = 26
+    expect(
+      calculateTotalHp({
+        professions: [
+          { profession: 'fighter', level: 2 },
+          { profession: 'wizard', level: 1 },
+        ],
+        conModifier: 2,
+        isTough: false,
+        extraHp: 0,
+      }),
+    ).toBe(26)
+  })
+
+  it('健壯時每等加 2 HP', () => {
+    // fighter lv3 = 22 class HP + 6 CON = 28；tough: 3×2=6 → 34
+    expect(
+      calculateTotalHp({
+        professions: [{ profession: 'fighter', level: 3 }],
+        conModifier: 2,
+        isTough: true,
+        extraHp: 0,
+      }),
+    ).toBe(34)
+  })
+
+  it('extraHp 加值應直接疊加', () => {
+    expect(
+      calculateTotalHp({
+        professions: [{ profession: 'fighter', level: 1 }],
+        conModifier: 1,
+        isTough: false,
+        extraHp: 5,
+      }),
+    ).toBe(10 + 1 + 5)
+  })
+
+  it('professions 為空時，僅回傳 extraHp（無健壯加值）', () => {
+    expect(calculateTotalHp({ professions: [], conModifier: 3, isTough: true, extraHp: 7 })).toBe(7)
+  })
+})
+
+describe('calculateTotalSpeed', () => {
+  it('speedBonus 為 null 時，回傳基礎 30', () => {
+    expect(calculateTotalSpeed(null)).toBe(30)
+  })
+
+  it('speedBonus 為正數時，加上基礎 30', () => {
+    expect(calculateTotalSpeed(10)).toBe(40)
+  })
+
+  it('speedBonus 為負數時，從基礎 30 扣除', () => {
+    expect(calculateTotalSpeed(-5)).toBe(25)
+  })
+})
+
+describe('calculateTotalInitiative', () => {
+  it('bonus 為 null 時，僅回傳 dexModifier', () => {
+    expect(calculateTotalInitiative(3, null)).toBe(3)
+  })
+
+  it('bonus 為正數時，與 dexModifier 相加', () => {
+    expect(calculateTotalInitiative(3, 2)).toBe(5)
+  })
+
+  it('dexModifier 為負數、bonus 為正數時可抵消', () => {
+    expect(calculateTotalInitiative(-1, 1)).toBe(0)
+  })
+})
+
+describe('calculatePerceptionSkillBonus', () => {
+  it('未熟練 + 非全能高手，回傳 wisdomModifier', () => {
+    expect(
+      calculatePerceptionSkillBonus({
+        wisdomModifier: 2,
+        perceptionLevel: 'none',
+        proficiencyBonus: 3,
+        isJackOfAllTrades: false,
+      }),
+    ).toBe(2)
+  })
+
+  it('未熟練 + 全能高手，加 floor(proficiencyBonus / 2)', () => {
+    expect(
+      calculatePerceptionSkillBonus({
+        wisdomModifier: 2,
+        perceptionLevel: 'none',
+        proficiencyBonus: 3,
+        isJackOfAllTrades: true,
+      }),
+    ).toBe(2 + 1)
+  })
+
+  it('熟練時，加 proficiencyBonus（全能高手不影響）', () => {
+    expect(
+      calculatePerceptionSkillBonus({
+        wisdomModifier: 2,
+        perceptionLevel: 'proficient',
+        proficiencyBonus: 3,
+        isJackOfAllTrades: true,
+      }),
+    ).toBe(2 + 3)
+  })
+
+  it('專精時，加 proficiencyBonus × 2', () => {
+    expect(
+      calculatePerceptionSkillBonus({
+        wisdomModifier: 2,
+        perceptionLevel: 'expertise',
+        proficiencyBonus: 3,
+        isJackOfAllTrades: false,
+      }),
+    ).toBe(2 + 6)
+  })
+})
+
+describe('calculateTotalPassivePerception', () => {
+  it('extraBonus 為 null 時，等同 getPassivePerception(perceptionBonus)', () => {
+    expect(calculateTotalPassivePerception(5, null)).toBe(15)
+  })
+
+  it('extraBonus 為正數時，疊加於 10 + perceptionBonus 之上', () => {
+    expect(calculateTotalPassivePerception(5, 3)).toBe(18)
   })
 })

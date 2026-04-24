@@ -167,6 +167,10 @@ export function useCharacterUpdate(id: string) {
     }
   }
 
+  // ─── Derived Stats ────────────────────────────────────────────────────
+
+  const derived = useCharacterDerivedStats(formState)
+
   // ─── Validation ───────────────────────────────────────────────────────
 
   const isSubmitting = ref(false)
@@ -220,6 +224,9 @@ export function useCharacterUpdate(id: string) {
     // spells
     toggleLearnedSpell,
     togglePreparedSpell,
+
+    // derived
+    derived,
 
     // validation
     canSubmit,
