@@ -27,7 +27,7 @@
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <div v-for="key in ABILITY_KEYS" :key="key" class="space-y-1">
         <label :for="`ability-${key}`" class="block text-xs text-content">
-          {{ ABILITY_NAMES[key] }}（{{ formatModifier(abilities[key]) }}）
+          {{ ABILITY_NAMES[key] }}（{{ formatModifier(getAbilityModifier(abilities[key])) }}）
         </label>
 
         <!-- Stepper (pointBuy / custom) -->
@@ -100,7 +100,6 @@ import {
   POINT_BUY_MAX_SCORE,
   POINT_BUY_MIN_SCORE,
 } from '~/constants/dnd'
-import { getPointBuyCost } from '~/helpers/ability'
 import type { AbilityMethod, AbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -122,11 +121,6 @@ const methods: { key: AbilityMethod; label: string }[] = [
   { key: 'pointBuy', label: '購點' },
   { key: 'diceRoll', label: '擲骰' },
 ]
-
-function formatModifier(score: number): string {
-  const mod = Math.floor((score - 10) / 2)
-  return mod >= 0 ? `+${mod}` : `${mod}`
-}
 
 function getMinScore(): number {
   return props.abilityMethod === 'pointBuy' ? POINT_BUY_MIN_SCORE : CUSTOM_ABILITY_MIN

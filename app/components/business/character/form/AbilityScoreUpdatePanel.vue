@@ -24,7 +24,9 @@
         class="flex items-center justify-between gap-1 py-1"
       >
         <label :for="`ability-${key}`" class="w-20 text-xs text-content truncate">
-          {{ ABILITY_NAMES[key] }}（{{ formattedModifier(key) }}）
+          {{ ABILITY_NAMES[key] }}（{{
+            formatModifier(getAbilityModifier(getTotalScore(abilities[key])))
+          }}）
         </label>
 
         <!-- basicScore (read-only) -->
@@ -69,7 +71,6 @@
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
-import { formatModifier, getAbilityModifier, getTotalScore } from '~/helpers/ability'
 import type { CharacterAbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -80,11 +81,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:bonusScore': [key: AbilityKey, score: number]
 }>()
-
-function formattedModifier(key: AbilityKey): string {
-  const total = getTotalScore(props.abilities[key])
-  return formatModifier(getAbilityModifier(total))
-}
 
 function adjustBonus(key: AbilityKey, delta: number): void {
   const current = props.abilities[key].bonusScore
