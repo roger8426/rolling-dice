@@ -143,35 +143,19 @@ const id = String(route.params.id)
 
 useHead({ title: '編輯角色卡 | Rolling Dice' })
 
+const { activeTab, character, formState, core, derived, abilities, combat, spells, submit } =
+  useCharacterUpdate(id)
+
 const {
-  activeTab,
-  character,
-  formState,
   totalLevel,
   addProfession,
   removeProfession,
   updateProfession,
   updateProfessionLevel,
-  updateBonusScore,
   setSkillProficiency,
-  updateArmorType,
-  updateArmorValue,
-  updateArmorAbilityKey,
-  updateShieldValue,
-  updateSpeedBonus,
-  updateInitiativeBonus,
-  updatePassivePerceptionBonus,
-  updateExtraHp,
-  addAttack,
-  removeAttack,
-  updateAttack,
-  toggleLearnedSpell,
-  togglePreparedSpell,
-  derived,
-  canSubmit,
   isSubmitting,
-  submit,
-} = useCharacterUpdate(id)
+  canSubmit,
+} = core
 
 const {
   totalAbilityScores,
@@ -181,4 +165,22 @@ const {
   totalSpeed,
   totalPassivePerception,
 } = derived
+
+const { updateBonusScore } = abilities
+
+const {
+  updateExtraHp,
+  updateArmorType,
+  updateArmorValue,
+  updateArmorAbilityKey,
+  updateShieldValue,
+  updateSpeedBonus,
+  updateInitiativeBonus,
+  updatePassivePerceptionBonus,
+  addAttack,
+  removeAttack,
+  updateAttack,
+} = combat
+
+const { toggleLearnedSpell, togglePreparedSpell } = spells
 </script>

@@ -3,13 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockNavigateTo = vi.fn()
 
-// 固定骰子結果以利測試：4d6 = [3, 4, 5, 6]，drop lowest → 15
-const mockRollDice = vi.fn(() => [3, 4, 5, 6])
+// 固定能力值擲骰結果：每次呼叫都回傳 15
+const mockRollAbilityScore = vi.fn(() => 15)
 
 async function getComposable() {
-  // 先載入 store（需要 pinia 已就緒）
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
+
+  const { useCharacterFormCore } = await import('~/composables/domain/useCharacterFormCore')
+  vi.stubGlobal('useCharacterFormCore', useCharacterFormCore)
 
   const { useCharacterBuild } = await import('~/composables/domain/useCharacterBuild')
   return useCharacterBuild()
@@ -19,7 +21,7 @@ beforeEach(() => {
   vi.resetModules()
   setActivePinia(createPinia())
   vi.stubGlobal('navigateTo', mockNavigateTo)
-  vi.stubGlobal('rollDice', mockRollDice)
+  vi.stubGlobal('rollAbilityScore', mockRollAbilityScore)
 })
 
 afterEach(() => {
@@ -59,8 +61,8 @@ describe('useCharacterBuild — 初始狀態', () => {
   })
 
   it('canSubmit 初始值應為 false（表單尚未填寫）', async () => {
-    const { canSubmit } = await getComposable()
-    expect(canSubmit.value).toBe(false)
+    const { core } = await getComposable()
+    expect(core.canSubmit.value).toBe(false)
   })
 
   it('formState.isTough 初始值應為 false', async () => {
@@ -73,34 +75,34 @@ describe('useCharacterBuild — 初始狀態', () => {
 
 describe('useCharacterBuild — 職業管理', () => {
   it('addProfession 應新增一筆等級為 1 的空職業', async () => {
-    const { formState, addProfession } = await getComposable()
-    addProfession()
+    const { formState, core } = await getComposable()
+    core.addProfession()
     expect(formState.professions).toHaveLength(2)
     expect(formState.professions[1]!.level).toBe(1)
   })
 
   it('removeProfession 應移除指定索引的職業', async () => {
-    const { formState, addProfession, removeProfession } = await getComposable()
+    const { formState, core } = await getComposable()
     formState.professions[0]!.profession = 'fighter'
-    addProfession()
+    core.addProfession()
     formState.professions[1]!.profession = 'wizard'
-    removeProfession(0)
+    core.removeProfession(0)
     expect(formState.professions).toHaveLength(1)
     expect(formState.professions[0]!.profession).toBe('wizard')
   })
 
   it('removeProfession 在只剩一筆職業時不應移除', async () => {
-    const { formState, removeProfession } = await getComposable()
-    removeProfession(0)
+    const { formState, core } = await getComposable()
+    core.removeProfession(0)
     expect(formState.professions).toHaveLength(1)
   })
 
   it('totalLevel 應正確計算所有職業等級總和', async () => {
-    const { formState, totalLevel, addProfession } = await getComposable()
+    const { formState, core } = await getComposable()
     formState.professions[0]!.level = 5
-    addProfession()
+    core.addProfession()
     formState.professions[1]!.level = 3
-    expect(totalLevel.value).toBe(8)
+    expect(core.totalLevel.value).toBe(8)
   })
 })
 
@@ -108,30 +110,30 @@ describe('useCharacterBuild — 職業管理', () => {
 
 describe('useCharacterBuild — 屬性分配方式切換', () => {
   it('切換至 pointBuy 應重置所有屬性為 8', async () => {
-    const { formState, setAbilityMethod } = await getComposable()
+    const { formState, abilities } = await getComposable()
     formState.abilities.strength = 15
-    setAbilityMethod('pointBuy')
+    abilities.setAbilityMethod('pointBuy')
     expect(formState.abilityMethod).toBe('pointBuy')
     expect(formState.abilities.strength).toBe(8)
   })
 
   it('切換至 custom 應重置所有屬性為 8', async () => {
-    const { formState, setAbilityMethod } = await getComposable()
+    const { formState, abilities } = await getComposable()
     formState.abilities.strength = 15
-    setAbilityMethod('custom')
+    abilities.setAbilityMethod('custom')
     expect(formState.abilityMethod).toBe('custom')
     expect(formState.abilities.strength).toBe(8)
   })
 
-  it('切換至 diceRoll 應呼叫 rollDice 並設定所有屬性', async () => {
-    const { formState, setAbilityMethod } = await getComposable()
-    setAbilityMethod('diceRoll')
+  it('切換至 diceRoll 應呼叫 rollAbilityScore 並設定所有屬性', async () => {
+    const { formState, abilities } = await getComposable()
+    abilities.setAbilityMethod('diceRoll')
     expect(formState.abilityMethod).toBe('diceRoll')
-    // mockRollDice 回傳 [3,4,5,6]，drop lowest → 4+5+6 = 15
+    // mockRollAbilityScore 回傳 15
     expect(formState.abilities.strength).toBe(15)
     expect(formState.abilities.charisma).toBe(15)
-    // 每個屬性各呼叫一次 rollDice(6, 4)，共 6 次
-    expect(mockRollDice).toHaveBeenCalledTimes(6)
+    // 每個屬性各呼叫一次 rollAbilityScore，共 6 次
+    expect(mockRollAbilityScore).toHaveBeenCalledTimes(6)
   })
 })
 
@@ -139,17 +141,17 @@ describe('useCharacterBuild — 屬性分配方式切換', () => {
 
 describe('useCharacterBuild — 擲骰與重置', () => {
   it('rollAllAbilities 應為每個屬性擲骰', async () => {
-    const { formState, rollAllAbilities } = await getComposable()
-    rollAllAbilities()
+    const { formState, abilities } = await getComposable()
+    abilities.rollAllAbilities()
     const values = Object.values(formState.abilities)
     expect(values.every((v) => v === 15)).toBe(true)
   })
 
   it('resetAbilities 應將所有屬性重置為 8', async () => {
-    const { formState, resetAbilities } = await getComposable()
+    const { formState, abilities } = await getComposable()
     formState.abilities.strength = 20
     formState.abilities.dexterity = 18
-    resetAbilities()
+    abilities.resetAbilities()
     const values = Object.values(formState.abilities)
     expect(values.every((v) => v === 8)).toBe(true)
   })
@@ -159,18 +161,18 @@ describe('useCharacterBuild — 擲骰與重置', () => {
 
 describe('useCharacterBuild — 購點制', () => {
   it('pointBuyRemaining 在非 pointBuy 模式下應為 0', async () => {
-    const { pointBuyRemaining } = await getComposable()
-    expect(pointBuyRemaining.value).toBe(0)
+    const { abilities } = await getComposable()
+    expect(abilities.pointBuyRemaining.value).toBe(0)
   })
 
   it('pointBuyRemaining 在 pointBuy 模式下應計算剩餘點數', async () => {
-    const { formState, pointBuyRemaining, setAbilityMethod } = await getComposable()
-    setAbilityMethod('pointBuy')
+    const { formState, abilities } = await getComposable()
+    abilities.setAbilityMethod('pointBuy')
     // 全部為 8，花費 0，剩餘 27
-    expect(pointBuyRemaining.value).toBe(27)
+    expect(abilities.pointBuyRemaining.value).toBe(27)
     // 將 strength 從 8 調至 10，花費 2
     formState.abilities.strength = 10
-    expect(pointBuyRemaining.value).toBe(25)
+    expect(abilities.pointBuyRemaining.value).toBe(25)
   })
 })
 
@@ -178,21 +180,21 @@ describe('useCharacterBuild — 購點制', () => {
 
 describe('useCharacterBuild — 技能熟練度', () => {
   it('setSkillProficiency 設定 proficient 後應存入 skills', async () => {
-    const { formState, setSkillProficiency } = await getComposable()
-    setSkillProficiency('athletics', 'proficient')
+    const { formState, core } = await getComposable()
+    core.setSkillProficiency('athletics', 'proficient')
     expect(formState.skills.athletics).toBe('proficient')
   })
 
   it('setSkillProficiency 設定 expertise 後應更新 skills', async () => {
-    const { formState, setSkillProficiency } = await getComposable()
-    setSkillProficiency('stealth', 'expertise')
+    const { formState, core } = await getComposable()
+    core.setSkillProficiency('stealth', 'expertise')
     expect(formState.skills.stealth).toBe('expertise')
   })
 
   it('setSkillProficiency 設定 none 後應從 skills 中移除該技能', async () => {
-    const { formState, setSkillProficiency } = await getComposable()
-    setSkillProficiency('athletics', 'proficient')
-    setSkillProficiency('athletics', 'none')
+    const { formState, core } = await getComposable()
+    core.setSkillProficiency('athletics', 'proficient')
+    core.setSkillProficiency('athletics', 'none')
     expect(formState.skills.athletics).toBeUndefined()
   })
 })
@@ -201,29 +203,28 @@ describe('useCharacterBuild — 技能熟練度', () => {
 
 describe('useCharacterBuild — canSubmit', () => {
   it('名稱與職業皆填寫時 canSubmit 應為 true', async () => {
-    const { formState, canSubmit } = await getComposable()
+    const { formState, core } = await getComposable()
     formState.name = '完整角色'
     formState.professions[0]!.profession = 'fighter'
-    expect(canSubmit.value).toBe(true)
+    expect(core.canSubmit.value).toBe(true)
   })
 
   it('角色名稱為空字串時 canSubmit 應為 false', async () => {
-    const { canSubmit } = await getComposable()
-    expect(canSubmit.value).toBe(false)
+    const { core } = await getComposable()
+    expect(core.canSubmit.value).toBe(false)
   })
 
   it('角色名稱為空白時 canSubmit 應為 false', async () => {
-    const { formState, canSubmit } = await getComposable()
+    const { formState, core } = await getComposable()
     formState.name = '   '
     formState.professions[0]!.profession = 'fighter'
-    expect(canSubmit.value).toBe(false)
+    expect(core.canSubmit.value).toBe(false)
   })
 
   it('職業未選擇時 canSubmit 應為 false', async () => {
-    const { formState, canSubmit } = await getComposable()
+    const { formState, core } = await getComposable()
     formState.name = '有名稱'
-    // professions[0].profession 預設為 ''
-    expect(canSubmit.value).toBe(false)
+    expect(core.canSubmit.value).toBe(false)
   })
 })
 
@@ -245,14 +246,14 @@ describe('useCharacterBuild — submit', () => {
   })
 
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false（防重複點擊）', async () => {
-    const { formState, submit, isSubmitting, canSubmit } = await getComposable()
+    const { formState, core, submit } = await getComposable()
     formState.name = '防重複角色'
     formState.professions[0]!.profession = 'fighter'
 
-    expect(isSubmitting.value).toBe(false)
+    expect(core.isSubmitting.value).toBe(false)
     submit()
-    expect(isSubmitting.value).toBe(true)
-    expect(canSubmit.value).toBe(false)
+    expect(core.isSubmitting.value).toBe(true)
+    expect(core.canSubmit.value).toBe(false)
   })
 
   it('submit 後再次呼叫 submit 不應重複執行', async () => {

@@ -83,22 +83,22 @@ import { Button, Tab, Tabs } from '@ui'
 
 useHead({ title: '建立角色卡 | Rolling Dice' })
 
+const { activeTab, formState, core, abilities, submit } = useCharacterBuild()
 const {
-  activeTab,
-  formState,
-  pointBuyRemaining,
-  setAbilityMethod,
-  rollAllAbilities,
-  resetAbilities,
   totalLevel,
   addProfession,
   removeProfession,
   updateProfession,
   updateProfessionLevel,
-  updateAbilityScore,
   setSkillProficiency,
   isSubmitting,
   canSubmit,
-  submit,
-} = useCharacterBuild()
+} = core
+const {
+  pointBuyRemaining,
+  setAbilityMethod,
+  rollAllAbilities,
+  resetAbilities,
+  updateAbilityScore,
+} = abilities
 </script>

@@ -1,14 +1,7 @@
 import { ABILITY_KEYS } from '~/constants/dnd'
 import { createDefaultArmorClass } from '~/helpers/character'
-import { applySkillProficiency } from '~/helpers/skill'
 import type { AttackEntry, Character, CharacterUpdateFormState } from '~/types/business/character'
-import type {
-  AbilityKey,
-  ArmorType,
-  ProficiencyLevel,
-  ProfessionKey,
-  SkillKey,
-} from '~/types/business/dnd'
+import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
 
@@ -64,26 +57,8 @@ export function useCharacterUpdate(id: string) {
     character.value ? characterToFormState(character.value) : createEmptyUpdateFormState(),
   )
 
-  // ─── Professions ──────────────────────────────────────────────────────
-
-  const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
-
-  function addProfession(): void {
-    formState.professions.push({ profession: null, level: 1 })
-  }
-
-  function removeProfession(index: number): void {
-    if (formState.professions.length <= 1) return
-    formState.professions.splice(index, 1)
-  }
-
-  function updateProfession(index: number, key: ProfessionKey): void {
-    if (formState.professions[index]) formState.professions[index].profession = key
-  }
-
-  function updateProfessionLevel(index: number, level: number): void {
-    if (formState.professions[index]) formState.professions[index].level = level
-  }
+  const core = useCharacterFormCore(formState)
+  const derived = useCharacterDerivedStats(formState)
 
   // ─── Abilities ────────────────────────────────────────────────────────
 
@@ -91,12 +66,7 @@ export function useCharacterUpdate(id: string) {
     formState.abilities[key].bonusScore = score
   }
 
-  // ─── Skills ───────────────────────────────────────────────────────────
-
-  function setSkillProficiency(skill: SkillKey, level: ProficiencyLevel): void {
-    formState.skills = applySkillProficiency(formState.skills, skill, level)
-  }
-  // ─── Combat ───────────────────────────────────────────────────────
+  // ─── Combat ───────────────────────────────────────────────────────────
 
   function updateExtraHp(value: number): void {
     formState.extraHp = value
@@ -167,25 +137,11 @@ export function useCharacterUpdate(id: string) {
     }
   }
 
-  // ─── Derived Stats ────────────────────────────────────────────────────
-
-  const derived = useCharacterDerivedStats(formState)
-
-  // ─── Validation ───────────────────────────────────────────────────────
-
-  const isSubmitting = ref(false)
-  const canSubmit = computed(
-    () =>
-      !isSubmitting.value &&
-      formState.name.trim() !== '' &&
-      formState.professions.some((p) => p.profession !== null),
-  )
-
   // ─── Submit ───────────────────────────────────────────────────────────
 
   function submit(): void {
-    if (!canSubmit.value) return
-    isSubmitting.value = true
+    if (!core.canSubmit.value) return
+    core.isSubmitting.value = true
     store.updateCharacter(id, formState)
     navigateTo(`/character/${id}`)
   }
@@ -194,45 +150,32 @@ export function useCharacterUpdate(id: string) {
     activeTab,
     character,
     formState,
-
-    // professions
-    totalLevel,
-    addProfession,
-    removeProfession,
-    updateProfession,
-    updateProfessionLevel,
-
-    // abilities
-    updateBonusScore,
-
-    // skills
-    setSkillProficiency,
-
-    // combat
-    updateExtraHp,
-    updateArmorType,
-    updateArmorValue,
-    updateArmorAbilityKey,
-    updateShieldValue,
-    updateSpeedBonus,
-    updateInitiativeBonus,
-    updatePassivePerceptionBonus,
-    addAttack,
-    removeAttack,
-    updateAttack,
-
-    // spells
-    toggleLearnedSpell,
-    togglePreparedSpell,
-
-    // derived
+    core,
     derived,
 
-    // validation
-    canSubmit,
+    abilities: {
+      updateBonusScore,
+    },
 
-    // submit
-    isSubmitting,
+    combat: {
+      updateExtraHp,
+      updateArmorType,
+      updateArmorValue,
+      updateArmorAbilityKey,
+      updateShieldValue,
+      updateSpeedBonus,
+      updateInitiativeBonus,
+      updatePassivePerceptionBonus,
+      addAttack,
+      removeAttack,
+      updateAttack,
+    },
+
+    spells: {
+      toggleLearnedSpell,
+      togglePreparedSpell,
+    },
+
     submit,
   }
 }
