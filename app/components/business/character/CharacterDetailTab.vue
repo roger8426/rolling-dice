@@ -18,20 +18,24 @@
           </div>
           <div>
             <dt class="text-xs text-content-muted">性別</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ GENDER_NAMES[character.gender] }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">
+              {{ character.gender ? GENDER_NAMES[character.gender] : '—' }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">種族</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ RACE_NAMES[character.race] }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">
+              {{ character.race ? RACE_NAMES[character.race] : '—' }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">背景</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ character.background }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">{{ character.background ?? '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">陣營</dt>
             <dd class="mt-0.5 text-sm text-content-soft">
-              {{ ALIGNMENT_NAMES[character.alignment] }}
+              {{ character.alignment ? ALIGNMENT_NAMES[character.alignment] : '—' }}
             </dd>
           </div>
           <div>

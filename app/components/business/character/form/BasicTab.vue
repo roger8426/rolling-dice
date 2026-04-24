@@ -39,7 +39,14 @@
 
 <script setup lang="ts">
 import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
-import type { ProfessionKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
+import type {
+  AlignmentKey,
+  GenderKey,
+  ProfessionKey,
+  ProficiencyLevel,
+  RaceKey,
+  SkillKey,
+} from '~/types/business/dnd'
 
 const props = withDefaults(
   defineProps<{
@@ -55,10 +62,10 @@ const proficiencyBonus = computed(() => getProficiencyBonus(props.totalLevel))
 
 const emit = defineEmits<{
   'update:name': [value: string]
-  'update:gender': [value: string | null]
-  'update:race': [value: string | null]
+  'update:gender': [value: GenderKey | null]
+  'update:race': [value: RaceKey | null]
   'update:background': [value: string]
-  'update:alignment': [value: string | null]
+  'update:alignment': [value: AlignmentKey | null]
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]

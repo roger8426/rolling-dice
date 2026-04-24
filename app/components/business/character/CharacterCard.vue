@@ -64,7 +64,7 @@
               :radius="4"
               size="sm"
             >
-              {{ RACE_NAMES[character.race] }}
+              {{ character.race ? RACE_NAMES[character.race] : '-' }}
             </Badge>
             <span class="text-xs text-content-muted">
               {{

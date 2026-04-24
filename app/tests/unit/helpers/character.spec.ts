@@ -269,10 +269,10 @@ describe('formStateToCharacterPatch', () => {
     expect(patch.age).toBe(25)
   })
 
-  it('gender 為 null 時，回傳 fallback nonBinary', () => {
+  it('gender 為 null 時原樣帶入（不再 fallback 到 nonBinary）', () => {
     const form = createBaseFormState({ gender: null })
     const patch = formStateToCharacterPatch(form)
-    expect(patch.gender).toBe('nonBinary')
+    expect(patch.gender).toBeNull()
   })
 
   it('professions 含 null 條目時應過濾，totalLevel 僅加總有效職業', () => {

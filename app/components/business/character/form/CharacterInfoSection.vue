@@ -26,7 +26,7 @@
           :model-value="formState.gender || null"
           :options="genderOptions"
           size="sm"
-          @update:model-value="emit('update:gender', $event as typeof formState.gender)"
+          @update:model-value="emit('update:gender', ($event as GenderKey) || null)"
         />
       </div>
       <!-- 種族 -->
@@ -39,7 +39,7 @@
           :options="raceOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:race', $event as typeof formState.race)"
+          @update:model-value="emit('update:race', ($event as RaceKey) || null)"
         />
       </div>
     </div>
@@ -67,7 +67,7 @@
           :options="alignmentOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:alignment', $event as typeof formState.alignment)"
+          @update:model-value="emit('update:alignment', ($event as AlignmentKey) || null)"
         />
       </div>
       <!-- 信仰 -->
@@ -209,7 +209,7 @@ import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
 import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
 import type { CharacterFormStateBase } from '~/types/business/character'
-import type { ProfessionKey } from '~/types/business/dnd'
+import type { AlignmentKey, GenderKey, ProfessionKey, RaceKey } from '~/types/business/dnd'
 
 const props = withDefaults(
   defineProps<{
@@ -222,10 +222,10 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:name': [value: string]
-  'update:gender': [value: string | null]
-  'update:race': [value: string | null]
+  'update:gender': [value: GenderKey | null]
+  'update:race': [value: RaceKey | null]
   'update:background': [value: string]
-  'update:alignment': [value: string | null]
+  'update:alignment': [value: AlignmentKey | null]
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]

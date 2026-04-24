@@ -212,9 +212,9 @@ export function formStateToCharacterPatch(
 ): CharacterWritablePatch {
   // identity
   const name = formState.name
-  const gender = formState.gender || 'nonBinary'
-  const race = formState.race as CharacterWritablePatch['race']
-  const alignment = formState.alignment as CharacterWritablePatch['alignment']
+  const gender = formState.gender
+  const race = formState.race
+  const alignment = formState.alignment
 
   // progression
   const professions = formState.professions.filter(

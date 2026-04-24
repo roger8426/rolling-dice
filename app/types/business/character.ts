@@ -84,9 +84,9 @@ export type CharacterWritablePatch = Pick<
 export interface Character {
   id: string
   name: string
-  gender: GenderKey
-  race: RaceKey
-  alignment: AlignmentKey
+  gender: GenderKey | null
+  race: RaceKey | null
+  alignment: AlignmentKey | null
   professions: ProfessionEntry[]
   totalLevel: number // 角色總等級，等於所有職業等級之和
   abilities: CharacterAbilityScores
