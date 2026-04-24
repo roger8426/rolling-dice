@@ -201,11 +201,7 @@ export function calculateSavingThrowProficiencies(professions: ProfessionEntry[]
 
 /**
  * 將 form state 的共用欄位轉為 Character 可寫入的 patch。
- * 僅處理 build/update 兩端共用的欄位；abilities / armorClass / attacks / spells /
- * bonus 欄位 / savingThrowProficiencies 由呼叫端個別拼接。
- *
- * 內部依領域分段組織（identity / progression / profile / proficiencies），
- * 未來領域切片（方案 B）時可對應拆為子 mapper。
+ * 不處理 abilities、armorClass、attacks、spells、bonus 欄位與 savingThrowProficiencies。
  */
 export function formStateToCharacterPatch(
   formState: CharacterFormStateBase,

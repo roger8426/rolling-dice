@@ -60,11 +60,9 @@ function clear(): void {
 }
 
 /**
- * 全域通知佇列。呼叫 useToast().error('訊息') 即可推入一則通知，
- * 由 LayoutToastHost 集中渲染。
+ * 全域通知佇列。呼叫 useToast().error('訊息') 等方法推入通知。
  *
- * - `error` 預設 duration 5000、其餘 3000；可透過 options 覆寫。
- * - `remove`/`clear` 供 ToastHost 在關閉時或需要清空時呼叫。
+ * error 預設 duration 5000、其餘 3000；可透過 options 覆寫。
  */
 export function useToast(): UseToastReturn {
   return {

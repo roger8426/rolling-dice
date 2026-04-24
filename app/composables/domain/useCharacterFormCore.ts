@@ -16,11 +16,8 @@ export interface CharacterFormCore {
 }
 
 /**
- * build / update 兩個角色表單 composable 的共用核心邏輯。
- *
- * 負責 professions / skills 的增刪改、totalLevel 計算、submit guard
- * （`isSubmitting` + `canSubmit`）。呼叫端負責 formState 建立、擲骰、
- * 戰鬥 / 法術等專屬欄位，以及組裝自己的 submit 流程（navigate、store action）。
+ * 角色表單共用核心邏輯：professions / skills 增刪改、totalLevel 計算、
+ * submit guard（isSubmitting + canSubmit）。
  */
 export function useCharacterFormCore<T extends CharacterFormStateBase>(
   formState: T,

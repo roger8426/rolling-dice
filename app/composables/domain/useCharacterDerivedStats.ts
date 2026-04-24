@@ -29,7 +29,6 @@ export interface CharacterDerivedStats {
 
 /**
  * 由 update 表單狀態派生角色戰鬥 / 屬性相關衍生數值。
- * 所有計算委派給 helpers 純函式，此 composable 只負責 reactive 包裝與組合。
  */
 export function useCharacterDerivedStats(
   formState: CharacterUpdateFormState,

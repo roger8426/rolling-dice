@@ -98,7 +98,7 @@ export const useCharacterStore = defineStore('character', () => {
 
   /**
    * 重設角色資料為預設的 MOCK_CHARACTERS，並儲存到 localStorage。
-   * 該方法不進測試，僅供開發階段使用，以快速恢復初始資料狀態。
+   * 僅供開發階段使用。
    */
   function resetCharacters(): void {
     characters.value = [...MOCK_CHARACTERS]
