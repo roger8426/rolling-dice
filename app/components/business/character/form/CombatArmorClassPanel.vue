@@ -25,7 +25,7 @@
           type="number"
           size="sm"
           outline
-          placeholder="10"
+          :placeholder="String(UNARMORED_AC_BASE)"
           @update:model-value="emit('update:armorValue', $event ? Number($event) : null)"
         />
       </div>
@@ -88,7 +88,7 @@
 import type { SelectOption } from '@ui'
 import type { AbilityScores, ArmorClassConfig } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
-import { ABILITY_NAMES, ARMOR_TYPE_NAMES } from '~/constants/dnd'
+import { ABILITY_NAMES, ARMOR_TYPE_NAMES, UNARMORED_AC_BASE } from '~/constants/dnd'
 
 const props = defineProps<{
   armorClass: ArmorClassConfig

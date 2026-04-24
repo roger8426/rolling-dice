@@ -8,7 +8,7 @@ import type {
   ProfessionEntry,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
-import { ABILITY_KEYS, PROFESSION_CONFIG } from '~/constants/dnd'
+import { ABILITY_KEYS, PROFESSION_CONFIG, UNARMORED_AC_BASE } from '~/constants/dnd'
 import { getAbilityModifier, getTotalScore } from '~/helpers/ability'
 
 /** D&D 5e 角色預設移動速度（呎/回合） */
@@ -90,7 +90,7 @@ export function getBaseArmorClass(
  * base（依護甲類型處理 DEX）+ 額外屬性加值 + 盾牌加值。
  */
 export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: AbilityScores): number {
-  const baseValue = config.value ?? 10
+  const baseValue = config.value ?? UNARMORED_AC_BASE
   const dexModifier = getAbilityModifier(abilityScores.dexterity)
   let ac = getBaseArmorClass(baseValue, dexModifier, config.type)
 
@@ -106,7 +106,7 @@ export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: Abil
  * 用於新增角色或尚未設定戰鬥資訊時的初始值。
  */
 export function createDefaultArmorClass(): ArmorClassConfig {
-  return { type: 'none', value: 10, abilityKey: null, shieldValue: 0 }
+  return { type: 'none', value: UNARMORED_AC_BASE, abilityKey: null, shieldValue: 0 }
 }
 
 /**
