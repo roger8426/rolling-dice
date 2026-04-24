@@ -1,15 +1,13 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick, reactive } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { navItems, useNavigationStore } from '~/stores/navigation'
+import { useNavigationStore } from '~/stores/navigation'
+import { navItems } from '~/constants/navigation'
 
-// mockRoute 必須為 reactive，Vue 的 watch() 才能偵測到 path 的變更
 const mockRoute = reactive({ path: '/initial' })
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  // useNavigationStore 透過 Nuxt auto-import 使用 useRoute（globalThis），
-  // 不是直接 import from 'vue-router'，所以需要用 vi.stubGlobal 而非 vi.mock
   vi.stubGlobal('useRoute', () => mockRoute)
   mockRoute.path = '/initial'
 })
@@ -25,6 +23,18 @@ describe('navItems', () => {
 
   it('第一個項目應指向 /character', () => {
     expect(navItems[0]!.to).toBe('/character')
+  })
+
+  it('/dm 與 /tools 應標記為 disabled', () => {
+    const dm = navItems.find((item) => item.to === '/dm')
+    const tools = navItems.find((item) => item.to === '/tools')
+    expect(dm?.disabled).toBe(true)
+    expect(tools?.disabled).toBe(true)
+  })
+
+  it('/character 不應為 disabled', () => {
+    const character = navItems.find((item) => item.to === '/character')
+    expect(character?.disabled).toBeFalsy()
   })
 })
 
