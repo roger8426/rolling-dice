@@ -11,13 +11,13 @@
     <div class="mb-4 space-y-3 rounded-lg border border-border-soft bg-canvas p-3">
       <CommonAppInput
         :radius="0"
-        :model-value="filter.keyword"
+        :model-value="keywordInput"
         type="search"
         size="sm"
         outline
         placeholder="搜尋法術名稱"
         class="w-full"
-        @update:model-value="filter.keyword = $event"
+        @update:model-value="onKeywordInput"
       />
 
       <div class="flex flex-wrap gap-2">
@@ -183,6 +183,18 @@ const filter = reactive<SpellFilter>({
   ritual: false,
   concentration: false,
 })
+
+const keywordInput = ref('')
+const commitKeyword = debounce((value: string) => {
+  filter.keyword = value
+}, 250)
+
+function onKeywordInput(value: string) {
+  keywordInput.value = value
+  commitKeyword(value)
+}
+
+onBeforeUnmount(() => commitKeyword.cancel())
 
 /** 將 Select emit 的 `string | number | null` 收斂為 filter 用的字串 */
 function toFilterString(value: string | number | null): string {
