@@ -128,4 +128,4 @@ export type WeaponType = 'simple' | 'martial'
 
 export type DieType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100'
 
-export type DamageDieType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12'
+export type DamageDieType = Extract<DieType, 'd4' | 'd6' | 'd8' | 'd10' | 'd12'>

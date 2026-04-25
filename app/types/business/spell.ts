@@ -9,8 +9,8 @@ export type SpellSchool =
   | 'necromancy'
   | 'transmutation'
 
-/** 原始法術資料（spells.json），school 以中文字串儲存 */
-export interface RawSpell {
+/** 來自 public/json/spells.json (v1) 的原始法術資料；school 以中文字串儲存。 */
+export interface SpellDto {
   name: string
   level: number
   school: string
@@ -25,7 +25,7 @@ export interface RawSpell {
   desc: string
 }
 
-/** 正規化後的法術資料，供 UI 使用 */
-export interface Spell extends Omit<RawSpell, 'school'> {
+/** 正規化後的法術資料，供 UI 使用。 */
+export interface Spell extends Omit<SpellDto, 'school'> {
   school: SpellSchool
 }

@@ -154,6 +154,7 @@
 <script setup lang="ts">
 import { Accordion, AccordionItem, Badge, Checkbox, Toggle } from '@ui'
 import type { SelectOption } from '@ui'
+import { SPELL_SCHOOL_LABELS, SPELL_SCHOOLS } from '~/constants/dnd'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
 const props = defineProps<{
@@ -209,7 +210,7 @@ const levelOptions: SelectOption[] = [
 
 const schoolOptions: SelectOption[] = [
   { value: '', label: '全部' },
-  ...(Object.keys(SPELL_SCHOOL_LABELS) as SpellSchool[]).map((key) => ({
+  ...SPELL_SCHOOLS.map((key) => ({
     value: key,
     label: SPELL_SCHOOL_LABELS[key],
   })),

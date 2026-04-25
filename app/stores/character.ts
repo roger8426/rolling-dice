@@ -81,6 +81,10 @@ export const useCharacterStore = defineStore('character', () => {
     const patch = formStateToCharacterPatch(formState)
     const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
+    const learnedSpells = [...formState.learnedSpells]
+    const learnedSet = new Set(learnedSpells)
+    const preparedSpells = formState.preparedSpells.filter((name) => learnedSet.has(name))
+
     const updated: Character = {
       ...previous,
       ...patch,
@@ -92,8 +96,8 @@ export const useCharacterStore = defineStore('character', () => {
       passivePerceptionBonus: formState.passivePerceptionBonus,
       armorClass: JSON.parse(JSON.stringify(formState.armorClass)),
       attacks: JSON.parse(JSON.stringify(formState.attacks)),
-      learnedSpells: [...formState.learnedSpells],
-      preparedSpells: [...formState.preparedSpells],
+      learnedSpells,
+      preparedSpells,
     }
 
     characters.value[index] = updated

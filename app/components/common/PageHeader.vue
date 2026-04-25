@@ -19,10 +19,16 @@
 
 <script setup lang="ts">
 import { Icon } from '@ui'
-import type { PageHeaderProps } from '~/types/common/page-header'
+
+interface PageHeaderProps {
+  title: string
+  showBack?: boolean
+  backTo?: string
+}
 
 const props = withDefaults(defineProps<PageHeaderProps>(), {
   showBack: false,
+  backTo: undefined,
 })
 
 const route = useRoute()
