@@ -44,7 +44,12 @@
 </template>
 
 <script setup lang="ts">
-import type { AbilityScores, ArmorClassConfig, AttackEntry } from '~/types/business/character'
+import type {
+  AbilityScores,
+  ArmorClassConfig,
+  AttackDraft,
+  AttackEntry,
+} from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 defineProps<{
@@ -73,8 +78,8 @@ const emit = defineEmits<{
   'update:speedBonus': [value: number | null]
   'update:initiativeBonus': [value: number | null]
   'update:passivePerceptionBonus': [value: number | null]
-  addAttack: [entry: Omit<AttackEntry, 'id'>]
+  addAttack: [entry: AttackDraft]
   removeAttack: [id: string]
-  'update:attack': [id: string, data: Omit<AttackEntry, 'id'>]
+  'update:attack': [id: string, data: AttackDraft]
 }>()
 </script>

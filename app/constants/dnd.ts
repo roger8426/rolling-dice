@@ -2,6 +2,7 @@ import type {
   AbilityKey,
   AlignmentKey,
   ArmorType,
+  DamageDieType,
   GenderKey,
   ProfessionData,
   ProfessionKey,
@@ -164,6 +165,17 @@ export const SPELL_SCHOOL_LABELS: Readonly<Record<SpellSchool, string>> = {
   necromancy: '死靈',
   transmutation: '變化',
 }
+
+// ─── Damage Dice ──────────────────────────────────────────────────────────────
+
+/** 傷害骰類型，用於攻擊模組的傷害計算 */
+export const DAMAGE_DIE_TYPES = [
+  'd4',
+  'd6',
+  'd8',
+  'd10',
+  'd12',
+] as const satisfies readonly DamageDieType[]
 
 // ─── Armor Type ─────────────────────────────────────────────────────────────────
 

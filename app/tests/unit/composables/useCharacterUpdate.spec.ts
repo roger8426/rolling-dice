@@ -233,7 +233,7 @@ describe('useCharacterUpdate — 護甲設定', () => {
 
 // ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
 
-const defaultEntry = (): Omit<import('~/types/business/character').AttackEntry, 'id'> => ({
+const defaultEntry = (): import('~/types/business/character').AttackDraft => ({
   name: '',
   abilityKey: null,
   damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },

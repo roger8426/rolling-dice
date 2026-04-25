@@ -109,7 +109,7 @@
 
       <!-- 第二列：傷害骰（d4～d12）/ 額外傷害加值 -->
       <div class="flex items-end gap-3">
-        <div v-for="die in DIE_TYPES" :key="die" class="flex flex-col items-center gap-1">
+        <div v-for="die in DAMAGE_DIE_TYPES" :key="die" class="flex flex-col items-center gap-1">
           <span class="font-mono text-xs text-content">{{ die }}</span>
           <CommonAppInput
             :radius="0"
@@ -169,9 +169,9 @@
 <script setup lang="ts">
 import { Modal, Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import type { AbilityScores, AttackEntry } from '~/types/business/character'
-import type { AbilityKey, DamageDieType } from '~/types/business/dnd'
-import { ABILITY_NAMES } from '~/constants/dnd'
+import type { AbilityScores, AttackDraft, AttackEntry } from '~/types/business/character'
+import type { AbilityKey } from '~/types/business/dnd'
+import { ABILITY_NAMES, DAMAGE_DIE_TYPES } from '~/constants/dnd'
 
 const props = defineProps<{
   attacks: AttackEntry[]
@@ -180,14 +180,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  add: [entry: Omit<AttackEntry, 'id'>]
+  add: [entry: AttackDraft]
   remove: [id: string]
-  'update:attack': [id: string, data: Omit<AttackEntry, 'id'>]
+  'update:attack': [id: string, data: AttackDraft]
 }>()
-
-// ─── 常數 ─────────────────────────────────────────────────────────────────────
-
-const DIE_TYPES: DamageDieType[] = ['d4', 'd6', 'd8', 'd10', 'd12']
 
 const abilityOptions: SelectOption[] = [
   { value: '', label: '—' },
@@ -199,7 +195,7 @@ const abilityOptions: SelectOption[] = [
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): Omit<AttackEntry, 'id'> {
+function createEmptyDraft(): AttackDraft {
   return {
     name: '',
     abilityKey: null,
@@ -209,7 +205,14 @@ function createEmptyDraft(): Omit<AttackEntry, 'id'> {
   }
 }
 
-const draft = ref<Omit<AttackEntry, 'id'>>(createEmptyDraft())
+const draft = ref<AttackDraft>(createEmptyDraft())
+
+watch(modalOpen, (open) => {
+  if (!open) {
+    editingId.value = null
+    draft.value = createEmptyDraft()
+  }
+})
 
 function openCreate() {
   editingId.value = null
@@ -239,47 +242,18 @@ function saveAttack() {
   modalOpen.value = false
 }
 
-// ─── Draft 計算預覽 ───────────────────────────────────────────────────────────
+// ─── 計算預覽 ─────────────────────────────────────────────────────────────────
 
-const draftHit = computed(() => {
-  const abilityMod = draft.value.abilityKey
-    ? getAbilityModifier(props.abilityScores[draft.value.abilityKey])
-    : 0
-  return abilityMod + props.proficiencyBonus + (draft.value.extraHitBonus ?? 0)
-})
-
-const draftHitColor = computed(() => {
-  const v = draftHit.value
-  if (v > 0) return 'text-success'
-  if (v < 0) return 'text-danger'
-  return 'text-content-muted'
-})
-
-// ─── 列表顯示計算 ─────────────────────────────────────────────────────────────
+const draftHit = computed(() =>
+  getAttackHit(draft.value, props.abilityScores, props.proficiencyBonus),
+)
+const draftHitColor = computed(() => getHitBonusColorClass(draftHit.value))
 
 function computedHit(attack: AttackEntry): number {
-  const abilityMod = attack.abilityKey
-    ? getAbilityModifier(props.abilityScores[attack.abilityKey])
-    : 0
-  return abilityMod + props.proficiencyBonus + (attack.extraHitBonus ?? 0)
+  return getAttackHit(attack, props.abilityScores, props.proficiencyBonus)
 }
 
 function hitBonusColor(attack: AttackEntry): string {
-  const v = computedHit(attack)
-  if (v > 0) return 'text-success'
-  if (v < 0) return 'text-danger'
-  return 'text-content-muted'
-}
-
-function formatDamageSummary(attack: Omit<AttackEntry, 'id'>): string {
-  const parts = DIE_TYPES.filter((die) => attack.damageDice[die] > 0).map(
-    (die, index) => `${index > 0 ? '+' : ''}${attack.damageDice[die]}${die}`,
-  )
-  if (attack.extraDamageBonus) {
-    parts.push(
-      attack.extraDamageBonus > 0 ? `+${attack.extraDamageBonus}` : String(attack.extraDamageBonus),
-    )
-  }
-  return parts.join(' ') || '—'
+  return getHitBonusColorClass(computedHit(attack))
 }
 </script>

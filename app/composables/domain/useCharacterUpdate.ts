@@ -1,6 +1,6 @@
 import { ABILITY_KEYS } from '~/constants/dnd'
 import { createDefaultArmorClass } from '~/helpers/character'
-import type { AttackEntry, Character, CharacterUpdateFormState } from '~/types/business/character'
+import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
@@ -100,7 +100,7 @@ export function useCharacterUpdate(id: string) {
     formState.passivePerceptionBonus = value
   }
 
-  function addAttack(entry: Omit<AttackEntry, 'id'>): void {
+  function addAttack(entry: AttackDraft): void {
     formState.attacks.push({ id: crypto.randomUUID(), ...entry })
   }
 
@@ -109,7 +109,7 @@ export function useCharacterUpdate(id: string) {
     if (index !== -1) formState.attacks.splice(index, 1)
   }
 
-  function updateAttack(id: string, data: Omit<AttackEntry, 'id'>): void {
+  function updateAttack(id: string, data: AttackDraft): void {
     const index = formState.attacks.findIndex((a) => a.id === id)
     if (index !== -1) formState.attacks[index] = { id, ...data }
   }

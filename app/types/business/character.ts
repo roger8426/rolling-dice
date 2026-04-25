@@ -191,6 +191,9 @@ export interface AttackEntry {
   extraDamageBonus: number | null
 }
 
+/** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */
+export type AttackDraft = Omit<AttackEntry, 'id'>
+
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
 export interface CharacterUpdateFormState extends CharacterFormStateBase {
   id: string
