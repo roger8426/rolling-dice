@@ -186,13 +186,6 @@ const INNER_RING_PROFESSIONS: ProfessionKey[] = [
   white-space: nowrap;
 }
 
-/* ─── Bottom banner background ─────────────────────────────────────────────── */
-.banner-section {
-  background-image: url('../assets/images/professions/professions.jpg');
-  background-size: cover;
-  background-position: center;
-}
-
 /* ─── Reduced motion ───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .orbit-outer {

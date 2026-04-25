@@ -4,7 +4,7 @@
       <button
         v-if="showBack"
         class="flex shrink-0 items-center rounded p-1 text-content-soft transition-colors hover:text-content cursor-pointer"
-        aria-label="返回上一頁"
+        aria-label="返回上層"
         @click="handleBack"
       >
         <Icon name="chevron-left" :size="20" />

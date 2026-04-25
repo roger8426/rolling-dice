@@ -76,7 +76,9 @@ const { toggleNav, closeNav } = navStore
 
 const hintRef = useTemplateRef<HTMLElement>('hintRef')
 const drawerPortal = useTemplateRef<HTMLElement>('drawerPortal')
-useSwipeUpTrigger(hintRef)
+useSwipeUpTrigger(hintRef, {
+  disabledRouteNames: ['character-build', 'character-id-update'],
+})
 
 const route = useRoute()
 
