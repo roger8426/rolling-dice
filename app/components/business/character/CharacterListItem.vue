@@ -123,7 +123,6 @@ const cardShadowStyle = computed(() => {
   return { '--card-shadow': `0 0 16px rgba(${tierConfig.value.shadowRgb}, ${opacity.toFixed(3)})` }
 })
 
-const professionImages = getProfessionImages()
 const coverError = ref(false)
 
 watch(
@@ -137,7 +136,7 @@ const hasAvatar = computed(() => !!props.character.avatar && !coverError.value)
 const coverSrc = computed(() =>
   hasAvatar.value
     ? props.character.avatar!
-    : professionImages[props.character.professions[0]!.profession],
+    : PROFESSION_IMAGES[props.character.professions[0]!.profession],
 )
 
 function onCoverError() {

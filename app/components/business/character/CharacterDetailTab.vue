@@ -102,8 +102,8 @@
                 <td class="py-2 pr-4 text-content-soft">
                   <div class="flex items-center gap-1.5">
                     <img
-                      v-if="professionImages[row.profession]"
-                      :src="professionImages[row.profession]"
+                      v-if="PROFESSION_IMAGES[row.profession]"
+                      :src="PROFESSION_IMAGES[row.profession]"
                       alt=""
                       class="size-4"
                       loading="lazy"
@@ -273,8 +273,6 @@ import {
 const props = defineProps<{
   character: Character
 }>()
-
-const professionImages = getProfessionImages()
 
 // ─── Ability Computed ──────────────────────────────────────────────────────
 

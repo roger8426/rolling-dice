@@ -29,7 +29,7 @@
           :style="{ '--i': i }"
         >
           <img
-            :src="professionImages[prof]"
+            :src="PROFESSION_IMAGES[prof]"
             :alt="PROFESSION_CONFIG[prof].label"
             class="ring-img"
           />
@@ -43,7 +43,7 @@
           :style="{ '--i': i }"
         >
           <img
-            :src="professionImages[prof]"
+            :src="PROFESSION_IMAGES[prof]"
             :alt="PROFESSION_CONFIG[prof].label"
             class="ring-img"
           />
@@ -84,9 +84,6 @@ const INNER_RING_PROFESSIONS: ProfessionKey[] = [
   'ranger',
   'rogue',
 ]
-
-// ─── Image assets ─────────────────────────────────────────────────────────────
-const professionImages = getProfessionImages()
 </script>
 
 <style scoped>
