@@ -79,6 +79,27 @@ describe('useCharacterFormCore — professions', () => {
     core.updateProfessionLevel(0, 10)
     expect(formState.professions[0]!.level).toBe(10)
   })
+
+  it('updateProfessionLevel 超過 20 應 clamp 到 20', () => {
+    const formState = createFormState()
+    const core = useCharacterFormCore(formState)
+    core.updateProfessionLevel(0, 99)
+    expect(formState.professions[0]!.level).toBe(20)
+  })
+
+  it('updateProfessionLevel 小於 1 應 clamp 到 1', () => {
+    const formState = createFormState()
+    const core = useCharacterFormCore(formState)
+    core.updateProfessionLevel(0, 0)
+    expect(formState.professions[0]!.level).toBe(1)
+  })
+
+  it('updateProfessionLevel 應截斷小數', () => {
+    const formState = createFormState()
+    const core = useCharacterFormCore(formState)
+    core.updateProfessionLevel(0, 5.7)
+    expect(formState.professions[0]!.level).toBe(5)
+  })
 })
 
 describe('useCharacterFormCore — skills', () => {

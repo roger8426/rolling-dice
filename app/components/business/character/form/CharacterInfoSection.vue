@@ -281,7 +281,6 @@ function updateProfessionKey(index: number, value: string): void {
 }
 
 function updateProfessionLevel(index: number, value: string): void {
-  const level = Math.max(1, Math.min(20, Number(value) || 1))
-  emit('update:level', index, level)
+  emit('update:level', index, parseIntegerInput(value, 1))
 }
 </script>

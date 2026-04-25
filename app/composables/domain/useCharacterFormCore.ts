@@ -40,7 +40,7 @@ export function useCharacterFormCore<T extends CharacterFormStateBase>(
 
   function updateProfessionLevel(index: number, level: number): void {
     const entry = formState.professions[index]
-    if (entry) entry.level = level
+    if (entry) entry.level = Math.max(1, Math.min(20, Math.trunc(level) || 1))
   }
 
   function setSkillProficiency(skill: SkillKey, level: ProficiencyLevel): void {

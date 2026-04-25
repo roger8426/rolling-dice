@@ -1,8 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
-    <div>
-      <img src="~/assets/images/dnd.png" alt="" />
-    </div>
+    <img src="~/assets/images/dnd.png" alt="" loading="lazy" aria-hidden="true" />
     <!-- Method selector -->
     <div>
       <p class="mb-1 text-xs text-content">分配方式</p>
@@ -31,7 +29,7 @@
         </label>
 
         <!-- Stepper (pointBuy / custom) -->
-        <div v-if="abilityMethod !== 'diceRoll'" class="flex items-center gap-1 py-0.5">
+        <div v-if="!isDiceMode" class="flex items-center gap-1 py-0.5">
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
@@ -83,8 +81,8 @@
         class="flex items-center gap-2"
         @click="handleReset"
       >
-        <Icon v-if="abilityMethod === 'diceRoll'" name="dice-20" :size="16" />
-        {{ abilityMethod === 'diceRoll' ? '擲骰' : '重置屬性' }}
+        <Icon v-if="isDiceMode" name="dice-20" :size="16" />
+        {{ isDiceMode ? '擲骰' : '重置屬性' }}
       </Button>
     </div>
   </div>
@@ -122,6 +120,8 @@ const methods: { key: AbilityMethod; label: string }[] = [
   { key: 'diceRoll', label: '擲骰' },
 ]
 
+const isDiceMode = computed(() => props.abilityMethod === 'diceRoll')
+
 function getMinScore(): number {
   return props.abilityMethod === 'pointBuy' ? POINT_BUY_MIN_SCORE : CUSTOM_ABILITY_MIN
 }
@@ -146,7 +146,7 @@ function adjustAbility(key: AbilityKey, delta: number): void {
 }
 
 function handleReset(): void {
-  if (props.abilityMethod === 'diceRoll') {
+  if (isDiceMode.value) {
     emit('roll:all')
   } else {
     emit('reset:abilities')
