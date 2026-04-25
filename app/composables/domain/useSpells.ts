@@ -11,7 +11,7 @@ export function useSpells() {
   const config = useRuntimeConfig()
   const logger = createLogger('[useSpells]')
 
-  const { data, pending, error } = useAsyncData('spells', async () => {
+  const { data, pending, error, refresh } = useAsyncData('spells', async () => {
     const baseURL = config.app.baseURL.endsWith('/') ? config.app.baseURL : `${config.app.baseURL}/`
     const raw = await $fetch<SpellDto[]>(`${baseURL}json/spells.json`)
     const accepted: Spell[] = []
@@ -39,5 +39,5 @@ export function useSpells() {
     return spellMap.value.get(name)
   }
 
-  return { spells, skippedSpells, spellMap, getSpell, pending, error }
+  return { spells, skippedSpells, spellMap, getSpell, pending, error, refresh }
 }

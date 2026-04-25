@@ -1,7 +1,7 @@
 <template>
-  <section aria-labelledby="section-spellbook">
+  <section :aria-labelledby="headingId">
     <header class="mb-4 flex items-center justify-between">
-      <h2 id="section-spellbook" class="font-display text-lg font-bold text-content">法術清單</h2>
+      <h2 :id="headingId" class="font-display text-lg font-bold text-content">法術資料庫</h2>
       <span class="text-xs text-content-muted">
         已掌握 <span class="font-bold text-content">{{ learnedSpells.length }}</span> 個法術
       </span>
@@ -20,29 +20,41 @@
         @update:model-value="onKeywordInput"
       />
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-end gap-2">
         <div>
-          <label for="spell-filter-level" class="mb-1 block text-xs text-content">環數</label>
+          <label :for="levelSelectId" class="mb-1 block text-xs text-content">環數</label>
           <CommonAppSelect
-            id="spell-filter-level"
-            :model-value="filter.level"
-            :options="levelOptions"
+            :id="levelSelectId"
+            :model-value="levelSelectValue"
+            :options="SPELL_LEVEL_OPTIONS"
             size="sm"
             class="w-24"
-            @update:model-value="filter.level = toFilterString($event)"
+            @update:model-value="filter.level = toSpellLevelFilter($event)"
           />
         </div>
         <div>
-          <label for="spell-filter-school" class="mb-1 block text-xs text-content">學派</label>
+          <label :for="schoolSelectId" class="mb-1 block text-xs text-content">學派</label>
           <CommonAppSelect
-            id="spell-filter-school"
+            :id="schoolSelectId"
             :model-value="filter.school"
-            :options="schoolOptions"
+            :options="SPELL_SCHOOL_OPTIONS"
             size="sm"
             class="w-24"
-            @update:model-value="filter.school = toFilterString($event)"
+            @update:model-value="filter.school = ($event ?? '').toString()"
           />
         </div>
+        <Button
+          v-if="hasActiveFilter"
+          size="sm"
+          outline
+          :radius="4"
+          text-color="var(--color-content-muted)"
+          border-color="var(--color-border)"
+          class="clear-filter-btn"
+          @click="resetFilter"
+        >
+          清除篩選
+        </Button>
       </div>
 
       <div class="flex flex-wrap gap-x-5 gap-y-2 text-xs text-content">
@@ -68,8 +80,9 @@
     </div>
 
     <!-- Body -->
-    <p v-if="pending" class="py-8 text-center text-content-muted">法術資料載入中…</p>
-    <p v-else-if="error" class="py-8 text-center text-danger">法術資料載入失敗</p>
+    <p v-if="filter.level === 'unselected'" class="py-8 text-center text-content-muted">
+      請先選擇環數以顯示法術列表
+    </p>
     <p v-else-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
       沒有符合條件的法術
     </p>
@@ -85,14 +98,14 @@
           <AccordionItem v-for="spell in group.spells" :key="spell.name" :value="spell.name">
             <template #title>
               <div class="flex flex-1 items-center gap-3">
-                <span class="shrink-0" @click.stop>
-                  <Checkbox
-                    :model-value="isLearned(spell.name)"
-                    size="sm"
-                    :aria-label="`掌握 ${spell.name}`"
-                    @update:model-value="emit('toggleLearned', spell.name)"
-                  />
-                </span>
+                <Checkbox
+                  class="shrink-0"
+                  :model-value="isLearned(spell.name)"
+                  size="sm"
+                  :aria-label="`掌握 ${spell.name}`"
+                  @click.stop
+                  @update:model-value="emit('toggleLearned', spell.name)"
+                />
                 <div class="min-w-0 flex-1 text-left">
                   <div class="flex items-center gap-2">
                     <p class="truncate text-sm font-semibold text-content">{{ spell.name }}</p>
@@ -152,9 +165,14 @@
 </template>
 
 <script setup lang="ts">
-import { Accordion, AccordionItem, Badge, Checkbox, Toggle } from '@ui'
-import type { SelectOption } from '@ui'
-import { SPELL_SCHOOL_LABELS, SPELL_SCHOOLS } from '~/constants/dnd'
+import { Accordion, AccordionItem, Badge, Button, Checkbox, Toggle } from '@ui'
+import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
+import {
+  SPELL_LEVEL_OPTIONS,
+  SPELL_SCHOOL_OPTIONS,
+  toSpellLevelFilter,
+  type SpellLevelFilter,
+} from '~/constants/spell-options'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
 const props = defineProps<{
@@ -165,25 +183,31 @@ const emit = defineEmits<{
   toggleLearned: [name: string]
 }>()
 
-const { spells, pending, error } = useSpells()
+const { spells } = useSpells()
+
+const headingId = useId()
+const levelSelectId = useId()
+const schoolSelectId = useId()
 
 // ─── Filter ─────────────────────────────────────────────────────────────────
 
 interface SpellFilter {
   keyword: string
-  level: string
+  level: SpellLevelFilter
   school: string
   ritual: boolean
   concentration: boolean
 }
 
-const filter = reactive<SpellFilter>({
+const defaultFilter = (): SpellFilter => ({
   keyword: '',
-  level: '',
+  level: 'unselected',
   school: '',
   ritual: false,
   concentration: false,
 })
+
+const filter = reactive<SpellFilter>(defaultFilter())
 
 const keywordInput = ref('')
 const commitKeyword = debounce((value: string) => {
@@ -197,28 +221,30 @@ function onKeywordInput(value: string) {
 
 onBeforeUnmount(() => commitKeyword.cancel())
 
-/** 將 Select emit 的 `string | number | null` 收斂為 filter 用的字串 */
-function toFilterString(value: string | number | null): string {
-  return value == null ? '' : String(value)
+const levelSelectValue = computed(() =>
+  typeof filter.level === 'number' ? String(filter.level) : filter.level,
+)
+
+const hasActiveFilter = computed(
+  () =>
+    filter.keyword !== '' ||
+    filter.level !== 'unselected' ||
+    filter.school !== '' ||
+    filter.ritual ||
+    filter.concentration,
+)
+
+function resetFilter() {
+  Object.assign(filter, defaultFilter())
+  keywordInput.value = ''
+  commitKeyword.cancel()
 }
 
-const levelOptions: SelectOption[] = [
-  { value: '', label: '全部' },
-  { value: '0', label: '戲法' },
-  ...Array.from({ length: 9 }, (_, i) => ({ value: String(i + 1), label: `${i + 1} 環` })),
-]
-
-const schoolOptions: SelectOption[] = [
-  { value: '', label: '全部' },
-  ...SPELL_SCHOOLS.map((key) => ({
-    value: key,
-    label: SPELL_SCHOOL_LABELS[key],
-  })),
-]
-
 const filteredSpells = computed<Spell[]>(() => {
+  if (filter.level === 'unselected') return []
+
   const keyword = filter.keyword.trim().toLowerCase()
-  const level = filter.level === '' ? null : Number(filter.level)
+  const level = filter.level === 'all' ? null : filter.level
   const school = filter.school === '' ? null : (filter.school as SpellSchool)
 
   return spells.value.filter((s) => {
@@ -241,5 +267,11 @@ function isLearned(name: string): boolean {
 <style scoped>
 .spell-accordion :deep(button:hover:not(:disabled)) {
   background-color: var(--color-info-soft);
+}
+
+.clear-filter-btn {
+  height: 2rem;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
 }
 </style>

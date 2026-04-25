@@ -1,18 +1,21 @@
 <template>
-  <section aria-labelledby="section-prepared-spells">
+  <section :aria-labelledby="headingId">
     <header class="mb-4 flex items-center justify-between">
-      <h2 id="section-prepared-spells" class="font-display text-lg font-bold text-content">
-        已掌握法術
-      </h2>
+      <h2 :id="headingId" class="font-display text-lg font-bold text-content">準備法術</h2>
       <span class="text-xs text-content-muted">
         已準備 <span class="font-bold text-content">{{ preparedCount }}</span> /
         {{ preparableCount }}
       </span>
     </header>
 
-    <p v-if="pending" class="py-6 text-center text-sm text-content-muted">法術資料載入中…</p>
-    <p v-else-if="error" class="py-6 text-center text-sm text-danger">法術資料載入失敗</p>
-    <p v-else-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
+    <p
+      v-if="missingNames.length > 0"
+      class="mb-3 rounded-md border border-warning bg-warning-soft px-3 py-2 text-xs text-warning"
+    >
+      資料庫中找不到下列法術：{{ missingNames.join('、') }}
+    </p>
+
+    <p v-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未習得任何法術
     </p>
     <div v-else class="space-y-4 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pr-1">
@@ -57,16 +60,26 @@ const emit = defineEmits<{
   togglePrepared: [name: string]
 }>()
 
-const { getSpell, pending, error } = useSpells()
+const { getSpell } = useSpells()
 
-const learnedSpellDetails = computed<Spell[]>(() =>
-  props.learnedSpells.map((name) => getSpell(name)).filter((s): s is Spell => s !== undefined),
-)
+const headingId = useId()
 
-const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value))
+const learnedSpellDetails = computed(() => {
+  const found: Spell[] = []
+  const missing: string[] = []
+  for (const name of props.learnedSpells) {
+    const spell = getSpell(name)
+    if (spell) found.push(spell)
+    else missing.push(name)
+  }
+  return { found, missing }
+})
+
+const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value.found))
+const missingNames = computed(() => learnedSpellDetails.value.missing)
 
 const preparableNames = computed(
-  () => new Set(learnedSpellDetails.value.filter((s) => s.level > 0).map((s) => s.name)),
+  () => new Set(learnedSpellDetails.value.found.filter((s) => s.level > 0).map((s) => s.name)),
 )
 
 const preparableCount = computed(() => preparableNames.value.size)
