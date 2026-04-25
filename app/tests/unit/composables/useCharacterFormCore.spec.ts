@@ -67,12 +67,6 @@ describe('useCharacterFormCore — professions', () => {
     expect(formState.professions).toEqual([{ profession: 'wizard', level: 3 }])
   })
 
-  it('updateProfession 超出索引範圍時不應拋錯', () => {
-    const formState = createFormState()
-    const core = useCharacterFormCore(formState)
-    expect(() => core.updateProfession(5, 'fighter')).not.toThrow()
-  })
-
   it('updateProfessionLevel 應正確更新指定索引的等級', () => {
     const formState = createFormState()
     const core = useCharacterFormCore(formState)

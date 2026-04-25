@@ -1,9 +1,11 @@
-import { ABILITY_KEYS } from '~/constants/dnd'
+import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { createDefaultArmorClass } from '~/helpers/character'
 import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
+
+// ─── Form State Factories ─────────────────────────────────────────────────────
 
 function characterToFormState(character: Character): CharacterUpdateFormState {
   return {
@@ -23,27 +25,63 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
       ]),
     ) as CharacterUpdateFormState['abilities'],
     skills: { ...character.skills },
-    background: character.background ?? null,
-    isJackOfAllTrades: character.isJackOfAllTrades ?? false,
-    isTough: character.isTough ?? false,
-    faith: character.faith ?? null,
-    age: character.age ?? null,
-    height: character.height ?? null,
-    weight: character.weight ?? null,
-    appearance: character.appearance ?? null,
-    story: character.story ?? null,
-    languages: character.languages ?? null,
-    tools: character.tools ?? null,
-    weaponProficiencies: character.weaponProficiencies ?? null,
-    armorProficiencies: character.armorProficiencies ?? null,
-    armorClass: character.armorClass ? { ...character.armorClass } : createDefaultArmorClass(),
-    speedBonus: character.speedBonus ?? null,
-    initiativeBonus: character.initiativeBonus ?? null,
-    passivePerceptionBonus: character.passivePerceptionBonus ?? null,
-    extraHp: character.extraHp ?? 0,
-    attacks: character.attacks?.map((a) => ({ ...a, damageDice: { ...a.damageDice } })) ?? [],
-    learnedSpells: [...(character.learnedSpells ?? [])],
-    preparedSpells: [...(character.preparedSpells ?? [])],
+    background: character.background,
+    isJackOfAllTrades: character.isJackOfAllTrades,
+    isTough: character.isTough,
+    faith: character.faith,
+    age: character.age,
+    height: character.height,
+    weight: character.weight,
+    appearance: character.appearance,
+    story: character.story,
+    languages: character.languages,
+    tools: character.tools,
+    weaponProficiencies: character.weaponProficiencies,
+    armorProficiencies: character.armorProficiencies,
+    armorClass: { ...character.armorClass },
+    speedBonus: character.speedBonus,
+    initiativeBonus: character.initiativeBonus,
+    passivePerceptionBonus: character.passivePerceptionBonus,
+    extraHp: character.extraHp,
+    attacks: character.attacks.map((a) => ({ ...a, damageDice: { ...a.damageDice } })),
+    learnedSpells: [...character.learnedSpells],
+    preparedSpells: [...character.preparedSpells],
+  }
+}
+
+function createEmptyUpdateFormState(): CharacterUpdateFormState {
+  return {
+    id: '',
+    name: '',
+    gender: null,
+    race: null,
+    alignment: null,
+    professions: [{ profession: null, level: 1 }],
+    abilities: Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, { basicScore: POINT_BUY_DEFAULT_SCORE, bonusScore: 0 }]),
+    ) as CharacterUpdateFormState['abilities'],
+    skills: {},
+    background: null,
+    isJackOfAllTrades: false,
+    isTough: false,
+    faith: null,
+    age: null,
+    height: null,
+    weight: null,
+    appearance: null,
+    story: null,
+    languages: null,
+    tools: null,
+    weaponProficiencies: null,
+    armorProficiencies: null,
+    armorClass: createDefaultArmorClass(),
+    speedBonus: null,
+    initiativeBonus: null,
+    passivePerceptionBonus: null,
+    extraHp: 0,
+    attacks: [],
+    learnedSpells: [],
+    preparedSpells: [],
   }
 }
 
@@ -190,41 +228,5 @@ export function useCharacterUpdate(id: string) {
     },
 
     submit,
-  }
-}
-
-function createEmptyUpdateFormState(): CharacterUpdateFormState {
-  return {
-    id: '',
-    name: '',
-    gender: null,
-    race: null,
-    alignment: null,
-    professions: [{ profession: null, level: 1 }],
-    abilities: Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, { basicScore: 8, bonusScore: 0 }]),
-    ) as CharacterUpdateFormState['abilities'],
-    skills: {},
-    background: null,
-    isJackOfAllTrades: false,
-    isTough: false,
-    faith: null,
-    age: null,
-    height: null,
-    weight: null,
-    appearance: null,
-    story: null,
-    languages: null,
-    tools: null,
-    weaponProficiencies: null,
-    armorProficiencies: null,
-    armorClass: createDefaultArmorClass(),
-    speedBonus: null,
-    initiativeBonus: null,
-    passivePerceptionBonus: null,
-    extraHp: 0,
-    attacks: [],
-    learnedSpells: [],
-    preparedSpells: [],
   }
 }
