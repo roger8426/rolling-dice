@@ -53,7 +53,7 @@ export function getPointBuyCost(score: number): number {
  * 若任一分數超出合法範圍，拋出錯誤。
  */
 export function calculateSpentPoints(scores: Record<AbilityKey, number>): number {
-  return (Object.values(scores) as number[]).reduce((sum, score) => sum + getPointBuyCost(score), 0)
+  return Object.values(scores).reduce((sum, score) => sum + getPointBuyCost(score), 0)
 }
 
 /**
@@ -70,7 +70,7 @@ export function getRemainingPoints(scores: Record<AbilityKey, number>): number {
  * 2. 總花費不超過預算（27 點）
  */
 export function isValidPointBuy(scores: Record<AbilityKey, number>): boolean {
-  const allScoresValid = (Object.values(scores) as number[]).every(isValidPointBuyScore)
+  const allScoresValid = Object.values(scores).every(isValidPointBuyScore)
   if (!allScoresValid) return false
   return calculateSpentPoints(scores) <= POINT_BUY_BUDGET
 }

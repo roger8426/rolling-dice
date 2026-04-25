@@ -1,35 +1,14 @@
-import type { RawSpell, Spell, SpellSchool } from '~/types/business/spell'
-
-const logger = createLogger('[spell]')
-
-/** 學派中文顯示名稱 */
-export const SPELL_SCHOOL_LABELS: Record<SpellSchool, string> = {
-  abjuration: '防護',
-  conjuration: '咒法',
-  divination: '預言',
-  enchantment: '惑控',
-  evocation: '塑能',
-  illusion: '幻術',
-  necromancy: '死靈',
-  transmutation: '變化',
-}
-
-/** 所有 SpellSchool，用於迭代 */
-export const SPELL_SCHOOLS: readonly SpellSchool[] = Object.keys(
-  SPELL_SCHOOL_LABELS,
-) as SpellSchool[]
+import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
+import type { Spell, SpellDto, SpellSchool } from '~/types/business/spell'
 
 const CN_TO_SCHOOL: Record<string, SpellSchool> = Object.fromEntries(
   Object.entries(SPELL_SCHOOL_LABELS).map(([key, label]) => [label, key as SpellSchool]),
 )
 
-/** 將原始法術資料正規化為 Spell；若學派未知則回傳 null，呼叫端負責過濾 */
-export function normalizeSpell(raw: RawSpell): Spell | null {
+/** 將原始法術資料正規化為 Spell；若學派未知則回傳 null，呼叫端負責收集。 */
+export function normalizeSpell(raw: SpellDto): Spell | null {
   const school = CN_TO_SCHOOL[raw.school]
-  if (!school) {
-    logger.warn(`未知學派 "${raw.school}"，略過法術：${raw.name}`)
-    return null
-  }
+  if (!school) return null
   return { ...raw, school }
 }
 

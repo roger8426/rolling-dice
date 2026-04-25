@@ -1,20 +1,37 @@
 import { normalizeSpell } from '~/helpers/spell'
-import type { RawSpell, Spell } from '~/types/business/spell'
+import type { Spell, SpellDto } from '~/types/business/spell'
 
-/**
- * 載入並快取 public/json/spells.json 的法術資料。
- * 以 useAsyncData 快取，同 key 多次呼叫共享結果。
- */
+export interface SkippedSpell {
+  name: string
+  school: string
+}
+
+/** 載入 public/json/spells.json，回傳正規化後的 Spell 與略過的未知學派條目。 */
 export function useSpells() {
   const config = useRuntimeConfig()
+  const logger = createLogger('[useSpells]')
 
   const { data, pending, error } = useAsyncData('spells', async () => {
     const baseURL = config.app.baseURL.endsWith('/') ? config.app.baseURL : `${config.app.baseURL}/`
-    const raw = await $fetch<RawSpell[]>(`${baseURL}json/spells.json`)
-    return raw.map(normalizeSpell).filter((s): s is Spell => s !== null)
+    const raw = await $fetch<SpellDto[]>(`${baseURL}json/spells.json`)
+    const accepted: Spell[] = []
+    const skipped: SkippedSpell[] = []
+    for (const r of raw) {
+      const normalized = normalizeSpell(r)
+      if (normalized) {
+        accepted.push(normalized)
+      } else {
+        skipped.push({ name: r.name, school: r.school })
+      }
+    }
+    if (skipped.length > 0) {
+      logger.warn(`略過 ${skipped.length} 筆未知學派法術`, skipped)
+    }
+    return { spells: accepted, skipped }
   })
 
-  const spells = computed<Spell[]>(() => data.value ?? [])
+  const spells = computed<Spell[]>(() => data.value?.spells ?? [])
+  const skippedSpells = computed<SkippedSpell[]>(() => data.value?.skipped ?? [])
 
   const spellMap = computed(() => new Map(spells.value.map((s) => [s.name, s])))
 
@@ -22,5 +39,5 @@ export function useSpells() {
     return spellMap.value.get(name)
   }
 
-  return { spells, spellMap, getSpell, pending, error }
+  return { spells, skippedSpells, spellMap, getSpell, pending, error }
 }
