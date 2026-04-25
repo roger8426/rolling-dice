@@ -173,7 +173,7 @@ import type { SelectOption } from '@ui'
 import { CHARACTER_VIEW_MODE_KEY } from '~/constants/storage'
 import type { Character } from '~/types/business/character'
 
-useHead({ title: '角色卡 | Rolling Dice' })
+useHead({ title: '角色卡' })
 
 const isDev = import.meta.dev
 const characterStore = useCharacterStore()
@@ -182,7 +182,7 @@ const storedMode = getLocalStorage<string>(CHARACTER_VIEW_MODE_KEY)
 const isListMode = ref(storedMode === 'list')
 const deleteMode = ref(false)
 const showDeleteModal = ref(false)
-const deleteTarget = ref<Character | null>(null)
+const deleteTarget = ref<{ id: string; name: string } | null>(null)
 
 watch(isListMode, (val) => {
   setLocalStorage(CHARACTER_VIEW_MODE_KEY, val ? 'list' : 'grid')
@@ -194,7 +194,7 @@ const toggleDeleteMode = () => {
 }
 
 const handleDeleteRequest = (character: Character) => {
-  deleteTarget.value = character
+  deleteTarget.value = { id: character.id, name: character.name }
   showDeleteModal.value = true
 }
 

@@ -35,28 +35,20 @@
       </Tabs>
     </div>
 
-    <div v-else class="flex flex-col items-center gap-4 py-16">
-      <p class="text-content-muted">找不到此角色</p>
-      <NuxtLink
-        to="/character"
-        class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-content-inverse transition-colors hover:bg-primary-hover"
-      >
-        返回角色列表
-      </NuxtLink>
-    </div>
+    <CommonNotFound v-else message="找不到此角色" back-to="/character" back-label="返回角色列表" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Tab, Tabs } from '@ui'
 
-useHead({ title: '角色卡詳情 | Rolling Dice' })
+useHead({ title: '角色卡詳情' })
 
 const activeTab = ref('profile')
 
 const route = useRoute()
 const characterStore = useCharacterStore()
 
-const id = String(route.params.id)
+const id = getRouteParam(route.params.id)
 const character = computed(() => characterStore.getById(id))
 </script>

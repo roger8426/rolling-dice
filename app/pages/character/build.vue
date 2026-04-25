@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
 
-useHead({ title: '建立角色卡 | Rolling Dice' })
+useHead({ title: '建立角色卡' })
 
 const { activeTab, formState, core, abilities, submit } = useCharacterBuild()
 const {

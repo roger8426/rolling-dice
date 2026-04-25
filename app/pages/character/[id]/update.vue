@@ -14,12 +14,12 @@
       </template>
     </CommonPageHeader>
 
-    <div v-if="!character" class="py-12 text-center">
-      <p class="text-content-muted">找不到此角色</p>
-      <NuxtLink to="/character" class="mt-4 inline-block text-primary underline">
-        返回角色列表
-      </NuxtLink>
-    </div>
+    <CommonNotFound
+      v-if="!character"
+      message="找不到此角色"
+      back-to="/character"
+      back-label="返回角色列表"
+    />
 
     <template v-else>
       <Tabs
@@ -131,9 +131,9 @@
 import { Button, Tab, Tabs } from '@ui'
 
 const route = useRoute()
-const id = String(route.params.id)
+const id = getRouteParam(route.params.id)
 
-useHead({ title: '編輯角色卡 | Rolling Dice' })
+useHead({ title: '編輯角色卡' })
 
 const { activeTab, character, formState, core, derived, abilities, combat, spells, submit } =
   useCharacterUpdate(id)
