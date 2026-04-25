@@ -7,6 +7,9 @@
           <CommonAppInput
             id="char-age"
             type="number"
+            min="0"
+            max="9999"
+            step="1"
             class="w-full"
             :radius="0"
             :model-value="formState.age !== null ? String(formState.age) : ''"
@@ -49,9 +52,9 @@
             class="w-full"
             :border="false"
             :model-value="formState.appearance ?? ''"
-            placeholder="簡述角色的外貌特，上限 200 字"
+            :placeholder="`簡述角色的外貌特，上限 ${APPEARANCE_MAX_LENGTH} 字`"
             :rows="2"
-            :maxlength="200"
+            :maxlength="APPEARANCE_MAX_LENGTH"
             show-count
             @update:model-value="$emit('update:appearance', $event)"
           />
@@ -66,19 +69,20 @@
             class="w-full"
             :border="false"
             :model-value="formState.story ?? ''"
-            placeholder="角色背景故事設定，上限 1000 字"
+            :placeholder="`角色背景故事設定，上限 ${STORY_MAX_LENGTH} 字`"
             :rows="10"
-            :maxlength="1000"
+            :maxlength="STORY_MAX_LENGTH"
             show-count
             @update:model-value="$emit('update:story', $event)"
           />
         </div>
       </div>
     </div>
+    <!-- TODO: F2-M2 角色頭像上傳尚未實作 -->
     <div
       class="w-full flex flex-col items-center justify-center border border-primary rounded-md md:w-1/3 px-1 gap-2"
     >
-      <img src="~/assets/images/imbad.png" alt="" />
+      <img src="~/assets/images/imbad.png" alt="" loading="lazy" aria-hidden="true" />
       角色圖片上傳區，開發中...
     </div>
   </div>
@@ -86,6 +90,7 @@
 
 <script setup lang="ts">
 import { TextArea } from '@ui'
+import { APPEARANCE_MAX_LENGTH, STORY_MAX_LENGTH } from '~/constants/character'
 import type { CharacterFormStateBase } from '~/types/business/character'
 
 defineProps<{
