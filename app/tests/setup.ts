@@ -37,8 +37,8 @@ Object.defineProperty(globalThis, 'localStorage', {
 })
 
 // Step 2: log utils（local-storage.ts 模組頂層會呼叫 createLogger）
-const { createLogger, setDebugEnabled } = await import('~/utils/log')
-Object.assign(globalThis, { createLogger, setDebugEnabled })
+const { createLogger } = await import('~/utils/log')
+Object.assign(globalThis, { createLogger })
 
 // Step 3: local-storage（此時 createLogger 已掛上 globalThis）
 const { getLocalStorage, setLocalStorage, removeLocalStorage } =
