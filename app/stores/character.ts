@@ -13,8 +13,15 @@ import {
 } from '~/helpers/character'
 import { MOCK_CHARACTERS } from '~/mocks/characters'
 
+/** 對 Character 做深拷貝，斷開與 store 內部 reactive proxy 的關聯。 */
+function cloneCharacter(c: Character): Character {
+  return JSON.parse(JSON.stringify(c)) as Character
+}
+
 function loadFromStorage(): Character[] {
-  return getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY) ?? [...MOCK_CHARACTERS]
+  const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
+  if (stored) return stored
+  return MOCK_CHARACTERS.map(cloneCharacter)
 }
 
 function saveToStorage(characters: Character[]): boolean {
@@ -25,7 +32,8 @@ export const useCharacterStore = defineStore('character', () => {
   const characters = ref<Character[]>(loadFromStorage())
 
   function getById(id: string): Character | undefined {
-    return characters.value.find((c) => c.id === id)
+    const found = characters.value.find((c) => c.id === id)
+    return found ? cloneCharacter(found) : undefined
   }
 
   function addCharacter(formState: CharacterFormState): Character | null {
@@ -57,7 +65,7 @@ export const useCharacterStore = defineStore('character', () => {
       characters.value.pop()
       return null
     }
-    return character
+    return cloneCharacter(character)
   }
 
   function removeCharacter(id: string): void {
@@ -76,14 +84,14 @@ export const useCharacterStore = defineStore('character', () => {
     const updated: Character = {
       ...previous,
       ...patch,
-      abilities: { ...formState.abilities },
+      abilities: JSON.parse(JSON.stringify(formState.abilities)),
       savingThrowProficiencies,
       extraHp: formState.extraHp,
       speedBonus: formState.speedBonus,
       initiativeBonus: formState.initiativeBonus,
       passivePerceptionBonus: formState.passivePerceptionBonus,
-      armorClass: { ...formState.armorClass },
-      attacks: formState.attacks.map((a) => ({ ...a })),
+      armorClass: JSON.parse(JSON.stringify(formState.armorClass)),
+      attacks: JSON.parse(JSON.stringify(formState.attacks)),
       learnedSpells: [...formState.learnedSpells],
       preparedSpells: [...formState.preparedSpells],
     }
@@ -93,15 +101,12 @@ export const useCharacterStore = defineStore('character', () => {
       characters.value[index] = previous
       return null
     }
-    return updated
+    return cloneCharacter(updated)
   }
 
-  /**
-   * 重設角色資料為預設的 MOCK_CHARACTERS，並儲存到 localStorage。
-   * 僅供開發階段使用。
-   */
+  /** 重設角色為預設 MOCK_CHARACTERS 並寫回 localStorage（僅供開發階段使用）。 */
   function resetCharacters(): void {
-    characters.value = [...MOCK_CHARACTERS]
+    characters.value = MOCK_CHARACTERS.map(cloneCharacter)
     saveToStorage(characters.value)
   }
 
