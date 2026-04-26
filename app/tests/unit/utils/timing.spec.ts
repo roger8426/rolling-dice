@@ -50,6 +50,48 @@ describe('debounce', () => {
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith('y')
   })
+
+  it('flush 應立即以最後一次參數觸發 pending 呼叫', () => {
+    const spy = vi.fn()
+    const debounced = debounce(spy, 100)
+
+    debounced('a')
+    debounced('b')
+    debounced.flush()
+
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith('b')
+
+    vi.advanceTimersByTime(200)
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it('flush 在無 pending 呼叫時應為 no-op', () => {
+    const spy = vi.fn()
+    const debounced = debounce(spy, 100)
+
+    debounced.flush()
+    expect(spy).not.toHaveBeenCalled()
+
+    debounced('a')
+    vi.advanceTimersByTime(100)
+    debounced.flush()
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it('flush 後再次呼叫仍能正常觸發', () => {
+    const spy = vi.fn()
+    const debounced = debounce(spy, 100)
+
+    debounced('x')
+    debounced.flush()
+    debounced('y')
+    vi.advanceTimersByTime(100)
+
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(spy).toHaveBeenNthCalledWith(1, 'x')
+    expect(spy).toHaveBeenNthCalledWith(2, 'y')
+  })
 })
 
 describe('throttle', () => {
