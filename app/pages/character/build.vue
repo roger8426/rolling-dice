@@ -69,11 +69,19 @@
         :loading="isSubmitting"
         :radius="4"
         bg-color="var(--color-primary)"
-        @click="submit"
+        @click="openConfirm"
       >
         儲存角色卡
       </Button>
     </div>
+
+    <BusinessCharacterBuildConfirmModal
+      v-model="isConfirmOpen"
+      :professions="formState.professions"
+      :abilities="formState.abilities"
+      @cancel="isConfirmOpen = false"
+      @confirm="confirmSubmit"
+    />
   </div>
 </template>
 
@@ -100,4 +108,16 @@ const {
   resetAbilities,
   updateAbilityScore,
 } = abilities
+
+const isConfirmOpen = ref(false)
+
+function openConfirm(): void {
+  if (!canSubmit.value) return
+  isConfirmOpen.value = true
+}
+
+async function confirmSubmit(): Promise<void> {
+  isConfirmOpen.value = false
+  await submit()
+}
 </script>
