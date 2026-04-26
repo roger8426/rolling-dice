@@ -21,7 +21,7 @@ function cloneCharacter(c: Character): Character {
 function loadFromStorage(): Character[] {
   const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
   if (stored) return stored.map(normalizeCharacter)
-  return MOCK_CHARACTERS.map(cloneCharacter)
+  return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
 }
 
 /** 補齊新版欄位的預設值，避免舊資料反序列化後缺漏。 */
@@ -123,6 +123,7 @@ export const useCharacterStore = defineStore('character', () => {
 
   /** 重設角色為預設 MOCK_CHARACTERS 並寫回 localStorage（僅供開發階段使用）。 */
   function resetCharacters(): void {
+    if (!import.meta.dev) return
     characters.value = MOCK_CHARACTERS.map(cloneCharacter)
     saveToStorage(characters.value)
   }
