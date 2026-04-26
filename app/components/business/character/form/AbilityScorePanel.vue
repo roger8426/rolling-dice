@@ -28,12 +28,12 @@
           {{ ABILITY_NAMES[key] }}（{{ formatModifier(getAbilityModifier(abilities[key])) }}）
         </label>
 
-        <!-- Stepper (pointBuy / custom) -->
+        <!-- Stepper (custom) -->
         <div v-if="!isDiceMode" class="flex items-center gap-1 py-0.5">
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] <= getMinScore()"
+            :disabled="abilities[key] <= CUSTOM_ABILITY_MIN"
             aria-label="減少"
             @click="adjustAbility(key, -1)"
           >
@@ -45,7 +45,7 @@
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="!canIncrease(key)"
+            :disabled="abilities[key] >= CUSTOM_ABILITY_MAX"
             aria-label="增加"
             @click="adjustAbility(key, 1)"
           >
@@ -62,14 +62,15 @@
       </div>
     </div>
 
-    <!-- Point Buy remaining -->
+    <!-- Point usage indicator (custom mode) -->
     <div class="flex items-center justify-between">
-      <p v-if="abilityMethod === 'pointBuy'" class="text-sm text-content-muted">
-        剩餘點數：
-        <span :class="pointBuyRemaining < 0 ? 'text-red-400 font-bold' : 'font-bold'">
-          {{ pointBuyRemaining }}
-        </span>
-        / 27
+      <p
+        v-if="abilityMethod === 'custom'"
+        class="text-sm"
+        :class="isUsageOver ? 'text-info font-bold' : 'text-content-muted'"
+        aria-live="polite"
+      >
+        {{ usageLabel }}
       </p>
       <div v-else class="size-1"></div>
       <Button
@@ -95,8 +96,7 @@ import {
   ABILITY_NAMES,
   CUSTOM_ABILITY_MAX,
   CUSTOM_ABILITY_MIN,
-  POINT_BUY_MAX_SCORE,
-  POINT_BUY_MIN_SCORE,
+  POINT_BUY_BUDGET,
 } from '~/constants/dnd'
 import type { AbilityMethod, AbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
@@ -104,7 +104,7 @@ import type { AbilityKey } from '~/types/business/dnd'
 const props = defineProps<{
   abilities: AbilityScores
   abilityMethod: AbilityMethod
-  pointBuyRemaining: number
+  pointBuyUsage: number | null
 }>()
 
 const emit = defineEmits<{
@@ -116,31 +116,24 @@ const emit = defineEmits<{
 
 const methods: { key: AbilityMethod; label: string }[] = [
   { key: 'custom', label: '自訂' },
-  { key: 'pointBuy', label: '購點' },
   { key: 'diceRoll', label: '擲骰' },
 ]
 
 const isDiceMode = computed(() => props.abilityMethod === 'diceRoll')
 
-function getMinScore(): number {
-  return props.abilityMethod === 'pointBuy' ? POINT_BUY_MIN_SCORE : CUSTOM_ABILITY_MIN
-}
+const usageLabel = computed(() =>
+  props.pointBuyUsage === null
+    ? '超出購點計算範圍'
+    : `已使用 ${props.pointBuyUsage} / ${POINT_BUY_BUDGET} 點`,
+)
 
-function canIncrease(key: AbilityKey): boolean {
-  const current = props.abilities[key]
-  if (props.abilityMethod === 'pointBuy') {
-    if (current >= POINT_BUY_MAX_SCORE) return false
-    const costDiff = getPointBuyCost(current + 1) - getPointBuyCost(current)
-    return costDiff <= props.pointBuyRemaining
-  }
-  return current < CUSTOM_ABILITY_MAX
-}
+const isUsageOver = computed(
+  () => props.pointBuyUsage === null || props.pointBuyUsage > POINT_BUY_BUDGET,
+)
 
 function adjustAbility(key: AbilityKey, delta: number): void {
   const current = props.abilities[key]
-  const min = getMinScore()
-  const max = props.abilityMethod === 'pointBuy' ? POINT_BUY_MAX_SCORE : CUSTOM_ABILITY_MAX
-  const next = Math.max(min, Math.min(max, current + delta))
+  const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
   if (next === current) return
   emit('update:score', key, next)
 }

@@ -130,7 +130,7 @@ export interface Character {
 // ─── Form State ───────────────────────────────────────────────────────────────
 
 /** 能力值分配方式 */
-export type AbilityMethod = 'pointBuy' | 'custom' | 'diceRoll'
+export type AbilityMethod = 'custom' | 'diceRoll'
 
 /** 角色表單共用基底欄位（未填欄位統一以 null 表示） */
 export interface CharacterFormStateBase {

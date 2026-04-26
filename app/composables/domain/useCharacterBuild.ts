@@ -1,5 +1,5 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
-import { getRemainingPoints } from '~/helpers/ability'
+import { tryCalculateSpentPoints } from '~/helpers/ability'
 import type { AbilityMethod, AbilityScores, CharacterFormState } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -68,11 +68,11 @@ export function useCharacterBuild() {
     }
   }
 
-  // ─── Point Buy ────────────────────────────────────────────────────────
+  // ─── Point Usage（自訂模式下的指示性點數使用） ────────────────────────────
 
-  const pointBuyRemaining = computed(() => {
-    if (formState.abilityMethod !== 'pointBuy') return 0
-    return getRemainingPoints(formState.abilities)
+  const pointBuyUsage = computed<number | null>(() => {
+    if (formState.abilityMethod !== 'custom') return null
+    return tryCalculateSpentPoints(formState.abilities)
   })
 
   function updateAbilityScore(key: AbilityKey, score: number): void {
@@ -107,7 +107,7 @@ export function useCharacterBuild() {
     core,
 
     abilities: {
-      pointBuyRemaining,
+      pointBuyUsage,
       setAbilityMethod,
       rollAllAbilities,
       resetAbilities,

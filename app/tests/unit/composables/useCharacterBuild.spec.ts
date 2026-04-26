@@ -113,14 +113,6 @@ describe('useCharacterBuild — 職業管理', () => {
 // ─── 屬性分配方式切換 ────────────────────────────────────────────────────────────
 
 describe('useCharacterBuild — 屬性分配方式切換', () => {
-  it('切換至 pointBuy 應重置所有屬性為 8', async () => {
-    const { formState, abilities } = await getComposable()
-    formState.abilities.strength = 15
-    abilities.setAbilityMethod('pointBuy')
-    expect(formState.abilityMethod).toBe('pointBuy')
-    expect(formState.abilities.strength).toBe(8)
-  })
-
   it('切換至 custom 應重置所有屬性為 8', async () => {
     const { formState, abilities } = await getComposable()
     formState.abilities.strength = 15
@@ -161,22 +153,41 @@ describe('useCharacterBuild — 擲骰與重置', () => {
   })
 })
 
-// ─── 購點制 ────────────────────────────────────────────────────────────────────
+// ─── 點數使用指示（自訂模式） ─────────────────────────────────────────────────
 
-describe('useCharacterBuild — 購點制', () => {
-  it('pointBuyRemaining 在非 pointBuy 模式下應為 0', async () => {
+describe('useCharacterBuild — pointBuyUsage', () => {
+  it('預設（custom 模式）全為 8 時 pointBuyUsage 應為 0', async () => {
     const { abilities } = await getComposable()
-    expect(abilities.pointBuyRemaining.value).toBe(0)
+    expect(abilities.pointBuyUsage.value).toBe(0)
   })
 
-  it('pointBuyRemaining 在 pointBuy 模式下應計算剩餘點數', async () => {
+  it('custom 模式下將 strength 調至 10 後應為 2', async () => {
     const { formState, abilities } = await getComposable()
-    abilities.setAbilityMethod('pointBuy')
-    // 全部為 8，花費 0，剩餘 27
-    expect(abilities.pointBuyRemaining.value).toBe(27)
-    // 將 strength 從 8 調至 10，花費 2
     formState.abilities.strength = 10
-    expect(abilities.pointBuyRemaining.value).toBe(25)
+    expect(abilities.pointBuyUsage.value).toBe(2)
+  })
+
+  it('custom 模式下總花費可超過 27（純指示，不阻擋）', async () => {
+    const { formState, abilities } = await getComposable()
+    for (const key of Object.keys(formState.abilities) as (keyof typeof formState.abilities)[]) {
+      formState.abilities[key] = 15
+    }
+    expect(abilities.pointBuyUsage.value).toBe(54)
+  })
+
+  it('任一屬性超出 8–15 範圍時 pointBuyUsage 應為 null', async () => {
+    const { formState, abilities } = await getComposable()
+    formState.abilities.strength = 16
+    expect(abilities.pointBuyUsage.value).toBeNull()
+
+    formState.abilities.strength = 7
+    expect(abilities.pointBuyUsage.value).toBeNull()
+  })
+
+  it('切換至 diceRoll 模式時 pointBuyUsage 應為 null', async () => {
+    const { abilities } = await getComposable()
+    abilities.setAbilityMethod('diceRoll')
+    expect(abilities.pointBuyUsage.value).toBeNull()
   })
 })
 

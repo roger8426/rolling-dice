@@ -38,7 +38,7 @@
             <BusinessCharacterFormAbilityScorePanel
               :abilities="formState.abilities"
               :ability-method="formState.abilityMethod"
-              :point-buy-remaining="pointBuyRemaining"
+              :point-buy-usage="pointBuyUsage"
               @update:method="setAbilityMethod"
               @update:score="updateAbilityScore"
               @roll:all="rollAllAbilities"
@@ -101,13 +101,8 @@ const {
   isSubmitting,
   canSubmit,
 } = core
-const {
-  pointBuyRemaining,
-  setAbilityMethod,
-  rollAllAbilities,
-  resetAbilities,
-  updateAbilityScore,
-} = abilities
+const { pointBuyUsage, setAbilityMethod, rollAllAbilities, resetAbilities, updateAbilityScore } =
+  abilities
 
 const isConfirmOpen = ref(false)
 
