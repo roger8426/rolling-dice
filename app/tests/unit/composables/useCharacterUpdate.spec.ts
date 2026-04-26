@@ -22,6 +22,7 @@ const MOCK_CHARACTER: Character = {
     charisma: { basicScore: 8, bonusScore: 0 },
   },
   savingThrowProficiencies: ['strength', 'constitution'],
+  savingThrowExtras: [],
   skills: { athletics: 'proficient' },
   background: '士兵',
   isJackOfAllTrades: false,

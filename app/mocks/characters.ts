@@ -24,6 +24,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: false,
     isTough: true,
     savingThrowProficiencies: ['strength', 'dexterity'],
+    savingThrowExtras: [],
     skills: { athletics: 'proficient', acrobatics: 'proficient' },
     background: '隱士',
     createdAt: '2025-01-01T00:00:00.000Z',
@@ -66,6 +67,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: false,
     isTough: false,
     savingThrowProficiencies: ['intelligence', 'wisdom'],
+    savingThrowExtras: [],
     skills: { arcana: 'proficient', history: 'proficient', investigation: 'proficient' },
     background: '學者',
     createdAt: '2025-01-15T00:00:00.000Z',
@@ -108,6 +110,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: true,
     isTough: false,
     savingThrowProficiencies: ['dexterity', 'intelligence'],
+    savingThrowExtras: [],
     skills: {
       stealth: 'expertise',
       sleightOfHand: 'proficient',
@@ -158,6 +161,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: false,
     isTough: false,
     savingThrowProficiencies: ['constitution', 'charisma'],
+    savingThrowExtras: [],
     skills: { persuasion: 'proficient', deception: 'proficient', arcana: 'proficient' },
     background: '貴族',
     createdAt: '2025-03-01T00:00:00.000Z',
@@ -203,6 +207,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: false,
     isTough: true,
     savingThrowProficiencies: ['wisdom', 'charisma'],
+    savingThrowExtras: [],
     skills: {
       athletics: 'proficient',
       medicine: 'proficient',
@@ -254,6 +259,7 @@ export const MOCK_CHARACTERS: Character[] = [
     isJackOfAllTrades: false,
     isTough: true,
     savingThrowProficiencies: ['strength', 'constitution'],
+    savingThrowExtras: [],
     skills: {
       athletics: 'expertise',
       survival: 'proficient',

@@ -20,6 +20,7 @@ import { getAbilityModifier } from '~/helpers/ability'
 export interface CharacterDerivedStats {
   totalAbilityScores: ComputedRef<AbilityScores>
   proficiencyBonus: ComputedRef<number>
+  validProfessions: ComputedRef<ProfessionEntry[]>
   totalHp: ComputedRef<number>
   totalArmorClass: ComputedRef<number>
   totalInitiative: ComputedRef<number>
@@ -77,6 +78,7 @@ export function useCharacterDerivedStats(
   return {
     totalAbilityScores,
     proficiencyBonus,
+    validProfessions,
     totalHp,
     totalArmorClass,
     totalInitiative,

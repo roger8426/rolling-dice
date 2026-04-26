@@ -5,7 +5,19 @@
     </h2>
     <div class="grid grid-cols-2 gap-3">
       <div class="flex flex-col rounded-lg border border-border-soft bg-surface p-3">
-        <span id="hp-label" class="text-xs text-content-muted">生命值</span>
+        <div class="flex items-center justify-between gap-2">
+          <span id="hp-label" class="text-xs text-content-muted">生命值</span>
+          <div class="flex items-center gap-1.5">
+            <Toggle
+              :model-value="isTough"
+              size="sm"
+              aria-label="是否持有健壯專長"
+              color="var(--color-success)"
+              @update:model-value="emit('update:isTough', $event)"
+            />
+            <span class="text-[10px] text-content-muted">健壯</span>
+          </div>
+        </div>
         <output aria-labelledby="hp-label" class="mt-1 text-2xl font-bold text-content">
           {{ totalHp }}
         </output>
@@ -22,16 +34,6 @@
             class="mt-1 w-full"
             @update:model-value="emit('update:extraHp', parseIntegerInput($event, 0))"
           />
-        </div>
-        <div class="mt-2 flex items-center gap-2">
-          <Toggle
-            :model-value="isTough"
-            size="sm"
-            aria-label="是否持有健壯專長"
-            color="var(--color-success)"
-            @update:model-value="emit('update:isTough', $event)"
-          />
-          <span class="text-xs text-content">健壯</span>
         </div>
       </div>
 

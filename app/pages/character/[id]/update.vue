@@ -96,6 +96,8 @@
             :total-speed="totalSpeed"
             :total-initiative="totalInitiative"
             :total-passive-perception="totalPassivePerception"
+            :professions="validProfessions"
+            :saving-throw-extras="formState.savingThrowExtras"
             @update:armor-type="updateArmorType"
             @update:armor-value="updateArmorValue"
             @update:armor-ability-key="updateArmorAbilityKey"
@@ -105,6 +107,7 @@
             @update:speed-bonus="updateSpeedBonus"
             @update:initiative-bonus="updateInitiativeBonus"
             @update:passive-perception-bonus="updatePassivePerceptionBonus"
+            @update:saving-throw-extras="updateSavingThrowExtras"
             @add-attack="addAttack"
             @remove-attack="removeAttack"
             @update:attack="updateAttack"
@@ -152,6 +155,7 @@ const {
 const {
   totalAbilityScores,
   proficiencyBonus,
+  validProfessions,
   totalHp,
   totalInitiative,
   totalSpeed,
@@ -169,6 +173,7 @@ const {
   updateSpeedBonus,
   updateInitiativeBonus,
   updatePassivePerceptionBonus,
+  updateSavingThrowExtras,
   addAttack,
   removeAttack,
   updateAttack,

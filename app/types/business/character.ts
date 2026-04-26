@@ -91,6 +91,8 @@ export interface Character {
   totalLevel: number // 角色總等級，等於所有職業等級之和
   abilities: CharacterAbilityScores
   savingThrowProficiencies: AbilityKey[]
+  /** 使用者額外勾選的豁免熟練（不含主職業 baseline） */
+  savingThrowExtras: AbilityKey[]
   skills: SkillProficiencies
   background: string | null
   isJackOfAllTrades: boolean // 是否全能高手（1/2 熟練）
@@ -198,6 +200,8 @@ export type AttackDraft = Omit<AttackEntry, 'id'>
 export interface CharacterUpdateFormState extends CharacterFormStateBase {
   id: string
   abilities: CharacterAbilityScores
+  /** 使用者額外勾選的豁免熟練（不含主職業 baseline） */
+  savingThrowExtras: AbilityKey[]
   /** 護甲等級設定 */
   armorClass: ArmorClassConfig
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */

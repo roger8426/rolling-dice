@@ -20,8 +20,16 @@ function cloneCharacter(c: Character): Character {
 
 function loadFromStorage(): Character[] {
   const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
-  if (stored) return stored
+  if (stored) return stored.map(normalizeCharacter)
   return MOCK_CHARACTERS.map(cloneCharacter)
+}
+
+/** 補齊新版欄位的預設值，避免舊資料反序列化後缺漏。 */
+function normalizeCharacter(character: Character): Character {
+  return {
+    ...character,
+    savingThrowExtras: character.savingThrowExtras ?? [],
+  }
 }
 
 function saveToStorage(characters: Character[]): boolean {
@@ -50,6 +58,7 @@ export const useCharacterStore = defineStore('character', () => {
       ...patch,
       abilities,
       savingThrowProficiencies,
+      savingThrowExtras: [],
       avatar: null,
       extraHp: 0,
       speedBonus: null,
@@ -79,7 +88,10 @@ export const useCharacterStore = defineStore('character', () => {
 
     const previous = characters.value[index]!
     const patch = formStateToCharacterPatch(formState)
-    const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
+    const baselineSavingThrows = calculateSavingThrowProficiencies(patch.professions)
+    const baselineSet = new Set(baselineSavingThrows)
+    const savingThrowExtras = formState.savingThrowExtras.filter((key) => !baselineSet.has(key))
+    const savingThrowProficiencies = [...baselineSavingThrows, ...savingThrowExtras]
 
     const learnedSpells = [...formState.learnedSpells]
     const learnedSet = new Set(learnedSpells)
@@ -90,6 +102,7 @@ export const useCharacterStore = defineStore('character', () => {
       ...patch,
       abilities: JSON.parse(JSON.stringify(formState.abilities)),
       savingThrowProficiencies,
+      savingThrowExtras,
       extraHp: formState.extraHp,
       speedBonus: formState.speedBonus,
       initiativeBonus: formState.initiativeBonus,

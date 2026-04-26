@@ -25,6 +25,7 @@ const MOCK_CHARACTER: Character = {
     charisma: { basicScore: 8, bonusScore: 0 },
   },
   savingThrowProficiencies: ['strength', 'constitution'],
+  savingThrowExtras: [],
   skills: { athletics: 'proficient' },
   background: '士兵',
   isJackOfAllTrades: false,
@@ -184,6 +185,13 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.passivePerceptionBonus).toBeNull()
   })
 
+  it('新增後 savingThrowExtras 應為空陣列，savingThrowProficiencies 僅含主職業 baseline', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created!.savingThrowExtras).toEqual([])
+    expect(created!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
+  })
+
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
@@ -239,6 +247,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
     wisdom: { basicScore: 10, bonusScore: 0 },
     charisma: { basicScore: 8, bonusScore: 0 },
   },
+  savingThrowExtras: [],
   skills: { arcana: 'proficient', religion: 'proficient' },
   background: '學者',
   isJackOfAllTrades: true,
@@ -370,5 +379,42 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.faith).toBeNull()
     expect(updated!.age).toBeNull()
     expect(updated!.height).toBeNull()
+  })
+
+  it('savingThrowExtras 應與 baseline union 後寫入 savingThrowProficiencies', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      savingThrowExtras: ['constitution', 'charisma'],
+    })
+    expect(updated!.savingThrowExtras).toEqual(['constitution', 'charisma'])
+    expect(updated!.savingThrowProficiencies).toEqual([
+      'intelligence',
+      'wisdom',
+      'constitution',
+      'charisma',
+    ])
+  })
+
+  it('savingThrowExtras 與 baseline 重疊的項目應被去除，避免主職業切換後殘留', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      savingThrowExtras: ['intelligence', 'charisma'],
+    })
+    expect(updated!.savingThrowExtras).toEqual(['charisma'])
+    expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom', 'charisma'])
+  })
+})
+
+describe('useCharacterStore — loadFromStorage migration', () => {
+  it('舊資料缺少 savingThrowExtras 時應自動補為空陣列', () => {
+    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
+    delete legacyCharacter.savingThrowExtras
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+    const store = useCharacterStore()
+    expect(store.characters[0]!.savingThrowExtras).toEqual([])
   })
 })

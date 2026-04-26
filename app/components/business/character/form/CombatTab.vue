@@ -27,6 +27,14 @@
         @update:armor-ability-key="emit('update:armorAbilityKey', $event)"
         @update:shield-value="emit('update:shieldValue', $event)"
       />
+
+      <BusinessCharacterFormCombatSavingThrowPanel
+        :professions="professions"
+        :extras="savingThrowExtras"
+        :ability-scores="abilityScores"
+        :proficiency-bonus="proficiencyBonus"
+        @update:extras="emit('update:savingThrowExtras', $event)"
+      />
     </div>
 
     <!-- 右欄：自訂攻擊 -->
@@ -49,6 +57,7 @@ import type {
   ArmorClassConfig,
   AttackDraft,
   AttackEntry,
+  ProfessionEntry,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
@@ -66,6 +75,8 @@ defineProps<{
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
+  professions: ProfessionEntry[]
+  savingThrowExtras: AbilityKey[]
 }>()
 
 const emit = defineEmits<{
@@ -78,6 +89,7 @@ const emit = defineEmits<{
   'update:speedBonus': [value: number | null]
   'update:initiativeBonus': [value: number | null]
   'update:passivePerceptionBonus': [value: number | null]
+  'update:savingThrowExtras': [value: AbilityKey[]]
   addAttack: [entry: AttackDraft]
   removeAttack: [id: string]
   'update:attack': [id: string, data: AttackDraft]

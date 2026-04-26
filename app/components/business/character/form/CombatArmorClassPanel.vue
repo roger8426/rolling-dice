@@ -31,7 +31,7 @@
       </div>
 
       <div>
-        <span id="dex-mod-label" class="mb-1 block text-xs text-content">敏捷調整值</span>
+        <span id="dex-mod-label" class="mb-1 block text-xs text-content">調整值</span>
         <output
           aria-labelledby="dex-mod-label"
           class="flex h-8 w-14 items-center justify-center rounded-lg bg-canvas px-2 text-sm font-bold"

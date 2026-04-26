@@ -24,6 +24,7 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
         },
       ]),
     ) as CharacterUpdateFormState['abilities'],
+    savingThrowExtras: [...(character.savingThrowExtras ?? [])],
     skills: { ...character.skills },
     background: character.background,
     isJackOfAllTrades: character.isJackOfAllTrades,
@@ -60,6 +61,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     abilities: Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, { basicScore: POINT_BUY_DEFAULT_SCORE, bonusScore: 0 }]),
     ) as CharacterUpdateFormState['abilities'],
+    savingThrowExtras: [],
     skills: {},
     background: null,
     isJackOfAllTrades: false,
@@ -136,6 +138,10 @@ export function useCharacterUpdate(id: string) {
 
   function updatePassivePerceptionBonus(value: number | null): void {
     formState.passivePerceptionBonus = value
+  }
+
+  function updateSavingThrowExtras(value: AbilityKey[]): void {
+    formState.savingThrowExtras = value
   }
 
   function addAttack(entry: AttackDraft): void {
@@ -217,6 +223,7 @@ export function useCharacterUpdate(id: string) {
       updateSpeedBonus,
       updateInitiativeBonus,
       updatePassivePerceptionBonus,
+      updateSavingThrowExtras,
       addAttack,
       removeAttack,
       updateAttack,

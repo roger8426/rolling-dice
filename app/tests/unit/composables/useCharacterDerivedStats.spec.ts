@@ -21,6 +21,7 @@ function createFormState(
       wisdom: { basicScore: 12, bonusScore: 0 }, // +1
       charisma: { basicScore: 10, bonusScore: 0 },
     },
+    savingThrowExtras: [],
     skills: {},
     background: null,
     isJackOfAllTrades: false,
