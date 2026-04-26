@@ -7,5 +7,6 @@
     </main>
     <LayoutBottomNavDrawer />
     <LayoutFooter />
+    <LayoutToastHost />
   </div>
 </template>

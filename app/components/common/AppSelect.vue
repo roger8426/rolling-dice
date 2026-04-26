@@ -1,6 +1,6 @@
 <template>
   <Select
-    class="bg-canvas-inset rounded-md"
+    class="app-select bg-canvas-inset rounded-md"
     :border-color="borderColor"
     :dropdown-bg="dropdownBg"
     :option-hover-color="optionHoverColor"
@@ -29,3 +29,9 @@ withDefaults(
   },
 )
 </script>
+
+<style scoped>
+.app-select {
+  --rui-color-disabled-bg: var(--color-disabled-border);
+}
+</style>

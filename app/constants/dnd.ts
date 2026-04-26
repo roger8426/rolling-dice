@@ -1,18 +1,22 @@
 import type {
   AbilityKey,
   AlignmentKey,
+  ArmorType,
+  DamageDieType,
   GenderKey,
   ProfessionData,
   ProfessionKey,
+  ProficiencyLevel,
   RaceKey,
   SizeKey,
   SkillKey,
 } from '~/types/business/dnd'
+import type { SpellSchool } from '~/types/business/spell'
 
 // ─── Profession ───────────────────────────────────────────────────────────────
 
 /** 各職業靜態設定（D&D 5e PHB 標準） */
-export const PROFESSION_CONFIG: Record<ProfessionKey, ProfessionData> = {
+export const PROFESSION_CONFIG: Readonly<Record<ProfessionKey, ProfessionData>> = {
   artificer: {
     label: '奇械師',
     hitDie: 8,
@@ -38,7 +42,7 @@ export const PROFESSION_CONFIG: Record<ProfessionKey, ProfessionData> = {
 
 // ─── Ability ──────────────────────────────────────────────────────────────────
 
-export const ABILITY_NAMES: Record<AbilityKey, string> = {
+export const ABILITY_NAMES: Readonly<Record<AbilityKey, string>> = {
   strength: '力量',
   dexterity: '敏捷',
   constitution: '體質',
@@ -49,7 +53,7 @@ export const ABILITY_NAMES: Record<AbilityKey, string> = {
 
 // ─── Skill ────────────────────────────────────────────────────────────────────
 
-export const SKILL_NAMES: Record<SkillKey, string> = {
+export const SKILL_NAMES: Readonly<Record<SkillKey, string>> = {
   // 力量
   athletics: '運動',
   // 敏捷
@@ -78,7 +82,7 @@ export const SKILL_NAMES: Record<SkillKey, string> = {
 // ─── Skill-Ability Mapping ────────────────────────────────────────────────────
 
 /** D&D 5e 技能與屬性對應表 */
-export const SKILL_TO_ABILITY_MAP: Record<SkillKey, AbilityKey> = {
+export const SKILL_TO_ABILITY_MAP: Readonly<Record<SkillKey, AbilityKey>> = {
   athletics: 'strength',
   acrobatics: 'dexterity',
   sleightOfHand: 'dexterity',
@@ -101,7 +105,7 @@ export const SKILL_TO_ABILITY_MAP: Record<SkillKey, AbilityKey> = {
 
 // ─── Alignment ────────────────────────────────────────────────────────────────
 
-export const ALIGNMENT_NAMES: Record<AlignmentKey, string> = {
+export const ALIGNMENT_NAMES: Readonly<Record<AlignmentKey, string>> = {
   lawfulGood: '守序善良',
   neutralGood: '中立善良',
   chaoticGood: '混亂善良',
@@ -115,7 +119,7 @@ export const ALIGNMENT_NAMES: Record<AlignmentKey, string> = {
 
 // ─── Race ─────────────────────────────────────────────────────────────────────
 
-export const RACE_NAMES: Record<RaceKey, string> = {
+export const RACE_NAMES: Readonly<Record<RaceKey, string>> = {
   human: '人類',
   elf: '精靈',
   dwarf: '矮人',
@@ -131,7 +135,7 @@ export const RACE_NAMES: Record<RaceKey, string> = {
 // ─── Size ─────────────────────────────────────────────────────────────────────
 
 /** 體型中文名稱對照表 */
-export const SIZE_NAMES: Record<SizeKey, string> = {
+export const SIZE_NAMES: Readonly<Record<SizeKey, string>> = {
   tiny: '微型',
   small: '小型',
   medium: '中型',
@@ -143,11 +147,50 @@ export const SIZE_NAMES: Record<SizeKey, string> = {
 // ─── Gender ───────────────────────────────────────────────────────────────────
 
 /** 性別中文名稱對照表 */
-export const GENDER_NAMES: Record<GenderKey, string> = {
+export const GENDER_NAMES: Readonly<Record<GenderKey, string>> = {
   male: '男性',
   female: '女性',
   nonBinary: '非二元',
 }
+// ─── Spell School ─────────────────────────────────────────────────────────────
+
+/** 法術學派中文顯示名稱 */
+export const SPELL_SCHOOL_LABELS: Readonly<Record<SpellSchool, string>> = {
+  abjuration: '防護',
+  conjuration: '咒法',
+  divination: '預言',
+  enchantment: '惑控',
+  evocation: '塑能',
+  illusion: '幻術',
+  necromancy: '死靈',
+  transmutation: '變化',
+}
+
+// ─── Damage Dice ──────────────────────────────────────────────────────────────
+
+/** 傷害骰類型，用於攻擊模組的傷害計算 */
+export const DAMAGE_DIE_TYPES = [
+  'd4',
+  'd6',
+  'd8',
+  'd10',
+  'd12',
+] as const satisfies readonly DamageDieType[]
+
+// ─── Armor Type ─────────────────────────────────────────────────────────────────
+
+/** 護甲類型中文名稱對照表 */
+export const ARMOR_TYPE_NAMES: Readonly<Record<ArmorType, string>> = {
+  none: '無甲',
+  light: '輕甲',
+  medium: '中甲',
+  heavy: '重甲',
+}
+
+// ─── Armor Class ──────────────────────────────────────────────────────────────
+
+/** 無甲 AC 基礎值（D&D 5e：10 + DEX 或職業特性） */
+export const UNARMORED_AC_BASE = 10
 
 // ─── Point Buy ────────────────────────────────────────────────────────────────
 
@@ -180,6 +223,21 @@ export const CUSTOM_ABILITY_MIN = 1
 /** 自訂模式屬性分數上限 */
 export const CUSTOM_ABILITY_MAX = 20
 
+/** 屬性總值理論硬上限（D&D 5e：含魔法物品/稀有來源後的絕對上限） */
+export const ABILITY_HARD_MAX = 30
+
+// ─── Proficiency ──────────────────────────────────────────────────────────────
+
+/** 技能熟練度下拉選單選項 */
+export const PROFICIENCY_OPTIONS: ReadonlyArray<{
+  value: ProficiencyLevel
+  label: string
+}> = [
+  { value: 'none', label: '無' },
+  { value: 'proficient', label: '熟練' },
+  { value: 'expertise', label: '專精' },
+]
+
 // ─── Ability Defaults ─────────────────────────────────────────────────────────
 
 /** 購點制的各屬性初始分數 */
@@ -194,3 +252,32 @@ export const ABILITY_KEYS: readonly AbilityKey[] = [
   'wisdom',
   'charisma',
 ] as const
+
+// ─── Iteration Keys ───────────────────────────────────────────────────────────
+
+/** 所有 SkillKey，用於迭代 */
+export const SKILL_KEYS: readonly SkillKey[] = Object.keys(SKILL_NAMES) as SkillKey[]
+
+/** 所有 ProfessionKey，用於迭代 */
+export const PROFESSION_KEYS: readonly ProfessionKey[] = Object.keys(
+  PROFESSION_CONFIG,
+) as ProfessionKey[]
+
+/** 所有 RaceKey，用於迭代 */
+export const RACE_KEYS: readonly RaceKey[] = Object.keys(RACE_NAMES) as RaceKey[]
+
+/** 所有 AlignmentKey，用於迭代 */
+export const ALIGNMENT_KEYS: readonly AlignmentKey[] = Object.keys(
+  ALIGNMENT_NAMES,
+) as AlignmentKey[]
+
+/** 所有 ArmorType，用於迭代 */
+export const ARMOR_TYPES: readonly ArmorType[] = Object.keys(ARMOR_TYPE_NAMES) as ArmorType[]
+
+/** 所有 SizeKey，用於迭代 */
+export const SIZE_KEYS: readonly SizeKey[] = Object.keys(SIZE_NAMES) as SizeKey[]
+
+/** 所有 SpellSchool，用於迭代 */
+export const SPELL_SCHOOLS: readonly SpellSchool[] = Object.keys(
+  SPELL_SCHOOL_LABELS,
+) as SpellSchool[]

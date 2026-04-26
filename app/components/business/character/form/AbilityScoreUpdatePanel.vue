@@ -1,10 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
-    <div>
-      <img src="~/assets/images/dnd.png" alt="" />
-    </div>
-
-    <p class="text-xs text-content">屬性成長</p>
+    <img src="~/assets/images/dnd.png" alt="" loading="lazy" aria-hidden="true" />
 
     <!-- Ability table -->
     <div>
@@ -24,7 +20,9 @@
         class="flex items-center justify-between gap-1 py-1"
       >
         <label :for="`ability-${key}`" class="w-20 text-xs text-content truncate">
-          {{ ABILITY_NAMES[key] }}（{{ formattedModifier(key) }}）
+          {{ ABILITY_NAMES[key] }}（{{
+            formatModifier(getAbilityModifier(getTotalScore(abilities[key])))
+          }}）
         </label>
 
         <!-- basicScore (read-only) -->
@@ -50,7 +48,8 @@
           </span>
           <button
             type="button"
-            class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover"
+            class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
+            :disabled="getTotalScore(abilities[key]) >= ABILITY_HARD_MAX"
             aria-label="增加額外加值"
             @click="adjustBonus(key, 1)"
           >
@@ -58,8 +57,13 @@
           </button>
         </div>
         <!-- Total -->
-        <span class="w-12 text-sm text-content-muted text-center">
-          {{ abilities[key].basicScore + abilities[key].bonusScore }}
+        <span
+          class="w-12 text-sm text-center"
+          :class="
+            getTotalScore(abilities[key]) > 20 ? 'text-danger font-bold' : 'text-content-muted'
+          "
+        >
+          {{ getTotalScore(abilities[key]) }}
         </span>
       </div>
     </div>
@@ -68,8 +72,7 @@
 
 <script setup lang="ts">
 import { Icon } from '@ui'
-import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
-import { formatModifier, getAbilityModifier, getTotalScore } from '~/helpers/ability'
+import { ABILITY_HARD_MAX, ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
 import type { CharacterAbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -81,15 +84,11 @@ const emit = defineEmits<{
   'update:bonusScore': [key: AbilityKey, score: number]
 }>()
 
-function formattedModifier(key: AbilityKey): string {
-  const total = getTotalScore(props.abilities[key])
-  return formatModifier(getAbilityModifier(total))
-}
-
 function adjustBonus(key: AbilityKey, delta: number): void {
-  const current = props.abilities[key].bonusScore
-  const next = Math.max(0, current + delta)
-  if (next === current) return
-  emit('update:bonusScore', key, next)
+  const entry = props.abilities[key]
+  const nextBonus = Math.max(0, entry.bonusScore + delta)
+  const nextTotal = entry.basicScore + nextBonus
+  if (nextBonus === entry.bonusScore || nextTotal > ABILITY_HARD_MAX) return
+  emit('update:bonusScore', key, nextBonus)
 }
 </script>

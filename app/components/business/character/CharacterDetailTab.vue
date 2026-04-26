@@ -1,6 +1,9 @@
 <template>
   <div class="space-y-8 bg-canvas-elevated p-4">
-    <section class="flex items-start gap-8" aria-labelledby="section-basic">
+    <section
+      class="flex flex-col-reverse sm:flex-row items-start gap-8"
+      aria-labelledby="section-basic"
+    >
       <div class="flex-1 flex flex-col gap-4">
         <!-- 角色資訊 -->
         <h2 id="section-basic" class="font-display text-lg font-bold text-content">角色資訊</h2>
@@ -15,20 +18,24 @@
           </div>
           <div>
             <dt class="text-xs text-content-muted">性別</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ GENDER_NAMES[character.gender] }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">
+              {{ character.gender ? GENDER_NAMES[character.gender] : '—' }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">種族</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ RACE_NAMES[character.race] }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">
+              {{ character.race ? RACE_NAMES[character.race] : '—' }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">背景</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ character.background }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">{{ character.background ?? '—' }}</dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">陣營</dt>
             <dd class="mt-0.5 text-sm text-content-soft">
-              {{ ALIGNMENT_NAMES[character.alignment] }}
+              {{ character.alignment ? ALIGNMENT_NAMES[character.alignment] : '—' }}
             </dd>
           </div>
           <div>
@@ -66,8 +73,8 @@
               <tr class="border-b border-border-soft">
                 <td class="py-2 text-content-soft">{{ character.languages || '—' }}</td>
                 <td class="py-2 text-content-soft">{{ character.tools || '—' }}</td>
-                <td class="py-2 text-content-soft">—</td>
-                <td class="py-2 text-content-soft">—</td>
+                <td class="py-2 text-content-soft">{{ character.weaponProficiencies || '—' }}</td>
+                <td class="py-2 text-content-soft">{{ character.armorProficiencies || '—' }}</td>
               </tr>
             </tbody>
           </table>
@@ -82,7 +89,8 @@
                 <th class="pb-2 pr-4 font-normal text-right">等級</th>
                 <th class="pb-2 pr-4 font-normal text-right">生命骰</th>
                 <th class="pb-2 pr-4 font-normal text-right">生命值</th>
-                <th class="pb-2 font-normal text-right">體質補正</th>
+                <th class="pb-2 font-normal text-right">體質</th>
+                <th class="pb-2 font-normal text-right">健壯</th>
               </tr>
             </thead>
             <tbody>
@@ -94,8 +102,8 @@
                 <td class="py-2 pr-4 text-content-soft">
                   <div class="flex items-center gap-1.5">
                     <img
-                      v-if="professionImages[row.profession]"
-                      :src="professionImages[row.profession]"
+                      v-if="PROFESSION_IMAGES[row.profession]"
+                      :src="PROFESSION_IMAGES[row.profession]"
                       alt=""
                       class="size-4"
                       loading="lazy"
@@ -107,16 +115,10 @@
                 <td class="py-2 pr-4 text-right text-content-soft">{{ row.level }}</td>
                 <td class="py-2 pr-4 text-right text-content-soft">d{{ row.hitDie }}</td>
                 <td class="py-2 pr-4 text-right text-content-soft">{{ row.hp }}</td>
+                <td class="py-2 text-right text-content-soft">{{ row.conBonus }}</td>
                 <td class="py-2 text-right text-content-soft">
-                  {{ formatModifier(row.conBonus) }}
+                  {{ character.isTough ? row.level * 2 : '-' }}
                 </td>
-              </tr>
-              <!-- 保留：其他 / 健壯 -->
-              <tr class="border-b border-border-soft text-content-muted">
-                <td class="py-2">其它</td>
-                <td class="py-2 pr-4 text-right">—</td>
-                <td class="py-2 pr-4 text-end">健壯</td>
-                <td class="py-2 text-right" colspan="2">—</td>
               </tr>
             </tbody>
             <tfoot>
@@ -124,61 +126,101 @@
                 <td class="pt-2 pr-4">合計</td>
                 <td class="pt-2 pr-4 text-right">{{ character.totalLevel }}</td>
                 <td class="pt-2 pr-4 text-right">—</td>
-                <td class="pt-2 text-right" colspan="2">{{ totalHp }}</td>
+                <td class="pt-2 text-right" colspan="3">{{ totalHp }}</td>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
       <!-- TODO: 頭像 / 角色圖像區塊，待實作 -->
-      <div class="w-1/4 border border-primary h-100"></div>
+      <div class="sm:w-1/4 md:w-1/3 border border-primary h-100 w-full"></div>
     </section>
 
-    <div class="flex gap-4">
-      <section class="flex-1 w-1/2" aria-labelledby="section-abilities-saves">
-        <!-- 屬性與豁免 -->
-        <div class="flex flex-col gap-4">
-          <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
-            屬性與豁免
-          </h2>
-          <div class="grid grid-cols-3 gap-3">
-            <div
-              v-for="key in ABILITY_KEYS"
-              :key="key"
-              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
-            >
-              <span
-                class="text-xs text-content-muted"
-                :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- 屬性與豁免 -->
+      <div class="flex flex-col flex-1 sm:w-1/2 gap-4">
+        <section aria-labelledby="section-abilities-saves">
+          <div class="flex flex-col gap-4">
+            <h2 id="section-abilities-saves" class="font-display text-lg font-bold text-content">
+              屬性與豁免
+            </h2>
+            <div class="grid grid-cols-3 gap-3">
+              <div
+                v-for="key in ABILITY_KEYS"
+                :key="key"
+                class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
               >
-                {{ ABILITY_NAMES[key] }}
-              </span>
-              <div class="flex items-center gap-2">
-                <span class="mt-1 text-2xl font-bold text-content">
-                  {{ getTotalScore(character.abilities[key]) }}
-                </span>
                 <span
-                  class="text-sm"
-                  :class="
-                    modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
-                  "
+                  class="text-xs text-content-muted"
+                  :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
                 >
-                  {{ formatModifier(getAbilityModifier(getTotalScore(character.abilities[key]))) }}
+                  {{ ABILITY_NAMES[key] }}
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="mt-1 text-2xl font-bold text-content">
+                    {{ getTotalScore(character.abilities[key]) }}
+                  </span>
+                  <span
+                    class="text-sm"
+                    :class="
+                      modifierTextColor(getAbilityModifier(getTotalScore(character.abilities[key])))
+                    "
+                  >
+                    {{
+                      formatModifier(getAbilityModifier(getTotalScore(character.abilities[key])))
+                    }}
+                  </span>
+                </div>
+                <span class="text-xs text-content-soft mt-1">
+                  豁免
+                  <span :class="modifierTextColor(savingThrowBonuses[key])">
+                    {{ formatModifier(savingThrowBonuses[key]) }}
+                  </span>
                 </span>
               </div>
-              <span class="text-xs text-content-soft mt-1">
-                豁免
-                <span :class="modifierTextColor(savingThrowBonuses[key])">
-                  {{ formatModifier(savingThrowBonuses[key]) }}
-                </span>
+            </div>
+          </div>
+        </section>
+        <section aria-labelledby="section-other-abilities">
+          <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
+            其他屬性
+          </h2>
+          <div class="grid grid-cols-4 gap-3 mt-4">
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">護甲值</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ baseAC }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">被動感知</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">移動速度</span>
+              <span class="mt-1 text-2xl font-bold text-content"
+                >30
+                <span class="text-xs font-normal text-content-muted">呎</span>
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">熟練加值</span>
+              <span class="mt-1 text-2xl font-bold" :class="modifierTextColor(proficiencyBonus)">
+                {{ formatModifier(proficiencyBonus) }}
               </span>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="flex-1 w-1/2" aria-labelledby="section-skills">
-        <!-- 技能熟練 -->
+      <!-- 技能熟練 -->
+      <section class="flex-1 sm:w-1/2" aria-labelledby="section-skills">
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
           技能熟練度
         </h2>
@@ -215,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Character } from '~/types/business/character'
+import type { AbilityScores, Character } from '~/types/business/character'
 import type { AbilityKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 import {
   ABILITY_KEYS,
@@ -232,18 +274,32 @@ const props = defineProps<{
   character: Character
 }>()
 
-const professionImages = getProfessionImages()
-
 // ─── Ability Computed ──────────────────────────────────────────────────────
 
 const conModifier = computed(() =>
   getAbilityModifier(getTotalScore(props.character.abilities.constitution)),
 )
 
+const totalAbilityScores = computed(
+  () =>
+    Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, getTotalScore(props.character.abilities[key])]),
+    ) as AbilityScores,
+)
+
+const baseAC = computed(() =>
+  getTotalArmorClass(props.character.armorClass, totalAbilityScores.value),
+)
+
+const passivePerception = computed(() => {
+  const skill = skillList.value.find((s) => s.key === 'perception')
+  return getPassivePerception(skill?.bonus ?? 0)
+})
+
 const classHpRows = computed(() =>
-  props.character.professions.map((entry) => {
+  props.character.professions.map((entry, index) => {
     const config = PROFESSION_CONFIG[entry.profession]
-    const hp = getClassHitPoints(config.hitDie, entry.level)
+    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
     const conBonus = conModifier.value * entry.level
     return {
       profession: entry.profession,
@@ -256,8 +312,10 @@ const classHpRows = computed(() =>
   }),
 )
 
-const totalHp = computed(() =>
-  classHpRows.value.reduce((sum, row) => sum + row.hp + row.conBonus, 0),
+const toughBonus = computed(() => (props.character.isTough ? props.character.totalLevel * 2 : 0))
+
+const totalHp = computed(
+  () => classHpRows.value.reduce((sum, row) => sum + row.hp + row.conBonus, 0) + toughBonus.value,
 )
 
 const proficiencyBonus = computed(() => getProficiencyBonus(props.character.totalLevel))

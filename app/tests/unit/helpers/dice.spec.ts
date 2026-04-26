@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { rollDice } from '~/helpers/dice'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { rollAbilityScore, rollDice } from '~/helpers/dice'
 
 describe('rollDice', () => {
   it('預設擲 1 次，回傳長度為 1 的陣列', () => {
@@ -26,5 +26,50 @@ describe('rollDice', () => {
     for (const value of results) {
       expect(Number.isInteger(value)).toBe(true)
     }
+  })
+
+  it('sides=0 應拋 RangeError', () => {
+    expect(() => rollDice(0)).toThrow(RangeError)
+  })
+
+  it('sides=-1 應拋 RangeError', () => {
+    expect(() => rollDice(-1)).toThrow(RangeError)
+  })
+
+  it('times=0 應拋 RangeError', () => {
+    expect(() => rollDice(6, 0)).toThrow(RangeError)
+  })
+
+  it('times=2.7 應拋 RangeError', () => {
+    expect(() => rollDice(6, 2.7)).toThrow(RangeError)
+  })
+})
+
+describe('rollAbilityScore', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('回傳值為整數且介於 3 到 18 之間', () => {
+    for (let i = 0; i < 100; i++) {
+      const score = rollAbilityScore()
+      expect(Number.isInteger(score)).toBe(true)
+      expect(score).toBeGreaterThanOrEqual(3)
+      expect(score).toBeLessThanOrEqual(18)
+    }
+  })
+
+  it('4d6 去最低：mock [1,2,3,4] 應回傳 2+3+4 = 9', () => {
+    // Math.random → 0, 1/6, 2/6, 3/6 對應 floor * 6 + 1 = 1, 2, 3, 4
+    const values = [0, 1 / 6, 2 / 6, 3 / 6]
+    let i = 0
+    vi.spyOn(Math, 'random').mockImplementation(() => values[i++]!)
+    expect(rollAbilityScore()).toBe(9)
+  })
+
+  it('4d6 去最低：mock [6,6,6,6] 應回傳 18（最大值）', () => {
+    // Math.random → 5/6（接近 1 但不到），floor(5/6 * 6) + 1 = 6
+    vi.spyOn(Math, 'random').mockReturnValue(5.9 / 6)
+    expect(rollAbilityScore()).toBe(18)
   })
 })

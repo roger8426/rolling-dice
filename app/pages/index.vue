@@ -29,7 +29,7 @@
           :style="{ '--i': i }"
         >
           <img
-            :src="professionImages[prof]"
+            :src="PROFESSION_IMAGES[prof]"
             :alt="PROFESSION_CONFIG[prof].label"
             class="ring-img"
           />
@@ -43,7 +43,7 @@
           :style="{ '--i': i }"
         >
           <img
-            :src="professionImages[prof]"
+            :src="PROFESSION_IMAGES[prof]"
             :alt="PROFESSION_CONFIG[prof].label"
             class="ring-img"
           />
@@ -84,9 +84,6 @@ const INNER_RING_PROFESSIONS: ProfessionKey[] = [
   'ranger',
   'rogue',
 ]
-
-// ─── Image assets ─────────────────────────────────────────────────────────────
-const professionImages = getProfessionImages()
 </script>
 
 <style scoped>
@@ -187,13 +184,6 @@ const professionImages = getProfessionImages()
   z-index: 10;
   pointer-events: none;
   white-space: nowrap;
-}
-
-/* ─── Bottom banner background ─────────────────────────────────────────────── */
-.banner-section {
-  background-image: url('../assets/images/professions/professions.jpg');
-  background-size: cover;
-  background-position: center;
 }
 
 /* ─── Reduced motion ───────────────────────────────────────────────────────── */

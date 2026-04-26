@@ -1,13 +1,25 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 pb-6">
-    <CommonPageHeader title="Edit Character" :show-back="true" />
+    <CommonPageHeader title="Edit Character" :show-back="true">
+      <template #actions>
+        <Button
+          :disabled="!canSubmit"
+          :loading="isSubmitting"
+          :radius="4"
+          bg-color="var(--color-primary)"
+          @click="submit"
+        >
+          儲存變更
+        </Button>
+      </template>
+    </CommonPageHeader>
 
-    <div v-if="notFound" class="py-12 text-center">
-      <p class="text-content-muted">找不到此角色</p>
-      <NuxtLink to="/character" class="mt-4 inline-block text-primary underline">
-        返回角色列表
-      </NuxtLink>
-    </div>
+    <CommonNotFound
+      v-if="!character"
+      message="找不到此角色"
+      back-to="/character"
+      back-label="返回角色列表"
+    />
 
     <template v-else>
       <Tabs
@@ -25,11 +37,16 @@
             :form-state="formState"
             :total-level="totalLevel"
             :ability-scores="totalAbilityScores"
+            :lock-primary-profession="true"
             @update:name="formState.name = $event"
-            @update:gender="formState.gender = $event as typeof formState.gender"
-            @update:race="formState.race = $event as typeof formState.race"
-            @update:alignment="formState.alignment = $event as typeof formState.alignment"
+            @update:gender="formState.gender = $event"
+            @update:race="formState.race = $event"
+            @update:alignment="formState.alignment = $event"
             @update:faith="formState.faith = $event"
+            @update:languages="formState.languages = $event"
+            @update:tools="formState.tools = $event"
+            @update:weapon-proficiencies="formState.weaponProficiencies = $event"
+            @update:armor-proficiencies="formState.armorProficiencies = $event"
             @add="addProfession"
             @remove="removeProfession"
             @update:profession="updateProfession"
@@ -53,60 +70,114 @@
           </template>
           <BusinessCharacterFormProfileTab
             :form-state="formState"
-            @update:age="formState.age = $event ? Number($event) : null"
+            @update:age="formState.age = $event"
             @update:height="formState.height = $event"
             @update:weight="formState.weight = $event"
             @update:appearance="formState.appearance = $event"
             @update:story="formState.story = $event"
           />
         </Tab>
-      </Tabs>
 
-      <div class="mt-8 flex justify-end">
-        <Button
-          :disabled="!canSubmit"
-          :loading="isSubmitting"
-          :radius="4"
-          bg-color="var(--color-primary)"
-          @click="submit"
-        >
-          儲存變更
-        </Button>
-      </div>
+        <Tab value="combat">
+          <template #label>
+            <span class="text-content">戰鬥模組</span>
+          </template>
+          <BusinessCharacterFormCombatTab
+            :armor-class="formState.armorClass"
+            :attacks="formState.attacks"
+            :ability-scores="totalAbilityScores"
+            :extra-hp="formState.extraHp"
+            :total-hp="totalHp"
+            :is-tough="formState.isTough"
+            :proficiency-bonus="proficiencyBonus"
+            :speed-bonus="formState.speedBonus"
+            :initiative-bonus="formState.initiativeBonus"
+            :passive-perception-bonus="formState.passivePerceptionBonus"
+            :total-speed="totalSpeed"
+            :total-initiative="totalInitiative"
+            :total-passive-perception="totalPassivePerception"
+            :professions="validProfessions"
+            :saving-throw-extras="formState.savingThrowExtras"
+            @update:armor-type="updateArmorType"
+            @update:armor-value="updateArmorValue"
+            @update:armor-ability-key="updateArmorAbilityKey"
+            @update:shield-value="updateShieldValue"
+            @update:extra-hp="updateExtraHp"
+            @update:is-tough="formState.isTough = $event"
+            @update:speed-bonus="updateSpeedBonus"
+            @update:initiative-bonus="updateInitiativeBonus"
+            @update:passive-perception-bonus="updatePassivePerceptionBonus"
+            @update:saving-throw-extras="updateSavingThrowExtras"
+            @add-attack="addAttack"
+            @remove-attack="removeAttack"
+            @update:attack="updateAttack"
+          />
+        </Tab>
+
+        <Tab value="spells">
+          <template #label>
+            <span class="text-content">法術書</span>
+          </template>
+          <BusinessCharacterFormSpellsTab
+            :learned-spells="formState.learnedSpells"
+            :prepared-spells="formState.preparedSpells"
+            @toggle-learned="toggleLearnedSpell"
+            @toggle-prepared="togglePreparedSpell"
+          />
+        </Tab>
+      </Tabs>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
-import { ABILITY_KEYS } from '~/constants/dnd'
-import type { AbilityScores } from '~/types/business/character'
 
 const route = useRoute()
-const id = String(route.params.id)
+const id = getRouteParam(route.params.id)
 
-useHead({ title: '編輯角色卡 | Rolling Dice' })
+useHead({ title: '編輯角色卡' })
+
+const { activeTab, character, formState, core, derived, abilities, combat, spells, submit } =
+  useCharacterUpdate(id)
 
 const {
-  activeTab,
-  formState,
-  notFound,
   totalLevel,
   addProfession,
   removeProfession,
   updateProfession,
   updateProfessionLevel,
-  updateBonusScore,
   setSkillProficiency,
-  canSubmit,
   isSubmitting,
-  submit,
-} = useCharacterUpdate(id)
+  canSubmit,
+} = core
 
-const totalAbilityScores = computed(
-  () =>
-    Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, getTotalScore(formState.abilities[key])]),
-    ) as AbilityScores,
-)
+const {
+  totalAbilityScores,
+  proficiencyBonus,
+  validProfessions,
+  totalHp,
+  totalInitiative,
+  totalSpeed,
+  totalPassivePerception,
+} = derived
+
+const { updateBonusScore } = abilities
+
+const {
+  updateExtraHp,
+  updateArmorType,
+  updateArmorValue,
+  updateArmorAbilityKey,
+  updateShieldValue,
+  updateSpeedBonus,
+  updateInitiativeBonus,
+  updatePassivePerceptionBonus,
+  updateSavingThrowExtras,
+  addAttack,
+  removeAttack,
+  updateAttack,
+} = combat
+
+const { toggleLearnedSpell, togglePreparedSpell } = spells
 </script>

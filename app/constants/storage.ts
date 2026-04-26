@@ -1,0 +1,9 @@
+export const CHARACTERS_STORAGE_KEY = 'roll-dice:characters'
+export const CHARACTER_VIEW_MODE_KEY = 'rd:character-view-mode'
+
+const COMBAT_STATE_STORAGE_PREFIX = 'roll-dice:combat-state:'
+
+/** 取得指定角色的戰況 localStorage key（戰況與角色主資料隔離儲存） */
+export function getCombatStateStorageKey(characterId: string): string {
+  return `${COMBAT_STATE_STORAGE_PREFIX}${characterId}`
+}

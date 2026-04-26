@@ -1,5 +1,18 @@
-import type { CharacterTier } from '~/types/business/character'
-import type { ProficiencyLevel } from '~/types/business/dnd'
+import type {
+  AbilityScores,
+  ArmorClassConfig,
+  CharacterAbilityScores,
+  CharacterFormStateBase,
+  CharacterTier,
+  CharacterWritablePatch,
+  ProfessionEntry,
+} from '~/types/business/character'
+import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
+import { ABILITY_KEYS, PROFESSION_CONFIG, UNARMORED_AC_BASE } from '~/constants/dnd'
+import { getAbilityModifier, getTotalScore } from '~/helpers/ability'
+
+/** D&D 5e 角色預設移動速度（呎/回合） */
+export const BASE_MOVEMENT_SPEED = 30
 
 export function getCharacterTier(level: number): CharacterTier {
   if (level >= 17) return 'legendary'
@@ -44,8 +57,207 @@ export function getSkillBonus(
 }
 
 /**
- * 計算單一職業的生命值（使用平均值公式）：(hitDie / 2 + 1) × level
+ * 計算單一職業的生命值
+ * - 主職業（isPrimary）第 1 級取滿生命骰，其餘等級使用平均值
+ * - 非主職業全部使用平均值：(hitDie / 2 + 1) × level
  */
-export function getClassHitPoints(hitDie: number, level: number): number {
-  return (Math.floor(hitDie / 2) + 1) * level
+export function getClassHitPoints(hitDie: number, level: number, isPrimary: boolean): number {
+  const avg = Math.floor(hitDie / 2) + 1
+  if (isPrimary && level >= 1) {
+    return hitDie + avg * (level - 1)
+  }
+  return avg * level
+}
+
+/**
+ * 計算護甲基礎值（AC base + DEX 調整）：
+ * - 重甲：baseValue（不加 DEX）
+ * - 中甲：baseValue + min(DEX, +2)
+ * - 輕甲 / 無甲 / 未選：baseValue + 完整 DEX
+ */
+export function getBaseArmorClass(
+  baseValue: number,
+  dexModifier: number,
+  type: ArmorType | null,
+): number {
+  if (type === 'heavy') return baseValue
+  if (type === 'medium') return baseValue + Math.min(dexModifier, 2)
+  return baseValue + dexModifier
+}
+
+/**
+ * 由護甲設定與屬性分數計算最終 AC：
+ * base（依護甲類型處理 DEX）+ 額外屬性加值 + 盾牌加值。
+ */
+export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: AbilityScores): number {
+  const baseValue = config.value ?? UNARMORED_AC_BASE
+  const dexModifier = getAbilityModifier(abilityScores.dexterity)
+  let ac = getBaseArmorClass(baseValue, dexModifier, config.type)
+
+  if (config.abilityKey) {
+    ac += getAbilityModifier(abilityScores[config.abilityKey])
+  }
+
+  return ac + config.shieldValue
+}
+
+/**
+ * 建立 Character 預設的護甲設定：無甲、基礎值 10、無額外屬性、無盾牌。
+ * 用於新增角色或尚未設定戰鬥資訊時的初始值。
+ */
+export function createDefaultArmorClass(): ArmorClassConfig {
+  return { type: 'none', value: UNARMORED_AC_BASE, abilityKey: null, shieldValue: 0 }
+}
+
+/**
+ * 計算被動感知：10 + 感知（Perception）技能加值
+ */
+export function getPassivePerception(perceptionBonus: number): number {
+  return 10 + perceptionBonus
+}
+
+/**
+ * 由完整屬性單元（basicScore + bonusScore）計算六項屬性的總分字典。
+ */
+export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): AbilityScores {
+  return Object.fromEntries(
+    ABILITY_KEYS.map((key) => [key, getTotalScore(abilities[key])]),
+  ) as AbilityScores
+}
+
+/**
+ * 計算總生命值：依序累加各職業 HP（第一個為主職業，第 1 級滿骰）、
+ * 每等 CON 調整值、健壯加值（totalLevel × 2）、額外加值。
+ */
+export function calculateTotalHp(input: {
+  professions: ProfessionEntry[]
+  conModifier: number
+  isTough: boolean
+  extraHp: number
+}): number {
+  const classHp = input.professions.reduce((sum, entry, index) => {
+    const config = PROFESSION_CONFIG[entry.profession]
+    const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
+    return sum + hp + input.conModifier * entry.level
+  }, 0)
+  const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
+  const toughBonus = input.isTough ? totalLevel * 2 : 0
+  return classHp + toughBonus + input.extraHp
+}
+
+/**
+ * 計算總移動速度：30 呎 + 額外加值（null 視為 0）。
+ */
+export function calculateTotalSpeed(speedBonus: number | null): number {
+  return BASE_MOVEMENT_SPEED + (speedBonus ?? 0)
+}
+
+/**
+ * 計算總先攻加值：DEX 調整值 + 額外加值（null 視為 0）。
+ */
+export function calculateTotalInitiative(
+  dexModifier: number,
+  initiativeBonus: number | null,
+): number {
+  return dexModifier + (initiativeBonus ?? 0)
+}
+
+/**
+ * 計算感知（Perception）技能加值，含全能高手半熟練規則：
+ * - 若 perception 未熟練且具備 isJackOfAllTrades，加 floor(proficiencyBonus / 2)
+ * - 其餘依 proficiencyLevel 走標準 getSkillBonus
+ */
+export function calculatePerceptionSkillBonus(input: {
+  wisdomModifier: number
+  perceptionLevel: ProficiencyLevel
+  proficiencyBonus: number
+  isJackOfAllTrades: boolean
+}): number {
+  if (input.perceptionLevel === 'none' && input.isJackOfAllTrades) {
+    return input.wisdomModifier + Math.floor(input.proficiencyBonus / 2)
+  }
+  return getSkillBonus(input.wisdomModifier, input.perceptionLevel, input.proficiencyBonus)
+}
+
+/**
+ * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值（null 視為 0）。
+ */
+export function calculateTotalPassivePerception(
+  perceptionBonus: number,
+  extraBonus: number | null,
+): number {
+  return getPassivePerception(perceptionBonus) + (extraBonus ?? 0)
+}
+
+/**
+ * 由（已過濾的）職業陣列取得豁免熟練屬性，
+ * 規則：取主職業（第一個 entry）的 savingThrowProficiencies；無主職業時回傳空陣列。
+ */
+export function calculateSavingThrowProficiencies(professions: ProfessionEntry[]): AbilityKey[] {
+  const primary = professions[0]
+  if (!primary) return []
+  return [...PROFESSION_CONFIG[primary.profession].savingThrowProficiencies]
+}
+
+/**
+ * 將 form state 的共用欄位轉為 Character 可寫入的 patch。
+ * 不處理 abilities、armorClass、attacks、spells、bonus 欄位與 savingThrowProficiencies。
+ */
+export function formStateToCharacterPatch(
+  formState: CharacterFormStateBase,
+): CharacterWritablePatch {
+  // identity
+  const name = formState.name
+  const gender = formState.gender
+  const race = formState.race
+  const alignment = formState.alignment
+
+  // progression
+  const professions = formState.professions.filter(
+    (p): p is ProfessionEntry => p.profession !== null,
+  )
+  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
+
+  // skills & toggles
+  const skills = { ...formState.skills }
+  const isJackOfAllTrades = formState.isJackOfAllTrades
+  const isTough = formState.isTough
+
+  // profile
+  const background = formState.background || null
+  const faith = formState.faith || null
+  const age = formState.age ?? null
+  const height = formState.height || null
+  const weight = formState.weight || null
+  const appearance = formState.appearance || null
+  const story = formState.story || null
+
+  // proficiencies
+  const languages = formState.languages || null
+  const tools = formState.tools || null
+  const weaponProficiencies = formState.weaponProficiencies || null
+  const armorProficiencies = formState.armorProficiencies || null
+
+  return {
+    name,
+    gender,
+    race,
+    alignment,
+    professions,
+    totalLevel,
+    skills,
+    isJackOfAllTrades,
+    isTough,
+    background,
+    faith,
+    age,
+    height,
+    weight,
+    appearance,
+    story,
+    languages,
+    tools,
+    weaponProficiencies,
+    armorProficiencies,
+  }
 }

@@ -119,3 +119,13 @@ export type GenderKey =
   | 'male' // 男性
   | 'female' // 女性
   | 'nonBinary' // 非二元
+
+// ─── Armor / Weapon ────────────────────────────────────────────────────────────────
+
+export type ArmorType = 'light' | 'medium' | 'heavy' | 'none'
+
+export type WeaponType = 'simple' | 'martial'
+
+export type DieType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100'
+
+export type DamageDieType = Extract<DieType, 'd4' | 'd6' | 'd8' | 'd10' | 'd12'>

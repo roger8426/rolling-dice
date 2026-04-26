@@ -13,12 +13,14 @@ export const getLocalStorage = <T>(key: string): T | null => {
   }
 }
 
-export const setLocalStorage = <T>(key: string, value: T): void => {
-  if (typeof window === 'undefined') return
+export const setLocalStorage = <T>(key: string, value: T): boolean => {
+  if (typeof window === 'undefined') return false
   try {
     localStorage.setItem(key, JSON.stringify(value))
+    return true
   } catch (error) {
     logger.error(`Error setting localStorage key "${key}":`, error)
+    return false
   }
 }
 

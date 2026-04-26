@@ -10,7 +10,16 @@
  */
 
 // Vue 靜態 import 安全（不存取 localStorage）
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  getCurrentScope,
+  nextTick,
+  onScopeDispose,
+  reactive,
+  readonly,
+  ref,
+  watch,
+} from 'vue'
 import { beforeEach } from 'vitest'
 
 // Step 1: localStorage mock（同步，必須早於所有會觸發 devtools-kit 的 import）
@@ -37,12 +46,14 @@ Object.defineProperty(globalThis, 'localStorage', {
 })
 
 // Step 2: log utils（local-storage.ts 模組頂層會呼叫 createLogger）
-const { createLogger, setDebugEnabled } = await import('~/utils/log')
-Object.assign(globalThis, { createLogger, setDebugEnabled })
+const { createLogger } = await import('~/utils/log')
+Object.assign(globalThis, { createLogger })
 
 // Step 3: local-storage（此時 createLogger 已掛上 globalThis）
 const { getLocalStorage, setLocalStorage, removeLocalStorage } =
   await import('~/utils/local-storage')
+
+const { debounce } = await import('~/utils/timing')
 
 // Step 4: pinia（此時 localStorage mock 已就緒）
 const { defineStore, setActivePinia } = await import('pinia')
@@ -54,11 +65,15 @@ Object.assign(globalThis, {
   watch,
   nextTick,
   reactive,
+  readonly,
+  onScopeDispose,
+  getCurrentScope,
   defineStore,
   setActivePinia,
   getLocalStorage,
   setLocalStorage,
   removeLocalStorage,
+  debounce,
   // 預設 useRoute mock，個別 spec 可用 vi.stubGlobal('useRoute', ...) 覆寫
   useRoute: () => reactive({ fullPath: '/' }),
 })

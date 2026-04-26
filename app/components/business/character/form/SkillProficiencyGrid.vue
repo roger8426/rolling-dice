@@ -26,7 +26,7 @@
         <CommonAppSelect
           class="min-w-18 flex-1"
           :model-value="skills[item.key] ?? 'none'"
-          :options="proficiencyOptions"
+          :options="PROFICIENCY_OPTIONS"
           size="sm"
           @update:model-value="emit('update:skill', item.key, $event as ProficiencyLevel)"
         />
@@ -36,9 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SelectOption } from '@ui'
 import { Toggle } from '@ui'
-import { SKILL_NAMES, SKILL_TO_ABILITY_MAP } from '~/constants/dnd'
+import { PROFICIENCY_OPTIONS, SKILL_NAMES, SKILL_TO_ABILITY_MAP } from '~/constants/dnd'
 import type { AbilityScores, SkillProficiencies } from '~/types/business/character'
 import type { ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
@@ -65,10 +64,4 @@ const skillList = computed(() => {
     return { key, name, bonusText: formatModifier(bonus) }
   })
 })
-
-const proficiencyOptions: SelectOption[] = [
-  { value: 'none', label: '無' },
-  { value: 'proficient', label: '熟練' },
-  { value: 'expertise', label: '專精' },
-]
 </script>

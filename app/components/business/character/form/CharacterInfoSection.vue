@@ -26,7 +26,7 @@
           :model-value="formState.gender || null"
           :options="genderOptions"
           size="sm"
-          @update:model-value="emit('update:gender', $event as typeof formState.gender)"
+          @update:model-value="emit('update:gender', ($event as GenderKey) || null)"
         />
       </div>
       <!-- 種族 -->
@@ -39,19 +39,19 @@
           :options="raceOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:race', $event as typeof formState.race)"
+          @update:model-value="emit('update:race', ($event as RaceKey) || null)"
         />
       </div>
     </div>
     <div class="flex items-end gap-2">
       <!-- 背景 -->
-      <div class="min-w-12 grow">
+      <div class="min-w-12">
         <label for="char-background" class="mb-1 block text-xs text-content"> 背景 </label>
         <CommonAppInput
           id="char-background"
           class="w-full"
           :radius="0"
-          :model-value="formState.background"
+          :model-value="formState.background ?? ''"
           size="sm"
           outline
           @update:model-value="emit('update:background', $event)"
@@ -67,47 +67,75 @@
           :options="alignmentOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:alignment', $event as typeof formState.alignment)"
+          @update:model-value="emit('update:alignment', ($event as AlignmentKey) || null)"
         />
       </div>
       <!-- 信仰 -->
-      <div class="min-w-12 grow">
+      <div class="min-w-12">
         <label for="char-faith" class="mb-1 block text-xs text-content"> 信仰 </label>
         <CommonAppInput
           id="char-faith"
           class="w-full"
-          :model-value="formState.faith"
+          :model-value="formState.faith ?? ''"
           placeholder=""
           size="sm"
           @update:model-value="emit('update:faith', $event)"
         />
       </div>
     </div>
-    <div>
-      <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
-      <CommonAppInput
-        id="char-languages"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.languages"
-        size="sm"
-        outline
-        @update:model-value="emit('update:languages', $event)"
-      />
-    </div>
-    <div>
-      <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
-      <CommonAppInput
-        id="char-tools"
-        class="w-full"
-        :radius="0"
-        :model-value="formState.tools"
-        size="sm"
-        outline
-        @update:model-value="emit('update:tools', $event)"
-      />
-    </div>
 
+    <div class="flex items-end gap-2">
+      <div class="min-w-0 flex-1">
+        <label for="char-languages" class="mb-1 block text-xs text-content"> 語言 </label>
+        <CommonAppInput
+          id="char-languages"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.languages ?? ''"
+          size="sm"
+          outline
+          @update:model-value="emit('update:languages', $event)"
+        />
+      </div>
+      <div class="min-w-0 flex-1">
+        <label for="char-tools" class="mb-1 block text-xs text-content"> 熟練工具 </label>
+        <CommonAppInput
+          id="char-tools"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.tools ?? ''"
+          size="sm"
+          outline
+          @update:model-value="emit('update:tools', $event)"
+        />
+      </div>
+    </div>
+    <div class="flex items-end gap-2">
+      <div class="min-w-0 flex-1">
+        <label for="char-weapons" class="mb-1 block text-xs text-content"> 武器 </label>
+        <CommonAppInput
+          id="char-weapons"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.weaponProficiencies ?? ''"
+          size="sm"
+          outline
+          @update:model-value="emit('update:weaponProficiencies', $event)"
+        />
+      </div>
+      <div class="min-w-0 flex-1">
+        <label for="char-armor" class="mb-1 block text-xs text-content"> 護甲 </label>
+        <CommonAppInput
+          id="char-armor"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.armorProficiencies ?? ''"
+          size="sm"
+          outline
+          @update:model-value="emit('update:armorProficiencies', $event)"
+        />
+      </div>
+    </div>
     <!-- 職業設定 -->
     <div class="space-y-4">
       <div
@@ -117,7 +145,8 @@
       >
         <div class="min-w-16 flex-1">
           <label :for="`prof-${index}`" class="mb-1 block text-xs text-content">
-            職業 {{ index + 1 }}
+            {{ index === 0 ? '主職業' : `兼職 ${index}` }}
+            <span class="text-danger">*</span>
           </label>
           <CommonAppSelect
             :id="`prof-${index}`"
@@ -126,6 +155,7 @@
             class="w-full"
             size="sm"
             :placeholder="index === 0 ? '主職業' : '兼職'"
+            :disabled="lockPrimaryProfession && index === 0"
             @update:model-value="updateProfessionKey(index, $event as string)"
           />
         </div>
@@ -166,7 +196,7 @@
         </Button>
         <p class="text-sm text-content-muted">
           總等級：
-          <span :class="totalLevel > 20 ? 'text-red-400 font-bold' : ''">{{ totalLevel }}</span>
+          <span :class="totalLevel > 20 ? 'text-danger font-bold' : ''">{{ totalLevel }}</span>
           / 20
         </p>
       </div>
@@ -177,24 +207,36 @@
 <script setup lang="ts">
 import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
+import {
+  ALIGNMENT_NAMES,
+  GENDER_NAMES,
+  PROFESSION_CONFIG,
+  PROFESSION_KEYS,
+  RACE_NAMES,
+} from '~/constants/dnd'
 import type { CharacterFormStateBase } from '~/types/business/character'
-import type { ProfessionKey } from '~/types/business/dnd'
+import type { AlignmentKey, GenderKey, ProfessionKey, RaceKey } from '~/types/business/dnd'
 
-const props = defineProps<{
-  formState: CharacterFormStateBase
-  totalLevel: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    formState: CharacterFormStateBase
+    totalLevel: number
+    lockPrimaryProfession?: boolean
+  }>(),
+  { lockPrimaryProfession: false },
+)
 
 const emit = defineEmits<{
   'update:name': [value: string]
-  'update:gender': [value: string]
-  'update:race': [value: string]
+  'update:gender': [value: GenderKey | null]
+  'update:race': [value: RaceKey | null]
   'update:background': [value: string]
-  'update:alignment': [value: string]
+  'update:alignment': [value: AlignmentKey | null]
   'update:faith': [value: string]
   'update:languages': [value: string]
   'update:tools': [value: string]
+  'update:weaponProficiencies': [value: string]
+  'update:armorProficiencies': [value: string]
   add: []
   remove: [index: number]
   'update:profession': [index: number, key: ProfessionKey]
@@ -229,9 +271,9 @@ const getProfessionOptions = (index: number): SelectOption[] => {
 }
 
 const isButtonDisabled = computed(() => {
-  const professionsOver = props.formState.professions.length >= 13
-  const everSelected = props.formState.professions.some((entry) => !entry.profession)
-  return professionsOver || everSelected
+  const professionsOver = props.formState.professions.length >= PROFESSION_KEYS.length
+  const hasUnselected = props.formState.professions.some((entry) => !entry.profession)
+  return professionsOver || hasUnselected
 })
 
 function updateProfessionKey(index: number, value: string): void {
@@ -239,7 +281,6 @@ function updateProfessionKey(index: number, value: string): void {
 }
 
 function updateProfessionLevel(index: number, value: string): void {
-  const level = Math.max(1, Math.min(20, Number(value) || 1))
-  emit('update:level', index, level)
+  emit('update:level', index, parseIntegerInput(value, 1))
 }
 </script>

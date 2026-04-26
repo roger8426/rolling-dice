@@ -42,7 +42,7 @@
           <div class="flex items-center gap-2">
             <img
               v-show="!professionIconError"
-              :src="professionImages[character.professions[0]!.profession]"
+              :src="PROFESSION_IMAGES[character.professions[0]!.profession]"
               alt=""
               class="size-4"
               loading="lazy"
@@ -64,7 +64,7 @@
               :radius="4"
               size="sm"
             >
-              {{ RACE_NAMES[character.race] }}
+              {{ character.race ? RACE_NAMES[character.race] : '-' }}
             </Badge>
             <span class="text-xs text-content-muted">
               {{
@@ -140,8 +140,6 @@ const cardShadowStyle = computed(() => {
   return { '--card-shadow': `0 0 24px rgba(${tierConfig.value.shadowRgb}, ${opacity.toFixed(3)})` }
 })
 
-const professionImages = getProfessionImages()
-
 const coverError = ref(false)
 const professionIconError = ref(false)
 
@@ -156,7 +154,7 @@ const hasAvatar = computed(() => !!props.character.avatar && !coverError.value)
 const coverSrc = computed(() =>
   hasAvatar.value
     ? props.character.avatar!
-    : professionImages[props.character.professions[0]!.profession],
+    : PROFESSION_IMAGES[props.character.professions[0]!.profession],
 )
 
 function onCoverError() {

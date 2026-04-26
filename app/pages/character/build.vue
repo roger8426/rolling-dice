@@ -18,10 +18,14 @@
           :total-level="totalLevel"
           :ability-scores="formState.abilities"
           @update:name="formState.name = $event"
-          @update:gender="formState.gender = $event as typeof formState.gender"
-          @update:race="formState.race = $event as typeof formState.race"
-          @update:alignment="formState.alignment = $event as typeof formState.alignment"
+          @update:gender="formState.gender = $event"
+          @update:race="formState.race = $event"
+          @update:alignment="formState.alignment = $event"
           @update:faith="formState.faith = $event"
+          @update:languages="formState.languages = $event"
+          @update:tools="formState.tools = $event"
+          @update:weapon-proficiencies="formState.weaponProficiencies = $event"
+          @update:armor-proficiencies="formState.armorProficiencies = $event"
           @add="addProfession"
           @remove="removeProfession"
           @update:profession="updateProfession"
@@ -50,7 +54,7 @@
         </template>
         <BusinessCharacterFormProfileTab
           :form-state="formState"
-          @update:age="formState.age = $event ? Number($event) : null"
+          @update:age="formState.age = $event"
           @update:height="formState.height = $event"
           @update:weight="formState.weight = $event"
           @update:appearance="formState.appearance = $event"
@@ -65,35 +69,55 @@
         :loading="isSubmitting"
         :radius="4"
         bg-color="var(--color-primary)"
-        @click="submit"
+        @click="openConfirm"
       >
         儲存角色卡
       </Button>
     </div>
+
+    <BusinessCharacterBuildConfirmModal
+      v-model="isConfirmOpen"
+      :professions="formState.professions"
+      :abilities="formState.abilities"
+      @cancel="isConfirmOpen = false"
+      @confirm="confirmSubmit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
 
-useHead({ title: '建立角色卡 | Rolling Dice' })
+useHead({ title: '建立角色卡' })
 
+const { activeTab, formState, core, abilities, submit } = useCharacterBuild()
 const {
-  activeTab,
-  formState,
-  pointBuyRemaining,
-  setAbilityMethod,
-  rollAllAbilities,
-  resetAbilities,
   totalLevel,
   addProfession,
   removeProfession,
   updateProfession,
   updateProfessionLevel,
-  updateAbilityScore,
   setSkillProficiency,
   isSubmitting,
   canSubmit,
-  submit,
-} = useCharacterBuild()
+} = core
+const {
+  pointBuyRemaining,
+  setAbilityMethod,
+  rollAllAbilities,
+  resetAbilities,
+  updateAbilityScore,
+} = abilities
+
+const isConfirmOpen = ref(false)
+
+function openConfirm(): void {
+  if (!canSubmit.value) return
+  isConfirmOpen.value = true
+}
+
+async function confirmSubmit(): Promise<void> {
+  isConfirmOpen.value = false
+  await submit()
+}
 </script>

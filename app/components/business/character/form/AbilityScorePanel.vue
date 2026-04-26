@@ -1,8 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
-    <div>
-      <img src="~/assets/images/dnd.png" alt="" />
-    </div>
+    <img src="~/assets/images/dnd.png" alt="" loading="lazy" aria-hidden="true" />
     <!-- Method selector -->
     <div>
       <p class="mb-1 text-xs text-content">分配方式</p>
@@ -27,11 +25,11 @@
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <div v-for="key in ABILITY_KEYS" :key="key" class="space-y-1">
         <label :for="`ability-${key}`" class="block text-xs text-content">
-          {{ ABILITY_NAMES[key] }}（{{ formatModifier(abilities[key]) }}）
+          {{ ABILITY_NAMES[key] }}（{{ formatModifier(getAbilityModifier(abilities[key])) }}）
         </label>
 
         <!-- Stepper (pointBuy / custom) -->
-        <div v-if="abilityMethod !== 'diceRoll'" class="flex items-center gap-1 py-0.5">
+        <div v-if="!isDiceMode" class="flex items-center gap-1 py-0.5">
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
@@ -83,8 +81,8 @@
         class="flex items-center gap-2"
         @click="handleReset"
       >
-        <Icon v-if="abilityMethod === 'diceRoll'" name="dice-20" :size="16" />
-        {{ abilityMethod === 'diceRoll' ? '擲骰' : '重置屬性' }}
+        <Icon v-if="isDiceMode" name="dice-20" :size="16" />
+        {{ isDiceMode ? '擲骰' : '重置屬性' }}
       </Button>
     </div>
   </div>
@@ -100,7 +98,6 @@ import {
   POINT_BUY_MAX_SCORE,
   POINT_BUY_MIN_SCORE,
 } from '~/constants/dnd'
-import { getPointBuyCost } from '~/helpers/ability'
 import type { AbilityMethod, AbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -123,10 +120,7 @@ const methods: { key: AbilityMethod; label: string }[] = [
   { key: 'diceRoll', label: '擲骰' },
 ]
 
-function formatModifier(score: number): string {
-  const mod = Math.floor((score - 10) / 2)
-  return mod >= 0 ? `+${mod}` : `${mod}`
-}
+const isDiceMode = computed(() => props.abilityMethod === 'diceRoll')
 
 function getMinScore(): number {
   return props.abilityMethod === 'pointBuy' ? POINT_BUY_MIN_SCORE : CUSTOM_ABILITY_MIN
@@ -152,7 +146,7 @@ function adjustAbility(key: AbilityKey, delta: number): void {
 }
 
 function handleReset(): void {
-  if (props.abilityMethod === 'diceRoll') {
+  if (isDiceMode.value) {
     emit('roll:all')
   } else {
     emit('reset:abilities')

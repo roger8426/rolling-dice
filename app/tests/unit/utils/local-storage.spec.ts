@@ -41,22 +41,23 @@ describe('getLocalStorage', () => {
 })
 
 describe('setLocalStorage', () => {
-  it('window 不存在時應靜默返回，不寫入任何值', () => {
+  it('window 不存在時應回傳 false 且不寫入任何值', () => {
     vi.stubGlobal('window', undefined)
-    expect(() => setLocalStorage('key', 'value')).not.toThrow()
+    expect(setLocalStorage('key', 'value')).toBe(false)
   })
 
-  it('合法物件應寫入後可讀回正確的 JSON 字串', () => {
-    setLocalStorage('config', { theme: 'dark', lang: 'zh-tw' })
+  it('合法物件應寫入後可讀回正確的 JSON 字串，並回傳 true', () => {
+    const result = setLocalStorage('config', { theme: 'dark', lang: 'zh-tw' })
+    expect(result).toBe(true)
     expect(localStorage.getItem('config')).toBe(JSON.stringify({ theme: 'dark', lang: 'zh-tw' }))
   })
 
-  it('無法序列化的值（循環引用）應不拋出錯誤', () => {
+  it('無法序列化的值（循環引用）應回傳 false 且不拋出錯誤', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const circular: any = {}
     circular.self = circular
-    expect(() => setLocalStorage('circular', circular)).not.toThrow()
+    expect(setLocalStorage('circular', circular)).toBe(false)
   })
 
   it('無法序列化的值應呼叫 console.error', () => {
