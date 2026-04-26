@@ -1,6 +1,12 @@
-import { POINT_BUY_COST_TABLE, POINT_BUY_MAX_SCORE, POINT_BUY_MIN_SCORE } from '~/constants/dnd'
+import {
+  ABILITY_KEYS,
+  POINT_BUY_COST_TABLE,
+  POINT_BUY_MAX_SCORE,
+  POINT_BUY_MIN_SCORE,
+} from '~/constants/dnd'
+import { rollAbilityScore } from '~/helpers/dice'
 import type { AbilityKey } from '~/types/business/dnd'
-import type { AbilityScoreEntry } from '~/types/business/character'
+import type { AbilityScoreEntry, DiceSlot } from '~/types/business/character'
 
 /**
  * 計算屬性總分（基礎分數 + 獎勵加值）
@@ -54,4 +60,17 @@ export function tryCalculateSpentPoints(scores: Record<AbilityKey, number>): num
     sum += POINT_BUY_COST_TABLE[score]!
   }
   return sum
+}
+
+/**
+ * 產生 6 個骰值組成的池，由高到低排序，皆未指派。
+ */
+export function createDicePool(): DiceSlot[] {
+  const values = Array.from({ length: ABILITY_KEYS.length }, () => rollAbilityScore())
+  values.sort((a, b) => b - a)
+  return values.map((value) => ({
+    id: crypto.randomUUID(),
+    value,
+    assignedTo: null,
+  }))
 }

@@ -21,11 +21,44 @@
       </div>
     </div>
 
+    <!-- Dice pool (diceRoll mode) -->
+    <div v-if="isDiceMode && dicePool.length > 0" class="flex items-center gap-2">
+      <ul class="flex flex-1 flex-wrap gap-2" aria-label="骰值池">
+        <li
+          v-for="slot in dicePool"
+          :key="slot.id"
+          class="rounded border px-2 py-1 font-mono text-sm"
+          :class="
+            slot.assignedTo
+              ? 'border-content-muted text-content-muted opacity-60'
+              : 'border-primary text-content'
+          "
+        >
+          {{ slot.value }}
+        </li>
+      </ul>
+      <Button
+        size="sm"
+        outline
+        text-color="var(--color-primary)"
+        border-color="var(--color-primary)"
+        :radius="8"
+        class="flex shrink-0 items-center gap-2"
+        @click="emit('roll:all')"
+      >
+        <Icon name="dice-20" :size="16" />
+        重擲
+      </Button>
+    </div>
+
     <!-- Ability grid -->
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <div v-for="key in ABILITY_KEYS" :key="key" class="space-y-1">
         <label :for="`ability-${key}`" class="block text-xs text-content">
-          {{ ABILITY_NAMES[key] }}（{{ formatModifier(getAbilityModifier(abilities[key])) }}）
+          {{ ABILITY_NAMES[key]
+          }}<template v-if="!isDiceMode || diceCells[key].selectedId">
+            （{{ formatModifier(getAbilityModifier(abilities[key])) }}）
+          </template>
         </label>
 
         <!-- Stepper (custom) -->
@@ -39,7 +72,7 @@
           >
             <Icon name="minus" :size="16" />
           </button>
-          <span class="w-8 text-center font-mono text-lg font-bold">
+          <span :id="`ability-${key}`" class="w-8 text-center font-mono text-lg font-bold">
             {{ abilities[key] }}
           </span>
           <button
@@ -53,26 +86,29 @@
           </button>
         </div>
 
-        <!-- Dice Roll (read-only) -->
-        <div v-else class="flex items-center gap-1 py-0.5">
-          <span class="w-8 text-center font-mono text-lg font-bold">
-            {{ abilities[key] }}
-          </span>
-        </div>
+        <!-- Dice Roll: 從骰值池下拉選取 -->
+        <CommonAppSelect
+          v-else
+          :id="`ability-${key}`"
+          class="w-full"
+          size="sm"
+          placeholder="未指派"
+          :model-value="diceCells[key].selectedId"
+          :options="diceCells[key].options"
+          @update:model-value="onAssign(key, $event)"
+        />
       </div>
     </div>
 
-    <!-- Point usage indicator (custom mode) -->
-    <div class="flex items-center justify-between">
+    <!-- Footer: usage indicator + reset button (custom mode) -->
+    <div v-if="!isDiceMode" class="flex items-center justify-between">
       <p
-        v-if="abilityMethod === 'custom'"
         class="text-sm"
         :class="isUsageOver ? 'text-info font-bold' : 'text-content-muted'"
         aria-live="polite"
       >
         {{ usageLabel }}
       </p>
-      <div v-else class="size-1"></div>
       <Button
         size="sm"
         outline
@@ -80,17 +116,16 @@
         border-color="var(--color-primary)"
         :radius="8"
         class="flex items-center gap-2"
-        @click="handleReset"
+        @click="emit('reset:abilities')"
       >
-        <Icon v-if="isDiceMode" name="dice-20" :size="16" />
-        {{ isDiceMode ? '擲骰' : '重置屬性' }}
+        重置屬性
       </Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Button, Icon } from '@ui'
+import { Button, Icon, type SelectOption } from '@ui'
 import {
   ABILITY_KEYS,
   ABILITY_NAMES,
@@ -98,18 +133,20 @@ import {
   CUSTOM_ABILITY_MIN,
   POINT_BUY_BUDGET,
 } from '~/constants/dnd'
-import type { AbilityMethod, AbilityScores } from '~/types/business/character'
+import type { AbilityMethod, AbilityScores, DiceCell, DiceSlot } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
 const props = defineProps<{
   abilities: AbilityScores
   abilityMethod: AbilityMethod
   pointBuyUsage: number | null
+  dicePool: DiceSlot[]
 }>()
 
 const emit = defineEmits<{
   'update:method': [method: AbilityMethod]
   'update:score': [key: AbilityKey, score: number]
+  'assign:dice': [key: AbilityKey, slotId: string | null]
   'roll:all': []
   'reset:abilities': []
 }>()
@@ -131,19 +168,40 @@ const isUsageOver = computed(
   () => props.pointBuyUsage === null || props.pointBuyUsage > POINT_BUY_BUDGET,
 )
 
+const diceCells = computed<Record<AbilityKey, DiceCell>>(() => {
+  const assignedSlotByAbility = new Map<AbilityKey, DiceSlot>()
+  for (const slot of props.dicePool) {
+    if (slot.assignedTo) assignedSlotByAbility.set(slot.assignedTo, slot)
+  }
+
+  const entries = ABILITY_KEYS.map<[AbilityKey, DiceCell]>((key) => {
+    const slotOptions: SelectOption[] = props.dicePool.map((slot) => ({
+      value: slot.id,
+      label: `${slot.value}`,
+      disabled: slot.assignedTo !== null && slot.assignedTo !== key,
+    }))
+    return [
+      key,
+      {
+        selectedId: assignedSlotByAbility.get(key)?.id ?? '',
+        options: [{ value: '', label: '未指派' }, ...slotOptions],
+      },
+    ]
+  })
+
+  return Object.fromEntries(entries) as Record<AbilityKey, DiceCell>
+})
+
+function onAssign(key: AbilityKey, value: string | number | null): void {
+  const slotId = value === '' || value === null ? null : String(value)
+  emit('assign:dice', key, slotId)
+}
+
 function adjustAbility(key: AbilityKey, delta: number): void {
   const current = props.abilities[key]
   const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
   if (next === current) return
   emit('update:score', key, next)
-}
-
-function handleReset(): void {
-  if (isDiceMode.value) {
-    emit('roll:all')
-  } else {
-    emit('reset:abilities')
-  }
 }
 </script>
 

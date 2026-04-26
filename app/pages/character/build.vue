@@ -39,8 +39,10 @@
               :abilities="formState.abilities"
               :ability-method="formState.abilityMethod"
               :point-buy-usage="pointBuyUsage"
+              :dice-pool="formState.dicePool"
               @update:method="setAbilityMethod"
               @update:score="updateAbilityScore"
+              @assign:dice="assignDiceToAbility"
               @roll:all="rollAllAbilities"
               @reset:abilities="resetAbilities"
             />
@@ -90,7 +92,7 @@ import { Button, Tab, Tabs } from '@ui'
 
 useHead({ title: '建立角色卡' })
 
-const { activeTab, formState, core, abilities, submit } = useCharacterBuild()
+const { activeTab, formState, core, abilities, canSubmit, submit } = useCharacterBuild()
 const {
   totalLevel,
   addProfession,
@@ -99,10 +101,15 @@ const {
   updateProfessionLevel,
   setSkillProficiency,
   isSubmitting,
-  canSubmit,
 } = core
-const { pointBuyUsage, setAbilityMethod, rollAllAbilities, resetAbilities, updateAbilityScore } =
-  abilities
+const {
+  pointBuyUsage,
+  setAbilityMethod,
+  rollAllAbilities,
+  resetAbilities,
+  updateAbilityScore,
+  assignDiceToAbility,
+} = abilities
 
 const isConfirmOpen = ref(false)
 

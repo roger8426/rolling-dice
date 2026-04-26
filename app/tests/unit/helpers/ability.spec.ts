@@ -1,6 +1,21 @@
-import { describe, expect, it } from 'vitest'
-import { getPointBuyCost, isValidPointBuyScore, tryCalculateSpentPoints } from '~/helpers/ability'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  createDicePool,
+  getPointBuyCost,
+  isValidPointBuyScore,
+  tryCalculateSpentPoints,
+} from '~/helpers/ability'
 import type { AbilityKey } from '~/types/business/dnd'
+
+vi.mock('~/helpers/dice', () => {
+  // 故意不依排序順序，確保 createDicePool 真的有執行 sort
+  const sequence = [10, 16, 8, 14, 12, 13]
+  let i = 0
+  return {
+    rollAbilityScore: vi.fn(() => sequence[i++ % sequence.length]),
+    rollDice: vi.fn(() => [4, 4, 4, 4]),
+  }
+})
 
 // 輔助：建立六項屬性皆為同一分數的 Record
 function uniformScores(score: number): Record<AbilityKey, number> {
@@ -110,5 +125,32 @@ describe('tryCalculateSpentPoints', () => {
     const scores = uniformScores(8)
     scores.strength = 16
     expect(tryCalculateSpentPoints(scores)).toBeNull()
+  })
+})
+
+// ─── createDicePool ──────────────────────────────────────────────────────────
+
+describe('createDicePool', () => {
+  it('應產生 6 個 slot', () => {
+    const pool = createDicePool()
+    expect(pool).toHaveLength(6)
+  })
+
+  it('slot value 應由高到低排序', () => {
+    const pool = createDicePool()
+    for (let i = 1; i < pool.length; i++) {
+      expect(pool[i - 1]!.value).toBeGreaterThanOrEqual(pool[i]!.value)
+    }
+  })
+
+  it('每個 slot 的 id 應互異', () => {
+    const pool = createDicePool()
+    const ids = pool.map((s) => s.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('所有 slot 的 assignedTo 初始皆為 null', () => {
+    const pool = createDicePool()
+    expect(pool.every((s) => s.assignedTo === null)).toBe(true)
   })
 })
