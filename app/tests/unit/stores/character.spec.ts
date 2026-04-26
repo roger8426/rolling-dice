@@ -67,6 +67,7 @@ const MOCK_FORM_STATE: CharacterFormState = {
     charisma: 10,
   },
   abilityMethod: 'custom',
+  dicePool: [],
   skills: { arcana: 'proficient' },
   background: '學者',
   isJackOfAllTrades: false,

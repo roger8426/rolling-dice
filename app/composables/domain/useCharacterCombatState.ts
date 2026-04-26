@@ -178,7 +178,7 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
 
   if (getCurrentScope()) {
     onScopeDispose(() => {
-      persist.cancel()
+      persist.flush()
     })
   }
 

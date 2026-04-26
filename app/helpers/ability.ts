@@ -1,11 +1,12 @@
 import {
-  POINT_BUY_BUDGET,
+  ABILITY_KEYS,
   POINT_BUY_COST_TABLE,
   POINT_BUY_MAX_SCORE,
   POINT_BUY_MIN_SCORE,
 } from '~/constants/dnd'
+import { rollAbilityScore } from '~/helpers/dice'
 import type { AbilityKey } from '~/types/business/dnd'
-import type { AbilityScoreEntry } from '~/types/business/character'
+import type { AbilityScoreEntry, DiceSlot } from '~/types/business/character'
 
 /**
  * 計算屬性總分（基礎分數 + 獎勵加值）
@@ -49,28 +50,27 @@ export function getPointBuyCost(score: number): number {
 }
 
 /**
- * 計算六項屬性的購點總花費。
- * 若任一分數超出合法範圍，拋出錯誤。
+ * 嘗試以購點制成本表計算六項屬性的累計花費。
+ * 任一分數不在合法範圍（8–15）時回傳 null。
  */
-export function calculateSpentPoints(scores: Record<AbilityKey, number>): number {
-  return Object.values(scores).reduce((sum, score) => sum + getPointBuyCost(score), 0)
+export function tryCalculateSpentPoints(scores: Record<AbilityKey, number>): number | null {
+  let sum = 0
+  for (const score of Object.values(scores)) {
+    if (!isValidPointBuyScore(score)) return null
+    sum += POINT_BUY_COST_TABLE[score]!
+  }
+  return sum
 }
 
 /**
- * 計算購點制剩餘點數（預算減去已花費）。
- * 若任一分數超出合法範圍，拋出錯誤。
+ * 產生 6 個骰值組成的池，由高到低排序，皆未指派。
  */
-export function getRemainingPoints(scores: Record<AbilityKey, number>): number {
-  return POINT_BUY_BUDGET - calculateSpentPoints(scores)
-}
-
-/**
- * 驗證整組屬性是否符合購點制規則：
- * 1. 所有分數皆在合法範圍（8–15）
- * 2. 總花費不超過預算（27 點）
- */
-export function isValidPointBuy(scores: Record<AbilityKey, number>): boolean {
-  const allScoresValid = Object.values(scores).every(isValidPointBuyScore)
-  if (!allScoresValid) return false
-  return calculateSpentPoints(scores) <= POINT_BUY_BUDGET
+export function createDicePool(): DiceSlot[] {
+  const values = Array.from({ length: ABILITY_KEYS.length }, () => rollAbilityScore())
+  values.sort((a, b) => b - a)
+  return values.map((value) => ({
+    id: crypto.randomUUID(),
+    value,
+    assignedTo: null,
+  }))
 }

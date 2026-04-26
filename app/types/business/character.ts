@@ -1,3 +1,4 @@
+import type { SelectOption } from '@ui'
 import type {
   AbilityKey,
   AlignmentKey,
@@ -130,7 +131,25 @@ export interface Character {
 // ─── Form State ───────────────────────────────────────────────────────────────
 
 /** 能力值分配方式 */
-export type AbilityMethod = 'pointBuy' | 'custom' | 'diceRoll'
+export type AbilityMethod = 'custom' | 'diceRoll'
+
+/** 擲骰模式下骰值池單元 */
+export interface DiceSlot {
+  /** 穩定識別，作為下拉 option 的 key 與 value */
+  id: string
+  /** 擲骰結果（4d6 取最高 3） */
+  value: number
+  /** 已指派的屬性 key；尚未指派時為 null */
+  assignedTo: AbilityKey | null
+}
+
+/** 擲骰指派下拉的單一屬性 view model */
+export interface DiceCell {
+  /** 該屬性目前指派的 slot id；未指派時為空字串 */
+  selectedId: string
+  /** 下拉選項（首項為「未指派」+ 6 個骰值，其他屬性已指派的標 disabled） */
+  options: SelectOption[]
+}
 
 /** 角色表單共用基底欄位（未填欄位統一以 null 表示） */
 export interface CharacterFormStateBase {
@@ -159,6 +178,8 @@ export interface CharacterFormStateBase {
 export interface CharacterFormState extends CharacterFormStateBase {
   abilities: AbilityScores
   abilityMethod: AbilityMethod
+  /** 擲骰模式下產生的骰值池；其他模式維持空陣列 */
+  dicePool: DiceSlot[]
 }
 
 // ─── Armor Class ──────────────────────────────────────────────────────────────

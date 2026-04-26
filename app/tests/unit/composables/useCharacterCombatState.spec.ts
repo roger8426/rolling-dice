@@ -1,4 +1,4 @@
-import { ref, nextTick } from 'vue'
+import { effectScope, ref, nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useCharacterCombatState } from '~/composables/domain/useCharacterCombatState'
 import { getCombatStateStorageKey } from '~/constants/storage'
@@ -213,6 +213,22 @@ describe('useCharacterCombatState — 持久化', () => {
     expect(localStorage.getItem(getCombatStateStorageKey(CHAR_ID))).toBeNull()
 
     vi.advanceTimersByTime(300)
+    const stored = JSON.parse(localStorage.getItem(getCombatStateStorageKey(CHAR_ID))!)
+    expect(stored.hp.current).toBe(25)
+  })
+
+  it('scope 結束時應 flush 尚未寫入的最後一筆變動', async () => {
+    const scope = effectScope()
+    scope.run(() => {
+      const { damageHp } = useCharacterCombatState(CHAR_ID, ref(30))
+      damageHp(5)
+    })
+
+    // 等 watch callback 排入 setTimeout，但不快進到 debounce 結束
+    await nextTick()
+    expect(localStorage.getItem(getCombatStateStorageKey(CHAR_ID))).toBeNull()
+
+    scope.stop()
     const stored = JSON.parse(localStorage.getItem(getCombatStateStorageKey(CHAR_ID))!)
     expect(stored.hp.current).toBe(25)
   })
