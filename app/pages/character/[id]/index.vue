@@ -26,11 +26,11 @@
           </template>
           <BusinessCharacterDetailTab :character="character" />
         </Tab>
-        <Tab value="combat" disabled>
+        <Tab value="combat">
           <template #label>
             <span class="text-content">戰鬥速查</span>
           </template>
-          <p class="py-8 text-center text-content-muted">（尚未開放）</p>
+          <BusinessCharacterCombatQuickView :character="character" />
         </Tab>
       </Tabs>
     </div>
