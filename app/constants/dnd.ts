@@ -243,6 +243,9 @@ export const PROFICIENCY_OPTIONS: ReadonlyArray<{
 /** 購點制的各屬性初始分數 */
 export const POINT_BUY_DEFAULT_SCORE = 8
 
+/** 擲骰模式下，尚未指派骰值的屬性顯示分數 */
+export const UNASSIGNED_ABILITY_SCORE = 8
+
 /** 所有 AbilityKey，用於迭代 */
 export const ABILITY_KEYS: readonly AbilityKey[] = [
   'strength',
