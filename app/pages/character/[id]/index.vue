@@ -5,9 +5,9 @@
         <NuxtLink
           v-if="character"
           :to="`/character/${character.id}/update`"
-          class="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-content-soft transition-colors hover:bg-surface-2 hover:text-content"
+          class="rounded-sm border border-border bg-surface py-2 w-20 text-center text-content-soft transition-colors hover:bg-surface-2 hover:text-content"
         >
-          編輯角色卡
+          編輯
         </NuxtLink>
       </template>
     </CommonPageHeader>

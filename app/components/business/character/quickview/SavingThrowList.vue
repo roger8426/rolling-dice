@@ -9,18 +9,20 @@
         :key="row.key"
         class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
-        <span
-          class="flex items-center gap-1.5 text-sm"
+        <div
+          class="flex flex-col sm:flex-row items-center gap-1 text-sm"
           :class="row.proficient ? 'text-primary' : 'text-content'"
           :aria-label="row.proficient ? `${row.name}（熟練）` : row.name"
         >
-          {{ row.name }}
-          <span class="text-xs text-content-muted">({{ row.score }})</span>
-          <span class="text-sm font-bold" :class="modifierColor(row.bonus)">
-            {{ formatModifier(row.bonus) }}
-          </span>
-        </span>
-        <div class="flex items-center gap-1">
+          <span>{{ row.name }}</span>
+          <div class="flex items-center gap-1">
+            <span class="text-xs text-content-muted">({{ row.score }})</span>
+            <span class="text-sm font-bold" :class="modifierColor(row.bonus)">
+              {{ formatModifier(row.bonus) }}
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center gap-0.5">
           <button
             type="button"
             :aria-label="`${row.name} 豁免 -1`"
@@ -30,7 +32,7 @@
             <Icon name="minus" :size="12" />
           </button>
           <span
-            class="min-w-10 text-center text-sm font-bold"
+            class="min-w-8 text-center text-sm font-bold"
             :class="modifierColor(row.adjustment)"
             :aria-label="`目前調整 ${formatModifier(row.adjustment)}`"
           >

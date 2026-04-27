@@ -6,10 +6,11 @@
           :disabled="!canSubmit"
           :loading="isSubmitting"
           :radius="4"
+          class="w-20"
           bg-color="var(--color-primary)"
           @click="submit"
         >
-          儲存變更
+          儲存
         </Button>
       </template>
     </CommonPageHeader>
