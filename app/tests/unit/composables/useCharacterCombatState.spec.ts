@@ -251,6 +251,32 @@ describe('useCharacterCombatState — 特性次數', () => {
     expect(state.acAdjustment).toBe(2)
     expect(displayCurrentHp.value).toBe(25)
   })
+
+  it('setFeatureUse 應直接 clamp 至 [0, max]', () => {
+    const { setFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    setFeatureUse('feat-1', -5, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(0)
+    setFeatureUse('feat-1', 99, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('adjustFeatureUse(delta = 0) 應為 no-op', () => {
+    const { adjustFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    const beforeUpdatedAt = state.updatedAt
+    adjustFeatureUse('feat-1', 0, 3)
+    expect(state.featureUses).toEqual({})
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+
+  it('shortRest([]) 應為 no-op，不變更 updatedAt', () => {
+    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('long-feat', -1, 2)
+    const beforeUpdatedAt = state.updatedAt
+    vi.advanceTimersByTime(10)
+    shortRest([])
+    expect(state.featureUses['long-feat']).toBe(1)
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
 })
 
 describe('useCharacterCombatState — 持久化', () => {
