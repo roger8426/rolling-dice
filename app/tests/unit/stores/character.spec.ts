@@ -94,17 +94,9 @@ afterEach(() => {
 })
 
 describe('useCharacterStore — 初始化', () => {
-  it('localStorage 為空時應載入預設 mock 角色（至少一筆，且每筆具備必要欄位）', () => {
+  it('localStorage 為空時 characters 應為空陣列（非 dev 環境不載入 mock fallback）', () => {
     const store = useCharacterStore()
-    expect(store.characters.length).toBeGreaterThan(0)
-    expect(store.characters[0]).toMatchObject({
-      id: expect.any(String),
-      name: expect.any(String),
-      race: expect.any(String),
-      professions: expect.any(Array),
-      totalLevel: expect.any(Number),
-      createdAt: expect.any(String),
-    })
+    expect(store.characters).toEqual([])
   })
 
   it('localStorage 有資料時應從 storage 載入，不覆寫', () => {
