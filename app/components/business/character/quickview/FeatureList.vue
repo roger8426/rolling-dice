@@ -21,9 +21,9 @@
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-1.5">
               <p class="text-sm font-semibold text-content">{{ feature.name }}</p>
-              <Badge size="sm">{{ SOURCE_LABELS[feature.source] }}</Badge>
+              <Badge size="sm">{{ FEATURE_SOURCE_LABELS[feature.source] }}</Badge>
               <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-2)">
-                {{ RECOVERY_LABELS[feature.usage.recovery] }}
+                {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }}
               </Badge>
             </div>
             <p
@@ -68,25 +68,8 @@
 
 <script setup lang="ts">
 import { Badge, Icon } from '@ui'
-import type {
-  CharacterFeature,
-  FeatureSource,
-  FeatureUsageRecovery,
-} from '~/types/business/character'
-
-const SOURCE_LABELS: Record<FeatureSource, string> = {
-  feat: '專長',
-  class: '職業',
-  race: '種族',
-  background: '背景',
-  other: '其他',
-}
-
-const RECOVERY_LABELS: Record<FeatureUsageRecovery, string> = {
-  shortRest: '短休',
-  longRest: '長休',
-  manual: '手動',
-}
+import { FEATURE_RECOVERY_LABELS, FEATURE_SOURCE_LABELS } from '~/constants/features'
+import type { CharacterFeature } from '~/types/business/character'
 
 const props = defineProps<{
   features: CharacterFeature[]

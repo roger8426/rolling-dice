@@ -11,10 +11,12 @@
             <div class="flex flex-wrap items-center gap-2">
               <p class="text-sm font-semibold text-content">{{ feature.name }}</p>
               <Badge size="sm" bg-color="var(--color-info)">
-                <span class="text-info-soft"> {{ SOURCE_LABELS[feature.source] }} </span>
+                <span class="text-info-soft">
+                  {{ FEATURE_SOURCE_LABELS[feature.source] }}
+                </span>
               </Badge>
               <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-3)">
-                {{ RECOVERY_LABELS[feature.usage.recovery] }} / {{ feature.usage.max }} 次
+                {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }} / {{ feature.usage.max }} 次
               </Badge>
             </div>
             <p
@@ -187,6 +189,7 @@
 <script setup lang="ts">
 import { Badge, Button, Checkbox, Icon, Modal, TextArea } from '@ui'
 import type { SelectOption } from '@ui'
+import { FEATURE_RECOVERY_LABELS, FEATURE_SOURCE_LABELS } from '~/constants/features'
 import type {
   CharacterFeature,
   FeatureDraft,
@@ -196,26 +199,12 @@ import type {
 
 const DESCRIPTION_MAX_LENGTH = 500
 
-const SOURCE_LABELS: Record<FeatureSource, string> = {
-  feat: '專長',
-  class: '職業',
-  race: '種族',
-  background: '背景',
-  other: '其他',
-}
-
-const RECOVERY_LABELS: Record<FeatureUsageRecovery, string> = {
-  shortRest: '短休',
-  longRest: '長休',
-  manual: '手動',
-}
-
 const sourceOptions: SelectOption[] = (
-  Object.entries(SOURCE_LABELS) as [FeatureSource, string][]
+  Object.entries(FEATURE_SOURCE_LABELS) as [FeatureSource, string][]
 ).map(([value, label]) => ({ value, label }))
 
 const recoveryOptions: Array<{ value: FeatureUsageRecovery; label: string }> = (
-  Object.entries(RECOVERY_LABELS) as [FeatureUsageRecovery, string][]
+  Object.entries(FEATURE_RECOVERY_LABELS) as [FeatureUsageRecovery, string][]
 ).map(([value, label]) => ({ value, label }))
 
 defineProps<{
