@@ -47,6 +47,12 @@
       />
     </div>
 
+    <BusinessCharacterQuickviewFeatureList
+      :features="character.features"
+      :feature-uses="state.featureUses"
+      @adjust="adjustFeatureUse"
+    />
+
     <div class="grid gap-4 md:grid-cols-2">
       <BusinessCharacterQuickviewAttackList
         :attacks="character.attacks"
@@ -55,12 +61,6 @@
       />
       <BusinessCharacterQuickviewPreparedSpellList :prepared-spells="character.preparedSpells" />
     </div>
-
-    <BusinessCharacterQuickviewFeatureList
-      :features="character.features"
-      :feature-uses="state.featureUses"
-      @adjust="adjustFeatureUse"
-    />
   </div>
 </template>
 

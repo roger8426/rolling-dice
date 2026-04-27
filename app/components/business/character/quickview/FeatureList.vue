@@ -11,63 +11,69 @@
       尚未設定任何特性
     </p>
 
-    <ul v-else class="grid gap-2 sm:grid-cols-2">
-      <li
+    <Accordion v-else multiple class="feature-accordion grid items-start gap-2 sm:grid-cols-2">
+      <AccordionItem
         v-for="feature in features"
         :key="feature.id"
-        class="flex flex-col rounded-lg border border-border-soft bg-surface p-3"
+        :value="feature.id"
+        class="overflow-hidden rounded-lg border border-border-soft bg-surface"
       >
-        <div class="flex items-start justify-between gap-2">
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <p class="text-sm font-semibold text-content">{{ feature.name }}</p>
-              <Badge size="sm">{{ FEATURE_SOURCE_LABELS[feature.source] }}</Badge>
-              <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-2)">
-                {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }}
-              </Badge>
+        <template #title>
+          <div class="flex min-h-7 min-w-0 flex-1 items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-sm font-semibold text-content">{{ feature.name }}</span>
+                <Badge size="sm">{{ FEATURE_SOURCE_LABELS[feature.source] }}</Badge>
+                <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-2)">
+                  {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }}
+                </Badge>
+              </div>
             </div>
-            <p
-              v-if="feature.description"
-              class="mt-1 text-xs whitespace-pre-line text-content-muted"
-            >
-              {{ feature.description }}
-            </p>
-          </div>
 
-          <div v-if="feature.usage.hasUses" class="flex shrink-0 flex-col items-end gap-1">
-            <span class="text-base font-bold text-content">
-              {{ getCurrent(feature) }}
-              <span class="text-xs text-content-muted">/{{ feature.usage.max }}</span>
-            </span>
-            <div class="flex gap-1">
-              <button
-                type="button"
+            <div v-if="feature.usage.hasUses" class="flex shrink-0 items-center gap-1">
+              <span
+                role="button"
+                :tabindex="canDecrement(feature) ? 0 : -1"
                 :aria-label="`${feature.name} -1`"
-                :disabled="getCurrent(feature) <= 0"
-                class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-content-muted"
-                @click="onAdjust(feature, -1)"
+                :aria-disabled="!canDecrement(feature)"
+                class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-content-muted"
+                @click.stop="onDecrement(feature)"
+                @keydown.enter.stop.prevent="onDecrement(feature)"
+                @keydown.space.stop.prevent="onDecrement(feature)"
               >
                 <Icon name="minus" :size="14" />
-              </button>
-              <button
-                type="button"
+              </span>
+              <span class="min-w-12 text-center text-base font-bold text-content">
+                {{ getCurrent(feature) }}
+                <span class="text-xs text-content-muted">/{{ feature.usage.max }}</span>
+              </span>
+              <span
+                role="button"
+                :tabindex="canIncrement(feature) ? 0 : -1"
                 :aria-label="`${feature.name} +1`"
-                :disabled="getCurrent(feature) >= feature.usage.max"
-                class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-content-muted"
-                @click="onAdjust(feature, 1)"
+                :aria-disabled="!canIncrement(feature)"
+                class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-content-muted"
+                @click.stop="onIncrement(feature)"
+                @keydown.enter.stop.prevent="onIncrement(feature)"
+                @keydown.space.stop.prevent="onIncrement(feature)"
               >
                 <Icon name="plus" :size="14" />
-              </button>
+              </span>
             </div>
           </div>
-        </div>
-      </li>
-    </ul>
+        </template>
+
+        <p v-if="feature.description" class="text-xs whitespace-pre-line text-content-muted">
+          {{ feature.description }}
+        </p>
+        <p v-else class="text-xs text-content-muted">（無說明）</p>
+      </AccordionItem>
+    </Accordion>
   </section>
 </template>
 
 <script setup lang="ts">
-import { Badge, Icon } from '@ui'
+import { Accordion, AccordionItem, Badge, Icon } from '@ui'
 import { FEATURE_RECOVERY_LABELS, FEATURE_SOURCE_LABELS } from '~/constants/features'
 import type { CharacterFeature } from '~/types/business/character'
 
@@ -85,8 +91,29 @@ function getCurrent(feature: CharacterFeature): number {
   return props.featureUses[feature.id] ?? feature.usage.max
 }
 
-function onAdjust(feature: CharacterFeature, delta: number): void {
-  if (!feature.usage.hasUses) return
-  emit('adjust', feature.id, delta, feature.usage.max)
+function canDecrement(feature: CharacterFeature): boolean {
+  if (!feature.usage.hasUses) return false
+  return getCurrent(feature) > 0
+}
+
+function canIncrement(feature: CharacterFeature): boolean {
+  if (!feature.usage.hasUses) return false
+  return getCurrent(feature) < feature.usage.max
+}
+
+function onDecrement(feature: CharacterFeature): void {
+  if (!feature.usage.hasUses || !canDecrement(feature)) return
+  emit('adjust', feature.id, -1, feature.usage.max)
+}
+
+function onIncrement(feature: CharacterFeature): void {
+  if (!feature.usage.hasUses || !canIncrement(feature)) return
+  emit('adjust', feature.id, 1, feature.usage.max)
 }
 </script>
+
+<style scoped>
+.feature-accordion :deep(button:hover:not(:disabled)) {
+  background-color: var(--color-info-soft);
+}
+</style>
