@@ -2,7 +2,10 @@
   <div class="space-y-6 bg-canvas-elevated p-4">
     <header class="flex items-center justify-between">
       <h2 class="font-display text-lg font-bold text-content">戰鬥速查</h2>
-      <Button :radius="4" bg-color="var(--color-surface-2)" @click="resetAll">重置戰況</Button>
+      <div class="flex gap-2">
+        <Button :radius="4" bg-color="var(--color-warning)" @click="onShortRest">短休</Button>
+        <Button :radius="4" bg-color="var(--color-success)" @click="longRest">長休</Button>
+      </div>
     </header>
 
     <div class="grid gap-4 md:grid-cols-2">
@@ -52,6 +55,12 @@
       />
       <BusinessCharacterQuickviewPreparedSpellList :prepared-spells="character.preparedSpells" />
     </div>
+
+    <BusinessCharacterQuickviewFeatureList
+      :features="character.features"
+      :feature-uses="state.featureUses"
+      @adjust="adjustFeatureUse"
+    />
   </div>
 </template>
 
@@ -88,6 +97,15 @@ const {
   adjustAc,
   adjustSpeed,
   adjustSavingThrow,
-  resetAll,
+  adjustFeatureUse,
+  shortRest,
+  longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
+
+function onShortRest(): void {
+  const ids = props.character.features
+    .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
+    .map((f) => f.id)
+  shortRest(ids)
+}
 </script>

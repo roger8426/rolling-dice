@@ -47,6 +47,7 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
   {
     id: 'char-002',
@@ -90,6 +91,7 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
   {
     id: 'char-003',
@@ -138,6 +140,7 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
   {
     id: 'char-004',
@@ -184,6 +187,7 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
   {
     id: 'char-005',
@@ -235,6 +239,7 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
   {
     id: 'char-006',
@@ -287,5 +292,6 @@ export const MOCK_CHARACTERS: Character[] = [
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   },
 ]

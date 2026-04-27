@@ -176,7 +176,7 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.savingThrowAdjustments.strength).toBeUndefined()
   })
 
-  it('resetAll 應清空所有臨時調整與 HP / tempHp / maxAdjustment', () => {
+  it('longRest 應清空所有臨時調整與 HP / tempHp / maxAdjustment / featureUses', () => {
     const {
       adjustAc,
       adjustSpeed,
@@ -184,7 +184,8 @@ describe('useCharacterCombatState — 臨時調整', () => {
       setTempHp,
       damageHp,
       adjustMaxHp,
-      resetAll,
+      adjustFeatureUse,
+      longRest,
       state,
     } = useCharacterCombatState(CHAR_ID, ref(30))
     adjustAc(2)
@@ -193,8 +194,9 @@ describe('useCharacterCombatState — 臨時調整', () => {
     setTempHp(5)
     damageHp(10)
     adjustMaxHp(7)
+    adjustFeatureUse('feat-1', -1, 3)
 
-    resetAll()
+    longRest()
 
     expect(state.acAdjustment).toBe(0)
     expect(state.speedAdjustment).toBe(0)
@@ -202,6 +204,52 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.hp.tempHp).toBe(0)
     expect(state.hp.current).toBeNull()
     expect(state.hp.maxAdjustment).toBe(0)
+    expect(state.featureUses).toEqual({})
+  })
+})
+
+describe('useCharacterCombatState — 特性次數', () => {
+  it('未調整時 getFeatureUse 應回傳 max', () => {
+    const { getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('adjustFeatureUse 應夾在 0..max 之間', () => {
+    const { adjustFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(2)
+    adjustFeatureUse('feat-1', -10, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(0)
+    adjustFeatureUse('feat-1', 10, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('恢復至滿時應從 record 移除 entry', () => {
+    const { adjustFeatureUse, setFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 3)
+    expect(state.featureUses['feat-1']).toBe(2)
+    setFeatureUse('feat-1', 3, 3)
+    expect(state.featureUses['feat-1']).toBeUndefined()
+  })
+
+  it('shortRest 僅恢復指定 id 的特性，其他不動', () => {
+    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('short-feat', -1, 2)
+    adjustFeatureUse('long-feat', -1, 1)
+    shortRest(['short-feat'])
+    expect(state.featureUses['short-feat']).toBeUndefined()
+    expect(state.featureUses['long-feat']).toBe(0)
+  })
+
+  it('shortRest 與 HP / 臨時調整無關', () => {
+    const { adjustFeatureUse, adjustAc, damageHp, shortRest, state, displayCurrentHp } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('short-feat', -1, 2)
+    adjustAc(2)
+    damageHp(5)
+    shortRest(['short-feat'])
+    expect(state.acAdjustment).toBe(2)
+    expect(displayCurrentHp.value).toBe(25)
   })
 })
 

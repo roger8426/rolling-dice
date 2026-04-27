@@ -63,6 +63,7 @@
             :model-value="filter.ritual"
             size="sm"
             aria-label="只顯示儀式法術"
+            color="var(--color-info)"
             @update:model-value="filter.ritual = $event"
           />
           儀式
@@ -72,6 +73,7 @@
             :model-value="filter.concentration"
             size="sm"
             aria-label="只顯示需要專注的法術"
+            color="var(--color-warning)"
             @update:model-value="filter.concentration = $event"
           />
           專注
@@ -102,6 +104,7 @@
                   class="shrink-0"
                   :model-value="isLearned(spell.name)"
                   size="sm"
+                  color="var(--color-primary)"
                   :aria-label="`掌握 ${spell.name}`"
                   @click.stop
                   @update:model-value="emit('toggleLearned', spell.name)"

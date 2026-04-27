@@ -19,6 +19,8 @@ export interface CombatState {
   speedAdjustment: number
   /** 各項豁免的臨時調整 */
   savingThrowAdjustments: Partial<Record<AbilityKey, number>>
+  /** 各特性目前剩餘次數（key = feature.id）；未出現的 key 視為滿 */
+  featureUses: Partial<Record<string, number>>
   updatedAt: string
 }
 
@@ -31,6 +33,7 @@ function createDefaultState(characterId: string): CombatState {
     acAdjustment: 0,
     speedAdjustment: 0,
     savingThrowAdjustments: {},
+    featureUses: {},
     updatedAt: new Date().toISOString(),
   }
 }
@@ -47,6 +50,7 @@ function normalizeState(stored: Partial<CombatState>, characterId: string): Comb
     acAdjustment: stored.acAdjustment ?? 0,
     speedAdjustment: stored.speedAdjustment ?? 0,
     savingThrowAdjustments: { ...stored.savingThrowAdjustments },
+    featureUses: { ...stored.featureUses },
     updatedAt: stored.updatedAt ?? fallback.updatedAt,
   }
 }
@@ -153,14 +157,47 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     touch()
   }
 
-  /** 一次清空所有臨時調整、HP 回滿、tempHp 歸 0、最大生命調整歸 0 */
-  function resetAll(): void {
+  // ─── Feature uses ─────────────────────────────────────────────────────
+
+  function getFeatureUse(featureId: string, max: number): number {
+    return state.featureUses[featureId] ?? max
+  }
+
+  function setFeatureUse(featureId: string, value: number, max: number): void {
+    const clamped = Math.min(Math.max(0, value), max)
+    const rest = Object.fromEntries(
+      Object.entries(state.featureUses).filter(([k]) => k !== featureId),
+    ) as Partial<Record<string, number>>
+    state.featureUses = clamped === max ? rest : { ...rest, [featureId]: clamped }
+    touch()
+  }
+
+  function adjustFeatureUse(featureId: string, delta: number, max: number): void {
+    if (delta === 0) return
+    setFeatureUse(featureId, getFeatureUse(featureId, max) + delta, max)
+  }
+
+  // ─── Rests ────────────────────────────────────────────────────────────
+
+  /** 短休：僅恢復傳入 id 對應的特性次數，HP 與其他臨時調整不變 */
+  function shortRest(shortRestFeatureIds: string[]): void {
+    if (shortRestFeatureIds.length === 0) return
+    const targets = new Set(shortRestFeatureIds)
+    state.featureUses = Object.fromEntries(
+      Object.entries(state.featureUses).filter(([k]) => !targets.has(k)),
+    ) as Partial<Record<string, number>>
+    touch()
+  }
+
+  /** 長休：HP 回滿、清空所有臨時調整與所有特性次數 */
+  function longRest(): void {
     state.hp.current = null
     state.hp.tempHp = 0
     state.hp.maxAdjustment = 0
     state.acAdjustment = 0
     state.speedAdjustment = 0
     state.savingThrowAdjustments = {}
+    state.featureUses = {}
     touch()
   }
 
@@ -196,6 +233,10 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     adjustAc,
     adjustSpeed,
     adjustSavingThrow,
-    resetAll,
+    getFeatureUse,
+    setFeatureUse,
+    adjustFeatureUse,
+    shortRest,
+    longRest,
   }
 }

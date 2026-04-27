@@ -126,6 +126,8 @@ export interface Character {
   learnedSpells: string[]
   /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 角色特性列表（專長、職業能力等） */
+  features: CharacterFeature[]
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -217,6 +219,31 @@ export interface AttackEntry {
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */
 export type AttackDraft = Omit<AttackEntry, 'id'>
 
+// ─── Features ─────────────────────────────────────────────────────────────────
+
+/** 特性來源分類 */
+export type FeatureSource = 'feat' | 'class' | 'race' | 'background' | 'other'
+
+/** 特性次數恢復時機 */
+export type FeatureUsageRecovery = 'shortRest' | 'longRest' | 'manual'
+
+/** 特性使用次數設定（discriminated union） */
+export type FeatureUsage =
+  | { hasUses: false }
+  | { hasUses: true; max: number; recovery: FeatureUsageRecovery }
+
+/** 角色特性條目（專長、職業能力等） */
+export interface CharacterFeature {
+  id: string
+  name: string
+  description: string | null
+  source: FeatureSource
+  usage: FeatureUsage
+}
+
+/** 特性草稿（尚未具備 id 的條目） */
+export type FeatureDraft = Omit<CharacterFeature, 'id'>
+
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
 export interface CharacterUpdateFormState extends CharacterFormStateBase {
   id: string
@@ -239,4 +266,6 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   learnedSpells: string[]
   /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 角色特性列表 */
+  features: CharacterFeature[]
 }

@@ -50,6 +50,7 @@ const MOCK_CHARACTER: Character = {
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
+  features: [],
 }
 
 const MOCK_FORM_STATE: CharacterFormState = {
@@ -263,6 +264,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
+  features: [],
 }
 
 describe('useCharacterStore — updateCharacter', () => {

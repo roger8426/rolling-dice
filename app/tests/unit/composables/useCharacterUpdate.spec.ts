@@ -47,6 +47,7 @@ const MOCK_CHARACTER: Character = {
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
+  features: [],
 }
 
 const mockToastError = vi.fn()
