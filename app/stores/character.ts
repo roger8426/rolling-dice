@@ -30,6 +30,7 @@ function normalizeCharacter(character: Character): Character {
     ...character,
     savingThrowExtras: character.savingThrowExtras ?? [],
     features: character.features ?? [],
+    attacks: character.attacks ?? [],
   }
 }
 

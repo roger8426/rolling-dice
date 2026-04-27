@@ -3,6 +3,7 @@ import type {
   AlignmentKey,
   ArmorType,
   DamageDieType,
+  DamageTypeKey,
   GenderKey,
   ProfessionData,
   ProfessionKey,
@@ -176,6 +177,41 @@ export const DAMAGE_DIE_TYPES = [
   'd10',
   'd12',
 ] as const satisfies readonly DamageDieType[]
+
+// ─── Damage Type ──────────────────────────────────────────────────────────────
+
+export const DAMAGE_TYPE_KEYS = [
+  'bludgeoning',
+  'piercing',
+  'slashing',
+  'acid',
+  'cold',
+  'fire',
+  'lightning',
+  'thunder',
+  'poison',
+  'force',
+  'necrotic',
+  'radiant',
+  'psychic',
+] as const satisfies readonly DamageTypeKey[]
+
+/** 傷害類型顯示文字 */
+export const DAMAGE_TYPE_LABELS: Record<DamageTypeKey, string> = {
+  bludgeoning: '鈍擊',
+  piercing: '穿刺',
+  slashing: '劈砍',
+  acid: '酸蝕',
+  cold: '寒冰',
+  fire: '火焰',
+  lightning: '閃電',
+  thunder: '雷鳴',
+  poison: '毒素',
+  force: '力場',
+  necrotic: '暗蝕',
+  radiant: '光耀',
+  psychic: '心靈',
+}
 
 // ─── Armor Type ─────────────────────────────────────────────────────────────────
 

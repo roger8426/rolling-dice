@@ -49,7 +49,10 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     initiativeBonus: character.initiativeBonus,
     passivePerceptionBonus: character.passivePerceptionBonus,
     extraHp: character.extraHp,
-    attacks: character.attacks.map((a) => ({ ...a, damageDice: { ...a.damageDice } })),
+    attacks: character.attacks.map((a) => ({
+      ...a,
+      damageDice: a.damageDice.map((e) => ({ ...e })),
+    })),
     learnedSpells: [...character.learnedSpells],
     preparedSpells: [...character.preparedSpells],
     features: character.features.map((f) => ({ ...f, usage: { ...f.usage } })),

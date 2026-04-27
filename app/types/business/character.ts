@@ -4,6 +4,7 @@ import type {
   AlignmentKey,
   ArmorType,
   DamageDieType,
+  DamageTypeKey,
   GenderKey,
   ProfessionKey,
   ProficiencyLevel,
@@ -200,6 +201,20 @@ export interface ArmorClassConfig {
 
 // ─── Attack ───────────────────────────────────────────────────────────────────
 
+/** 單行傷害條目（攻擊內可有多行不同骰面 / 類型 / 加值） */
+export interface DamageDieEntry {
+  /** 行內穩定識別 */
+  id: string
+  /** 骰面（null 表未指定；count > 0 但 dieType 為 null 時不渲染骰部分） */
+  dieType: DamageDieType | null
+  /** 骰數（>= 0；count = 0 + bonus !== 0 表示純定額傷害，例如「10 酸蝕」） */
+  count: number
+  /** 此行的加值（null 或 0 不顯示；可為負數） */
+  bonus: number | null
+  /** 傷害類型（null 表未指定） */
+  damageType: DamageTypeKey | null
+}
+
 /** 自訂攻擊項目 */
 export interface AttackEntry {
   /** 唯一識別 */
@@ -208,12 +223,10 @@ export interface AttackEntry {
   name: string
   /** 命中使用的屬性（null 表示未選擇） */
   abilityKey: AbilityKey | null
-  /** 傷害骰數量（0 表示不使用該骰型） */
-  damageDice: Record<DamageDieType, number>
+  /** 傷害條目（可有多行，例如 1d8+5 劈砍 + 4d8 光耀） */
+  damageDice: DamageDieEntry[]
   /** 額外命中加值（疊加於屬性調整值 + 熟練加值之上） */
   extraHitBonus: number | null
-  /** 額外傷害加值（疊加於傷害骰之上） */
-  extraDamageBonus: number | null
 }
 
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */

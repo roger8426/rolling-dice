@@ -107,35 +107,71 @@
         </div>
       </div>
 
-      <!-- 第二列：傷害骰（d4～d12）/ 額外傷害加值 -->
-      <div class="flex items-end gap-3">
-        <div v-for="die in DAMAGE_DIE_TYPES" :key="die" class="flex flex-col items-center gap-1">
-          <span class="font-mono text-xs text-content">{{ die }}</span>
+      <!-- 第二列：傷害骰多行 entries -->
+      <div class="space-y-2">
+        <span class="block text-xs text-content">傷害骰</span>
+        <div
+          v-for="(entry, index) in draft.damageDice"
+          :key="entry.id"
+          class="flex items-center gap-2"
+        >
           <CommonAppInput
+            :aria-label="`第 ${index + 1} 行骰數`"
             :radius="0"
-            :model-value="draft.damageDice[die] > 0 ? String(draft.damageDice[die]) : ''"
+            :model-value="entry.count > 0 ? String(entry.count) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
-            class="w-12"
-            @update:model-value="draft.damageDice[die] = parseIntegerInput($event, 0)"
+            class="w-16"
+            @update:model-value="entry.count = parseIntegerInput($event, 0)"
           />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label for="attack-modal-extra-damage" class="text-xs text-content">額外傷害</label>
+          <CommonAppSelect
+            :aria-label="`第 ${index + 1} 行骰面`"
+            :model-value="entry.dieType ?? ''"
+            :options="dieTypeOptions"
+            size="sm"
+            placeholder="—"
+            class="w-20"
+            @update:model-value="entry.dieType = ($event || null) as DamageDieType | null"
+          />
           <CommonAppInput
-            id="attack-modal-extra-damage"
+            :aria-label="`第 ${index + 1} 行加值`"
             :radius="0"
-            :model-value="draft.extraDamageBonus != null ? String(draft.extraDamageBonus) : ''"
+            :model-value="entry.bonus != null ? String(entry.bonus) : ''"
             type="number"
             size="sm"
             outline
-            placeholder="0"
-            class="w-14"
-            @update:model-value="draft.extraDamageBonus = parseIntegerInput($event)"
+            placeholder="±0"
+            class="w-16"
+            @update:model-value="entry.bonus = parseIntegerInput($event)"
           />
+          <CommonAppSelect
+            :aria-label="`第 ${index + 1} 行傷害類型`"
+            :model-value="entry.damageType ?? ''"
+            :options="damageTypeOptions"
+            size="sm"
+            placeholder="—"
+            class="flex-1"
+            @update:model-value="entry.damageType = ($event || null) as DamageTypeKey | null"
+          />
+          <button
+            type="button"
+            :aria-label="`移除第 ${index + 1} 行`"
+            class="flex size-8 shrink-0 items-center justify-center rounded-md text-content-muted transition-colors duration-150 hover:text-danger-hover"
+            @click="removeDamageEntry(index)"
+          >
+            <Icon name="trash" :size="16" />
+          </button>
         </div>
+        <button
+          type="button"
+          aria-label="新增傷害行"
+          class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-2 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
+          @click="addDamageEntry"
+        >
+          <span class="text-base leading-none">+ 新增傷害骰</span>
+        </button>
       </div>
 
       <!-- 第三列：計算結果預覽 -->
@@ -169,9 +205,19 @@
 <script setup lang="ts">
 import { Modal, Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import type { AbilityScores, AttackDraft, AttackEntry } from '~/types/business/character'
-import type { AbilityKey } from '~/types/business/dnd'
-import { ABILITY_NAMES, DAMAGE_DIE_TYPES } from '~/constants/dnd'
+import type {
+  AbilityScores,
+  AttackDraft,
+  AttackEntry,
+  DamageDieEntry,
+} from '~/types/business/character'
+import type { AbilityKey, DamageDieType, DamageTypeKey } from '~/types/business/dnd'
+import {
+  ABILITY_NAMES,
+  DAMAGE_DIE_TYPES,
+  DAMAGE_TYPE_KEYS,
+  DAMAGE_TYPE_LABELS,
+} from '~/constants/dnd'
 
 const props = defineProps<{
   attacks: AttackEntry[]
@@ -190,6 +236,16 @@ const abilityOptions: SelectOption[] = [
   ...Object.entries(ABILITY_NAMES).map(([value, label]) => ({ value, label })),
 ]
 
+const dieTypeOptions: SelectOption[] = [
+  { value: '', label: '—' },
+  ...DAMAGE_DIE_TYPES.map((die) => ({ value: die, label: die })),
+]
+
+const damageTypeOptions: SelectOption[] = [
+  { value: '', label: '—' },
+  ...DAMAGE_TYPE_KEYS.map((key) => ({ value: key, label: DAMAGE_TYPE_LABELS[key] })),
+]
+
 // ─── Modal 狀態 ───────────────────────────────────────────────────────────────
 
 const modalOpen = ref(false)
@@ -199,10 +255,21 @@ function createEmptyDraft(): AttackDraft {
   return {
     name: '',
     abilityKey: null,
-    damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+    damageDice: [],
     extraHitBonus: null,
-    extraDamageBonus: null,
   }
+}
+
+function createDamageEntry(): DamageDieEntry {
+  return { id: crypto.randomUUID(), dieType: null, count: 0, bonus: null, damageType: null }
+}
+
+function addDamageEntry(): void {
+  draft.value.damageDice.push(createDamageEntry())
+}
+
+function removeDamageEntry(index: number): void {
+  draft.value.damageDice.splice(index, 1)
 }
 
 const draft = ref<AttackDraft>(createEmptyDraft())
@@ -225,15 +292,17 @@ function openEdit(attack: AttackEntry) {
   draft.value = {
     name: attack.name,
     abilityKey: attack.abilityKey,
-    damageDice: { ...attack.damageDice },
+    damageDice: attack.damageDice.map((entry) => ({ ...entry })),
     extraHitBonus: attack.extraHitBonus,
-    extraDamageBonus: attack.extraDamageBonus,
   }
   modalOpen.value = true
 }
 
 function saveAttack() {
-  const entry = { ...draft.value, damageDice: { ...draft.value.damageDice } }
+  const entry = {
+    ...draft.value,
+    damageDice: draft.value.damageDice.map((e) => ({ ...e })),
+  }
   if (editingId.value) {
     emit('update:attack', editingId.value, entry)
   } else {

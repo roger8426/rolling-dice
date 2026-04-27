@@ -238,9 +238,8 @@ describe('useCharacterUpdate — 護甲設定', () => {
 const defaultEntry = (): import('~/types/business/character').AttackDraft => ({
   name: '',
   abilityKey: null,
-  damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+  damageDice: [],
   extraHitBonus: null,
-  extraDamageBonus: null,
 })
 
 describe('useCharacterUpdate — 自訂攻擊', () => {
@@ -251,9 +250,8 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
     expect(formState.attacks[0]).toMatchObject({
       name: '',
       abilityKey: null,
-      damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+      damageDice: [],
       extraHitBonus: null,
-      extraDamageBonus: null,
     })
     expect(formState.attacks[0]!.id).toBeTypeOf('string')
   })
@@ -290,17 +288,15 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
     combat.updateAttack(id, {
       name: '長劍',
       abilityKey: 'strength',
-      damageDice: { d4: 0, d6: 0, d8: 1, d10: 0, d12: 0 },
+      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
-      extraDamageBonus: 3,
     })
     expect(formState.attacks[0]).toMatchObject({
       id,
       name: '長劍',
       abilityKey: 'strength',
-      damageDice: { d8: 1 },
+      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
-      extraDamageBonus: 3,
     })
   })
 })
