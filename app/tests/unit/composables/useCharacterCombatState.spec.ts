@@ -208,6 +208,108 @@ describe('useCharacterCombatState — 臨時調整', () => {
   })
 })
 
+describe('useCharacterCombatState — 生命骰', () => {
+  it('未調整時 getHitDiceUsed 應回傳 0', () => {
+    const { getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('adjustHitDiceUsed 應夾在 0..level 之間', () => {
+    const { adjustHitDiceUsed, getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 1, 5)
+    expect(getHitDiceUsed('fighter')).toBe(1)
+    adjustHitDiceUsed('fighter', 99, 5)
+    expect(getHitDiceUsed('fighter')).toBe(5)
+    adjustHitDiceUsed('fighter', -99, 5)
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('歸零時應從 record 移除 entry', () => {
+    const { adjustHitDiceUsed, setHitDiceUsed, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 2, 5)
+    expect(state.hitDiceUsed.fighter).toBe(2)
+    setHitDiceUsed('fighter', 0, 5)
+    expect(state.hitDiceUsed.fighter).toBeUndefined()
+  })
+
+  it('adjustHitDiceUsed(delta = 0) 應為 no-op', () => {
+    const { adjustHitDiceUsed, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    const beforeUpdatedAt = state.updatedAt
+    adjustHitDiceUsed('fighter', 0, 5)
+    expect(state.hitDiceUsed).toEqual({})
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+
+  it('多職業各自獨立追蹤', () => {
+    const { adjustHitDiceUsed, getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 3, 5)
+    adjustHitDiceUsed('wizard', 1, 2)
+    expect(getHitDiceUsed('fighter')).toBe(3)
+    expect(getHitDiceUsed('wizard')).toBe(1)
+  })
+
+  it('longRest 共回復 floor(totalLevel/2) 顆，依骰面由大到小貪婪分配', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 5, 5)
+    adjustHitDiceUsed('wizard', 2, 2)
+    adjustHitDiceUsed('rogue', 1, 1)
+    // totalLevel 8 → pool 4；hitDie: fighter d10 > rogue d8 > wizard d6
+    longRest([
+      { profession: 'fighter', level: 5 },
+      { profession: 'wizard', level: 2 },
+      { profession: 'rogue', level: 1 },
+    ])
+    expect(getHitDiceUsed('fighter')).toBe(1)
+    expect(getHitDiceUsed('rogue')).toBe(1)
+    expect(getHitDiceUsed('wizard')).toBe(2)
+  })
+
+  it('longRest 池有剩時應跨職業繼續分配', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 2, 4)
+    adjustHitDiceUsed('wizard', 4, 4)
+    // totalLevel 8 → pool 4；fighter 用完 2 後池剩 2 接著回 wizard 2 顆
+    longRest([
+      { profession: 'fighter', level: 4 },
+      { profession: 'wizard', level: 4 },
+    ])
+    expect(getHitDiceUsed('fighter')).toBe(0)
+    expect(getHitDiceUsed('wizard')).toBe(2)
+  })
+
+  it('longRest 至少回復 1 顆（總等級 1）', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 1, 1)
+    longRest([{ profession: 'fighter', level: 1 }])
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('longRest 對未使用的職業不增條目', () => {
+    const { longRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(state.hitDiceUsed).toEqual({})
+  })
+
+  it('shortRest 不影響生命骰使用狀態', () => {
+    const { adjustHitDiceUsed, shortRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 2, 5)
+    shortRest([])
+    expect(getHitDiceUsed('fighter')).toBe(2)
+  })
+})
+
 describe('useCharacterCombatState — 特性次數', () => {
   it('未調整時 getFeatureUse 應回傳 max', () => {
     const { getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))

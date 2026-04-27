@@ -1,24 +1,28 @@
 <template>
   <div class="space-y-6 bg-canvas-elevated p-4">
-    <header class="flex items-center justify-between">
-      <h2 class="font-display text-lg font-bold text-content">戰鬥速查</h2>
-      <div class="flex gap-2">
-        <Button :radius="4" bg-color="var(--color-warning)" @click="onShortRest">短休</Button>
-        <Button :radius="4" bg-color="var(--color-success)" @click="longRest">長休</Button>
-      </div>
+    <header class="flex items-center justify-end gap-2">
+      <Button :radius="4" bg-color="var(--color-warning)" @click="onShortRest">短休</Button>
+      <Button :radius="4" bg-color="var(--color-success)" @click="onLongRest">長休</Button>
     </header>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <BusinessCharacterQuickviewHpCard
-        :current-hp="displayCurrentHp"
-        :max-hp="effectiveMaxHp"
-        :max-adjustment="state.hp.maxAdjustment"
-        :temp-hp="state.hp.tempHp"
-        @damage="damageHp"
-        @heal="healHp"
-        @adjust-temp="adjustTempHp"
-        @adjust-max="adjustMaxHp"
-      />
+      <div class="flex flex-col gap-4">
+        <BusinessCharacterQuickviewHpCard
+          :current-hp="displayCurrentHp"
+          :max-hp="effectiveMaxHp"
+          :max-adjustment="state.hp.maxAdjustment"
+          :temp-hp="state.hp.tempHp"
+          @damage="damageHp"
+          @heal="healHp"
+          @adjust-temp="adjustTempHp"
+          @adjust-max="adjustMaxHp"
+        />
+        <BusinessCharacterQuickviewHitDiceCard
+          :professions="character.professions"
+          :hit-dice-used="state.hitDiceUsed"
+          @adjust="adjustHitDiceUsed"
+        />
+      </div>
       <BusinessCharacterQuickviewDefenseCard
         :base-armor-class="totalArmorClass"
         :ac-adjustment="state.acAdjustment"
@@ -98,6 +102,7 @@ const {
   adjustSpeed,
   adjustSavingThrow,
   adjustFeatureUse,
+  adjustHitDiceUsed,
   shortRest,
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
@@ -107,5 +112,9 @@ function onShortRest(): void {
     .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
     .map((f) => f.id)
   shortRest(ids)
+}
+
+function onLongRest(): void {
+  longRest(props.character.professions)
 }
 </script>

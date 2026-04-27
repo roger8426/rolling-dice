@@ -1,11 +1,11 @@
 <template>
-  <section aria-labelledby="quickview-defense-label">
+  <section aria-labelledby="quickview-defense-label" class="flex h-full flex-col">
     <h3 id="quickview-defense-label" class="mb-2 font-display text-sm font-bold text-content">
       防禦・行動
     </h3>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+    <div class="grid flex-1 grid-cols-2 gap-2">
       <div
-        class="lg:h-29.5 flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+        class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
         <span class="text-xs text-content-muted">護甲值</span>
         <div class="mt-1 flex items-center gap-2">
@@ -37,7 +37,7 @@
       </div>
 
       <div
-        class="lg:h-29.5 flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+        class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
         <span class="text-xs text-content-muted">速度（呎）</span>
         <div class="mt-1 flex items-center gap-2">
@@ -71,7 +71,7 @@
       </div>
 
       <div
-        class="lg:h-29.5 flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+        class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
         <span class="text-xs text-content-muted">先攻</span>
         <span class="mt-1 text-2xl font-bold" :class="initiativeColor">
@@ -80,7 +80,7 @@
       </div>
 
       <div
-        class="lg:h-29.5 flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+        class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
         <span class="text-xs text-content-muted">被動察覺</span>
         <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
