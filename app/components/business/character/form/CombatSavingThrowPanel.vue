@@ -10,13 +10,14 @@
         class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
         <label
-          class="flex flex-1 items-center gap-3"
+          class="flex flex-1 items-center gap-2"
           :class="row.locked ? 'cursor-not-allowed' : 'cursor-pointer'"
         >
           <Checkbox
             :model-value="row.proficient"
             :disabled="row.locked"
             size="sm"
+            color="var(--color-primary)"
             :aria-label="`${row.name} 豁免熟練${row.locked ? '（主職業，不可變更）' : ''}`"
             @update:model-value="(checked) => onToggle(row.key, checked)"
           />

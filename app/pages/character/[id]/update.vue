@@ -6,10 +6,11 @@
           :disabled="!canSubmit"
           :loading="isSubmitting"
           :radius="4"
+          class="w-20"
           bg-color="var(--color-primary)"
           @click="submit"
         >
-          儲存變更
+          儲存
         </Button>
       </template>
     </CommonPageHeader>
@@ -78,6 +79,18 @@
           />
         </Tab>
 
+        <Tab value="features">
+          <template #label>
+            <span class="text-content">專長與特性</span>
+          </template>
+          <BusinessCharacterFormFeaturesTab
+            :features="formState.features"
+            @add="addFeature"
+            @remove="removeFeature"
+            @update="updateFeature"
+          />
+        </Tab>
+
         <Tab value="combat">
           <template #label>
             <span class="text-content">戰鬥模組</span>
@@ -138,8 +151,18 @@ const id = getRouteParam(route.params.id)
 
 useHead({ title: '編輯角色卡' })
 
-const { activeTab, character, formState, core, derived, abilities, combat, spells, submit } =
-  useCharacterUpdate(id)
+const {
+  activeTab,
+  character,
+  formState,
+  core,
+  derived,
+  abilities,
+  combat,
+  spells,
+  features,
+  submit,
+} = useCharacterUpdate(id)
 
 const {
   totalLevel,
@@ -180,4 +203,6 @@ const {
 } = combat
 
 const { toggleLearnedSpell, togglePreparedSpell } = spells
+
+const { addFeature, removeFeature, updateFeature } = features
 </script>

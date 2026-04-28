@@ -76,6 +76,34 @@ Object.assign(globalThis, {
   debounce,
   // 預設 useRoute mock，個別 spec 可用 vi.stubGlobal('useRoute', ...) 覆寫
   useRoute: () => reactive({ fullPath: '/' }),
+  // 預設 Nuxt composable stubs — 個別 spec 可用 vi.stubGlobal(...) 覆寫
+  navigateTo: () => Promise.resolve(),
+  useHead: () => {},
+  definePageMeta: () => {},
+  useRuntimeConfig: () => ({ public: {} }),
+  useAsyncData: (_key: string, fetcher: () => unknown) => {
+    const data = ref<unknown>(null)
+    const pending = ref(false)
+    const error = ref<Error | null>(null)
+    const refresh = async () => {
+      pending.value = true
+      try {
+        data.value = await fetcher()
+      } catch (e) {
+        error.value = e as Error
+      } finally {
+        pending.value = false
+      }
+    }
+    return { data, pending, error, refresh }
+  },
+  useFetch: (_url: string) => ({
+    data: ref(null),
+    pending: ref(false),
+    error: ref(null),
+    refresh: async () => {},
+  }),
+  $fetch: async () => null,
 })
 
 // 每次測試前清除 localStorage，防止跨 spec 狀態污染

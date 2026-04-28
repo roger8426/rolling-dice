@@ -1,6 +1,8 @@
 import type { Ref } from 'vue'
+import { PROFESSION_CONFIG } from '~/constants/dnd'
 import { getCombatStateStorageKey } from '~/constants/storage'
-import type { AbilityKey } from '~/types/business/dnd'
+import type { ProfessionEntry } from '~/types/business/character'
+import type { AbilityKey, ProfessionKey } from '~/types/business/dnd'
 
 /** 戰況追蹤資料；獨立於 Character 主資料，僅影響速查顯示 */
 export interface CombatState {
@@ -19,6 +21,10 @@ export interface CombatState {
   speedAdjustment: number
   /** 各項豁免的臨時調整 */
   savingThrowAdjustments: Partial<Record<AbilityKey, number>>
+  /** 各特性目前剩餘次數（key = feature.id）；未出現的 key 視為滿 */
+  featureUses: Partial<Record<string, number>>
+  /** 各職業已使用生命骰數（key = ProfessionKey）；未出現的 key 視為 0 */
+  hitDiceUsed: Partial<Record<ProfessionKey, number>>
   updatedAt: string
 }
 
@@ -31,6 +37,8 @@ function createDefaultState(characterId: string): CombatState {
     acAdjustment: 0,
     speedAdjustment: 0,
     savingThrowAdjustments: {},
+    featureUses: {},
+    hitDiceUsed: {},
     updatedAt: new Date().toISOString(),
   }
 }
@@ -47,8 +55,52 @@ function normalizeState(stored: Partial<CombatState>, characterId: string): Comb
     acAdjustment: stored.acAdjustment ?? 0,
     speedAdjustment: stored.speedAdjustment ?? 0,
     savingThrowAdjustments: { ...stored.savingThrowAdjustments },
+    featureUses: { ...stored.featureUses },
+    hitDiceUsed: { ...stored.hitDiceUsed },
     updatedAt: stored.updatedAt ?? fallback.updatedAt,
   }
+}
+
+/** 將 record[key] 設為 value，等於 defaultValue 時從 record 移除該 key 以保持稀疏 */
+function setSparseRecord<K extends string, T>(
+  record: Partial<Record<K, T>>,
+  key: K,
+  value: T,
+  defaultValue: T,
+): Partial<Record<K, T>> {
+  const rest = Object.fromEntries(Object.entries(record).filter(([k]) => k !== key)) as Partial<
+    Record<K, T>
+  >
+  return value === defaultValue ? rest : { ...rest, [key]: value }
+}
+
+/** 長休：總回復額為 floor(totalLevel/2)（至少 1），依骰面由大到小貪婪分配 */
+function recoverHitDice(
+  used: Partial<Record<ProfessionKey, number>>,
+  professions: readonly ProfessionEntry[],
+): Partial<Record<ProfessionKey, number>> {
+  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
+  if (totalLevel === 0) return {}
+
+  const sorted = [...professions].sort(
+    (a, b) => PROFESSION_CONFIG[b.profession].hitDie - PROFESSION_CONFIG[a.profession].hitDie,
+  )
+
+  let pool = Math.max(1, Math.floor(totalLevel / 2))
+  const result: Partial<Record<ProfessionKey, number>> = {}
+
+  for (const entry of sorted) {
+    const currentlyUsed = used[entry.profession] ?? 0
+    if (currentlyUsed === 0) continue
+    const recover = pool > 0 ? Math.min(currentlyUsed, pool) : 0
+    pool -= recover
+    const remaining = currentlyUsed - recover
+    if (remaining > 0) {
+      result[entry.profession] = remaining
+    }
+  }
+
+  return result
 }
 
 /**
@@ -145,23 +197,95 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
 
   function adjustSavingThrow(key: AbilityKey, delta: number): void {
     const current = state.savingThrowAdjustments[key] ?? 0
-    const next = current + delta
-    const rest = Object.fromEntries(
-      Object.entries(state.savingThrowAdjustments).filter(([k]) => k !== key),
-    ) as Partial<Record<AbilityKey, number>>
-    state.savingThrowAdjustments = next === 0 ? rest : { ...rest, [key]: next }
+    state.savingThrowAdjustments = setSparseRecord(
+      state.savingThrowAdjustments,
+      key,
+      current + delta,
+      0,
+    )
     touch()
   }
 
-  /** 一次清空所有臨時調整、HP 回滿、tempHp 歸 0、最大生命調整歸 0 */
-  function resetAll(): void {
+  // ─── Feature uses ─────────────────────────────────────────────────────
+
+  function getFeatureUse(featureId: string, max: number): number {
+    return state.featureUses[featureId] ?? max
+  }
+
+  function setFeatureUse(featureId: string, value: number, max: number): void {
+    const clamped = Math.min(Math.max(0, value), max)
+    state.featureUses = setSparseRecord(state.featureUses, featureId, clamped, max)
+    touch()
+  }
+
+  function adjustFeatureUse(featureId: string, delta: number, max: number): void {
+    if (delta === 0) return
+    setFeatureUse(featureId, getFeatureUse(featureId, max) + delta, max)
+  }
+
+  // ─── Hit dice ─────────────────────────────────────────────────────────
+
+  /** 取得指定職業已使用生命骰數，未追蹤時回傳 0 */
+  function getHitDiceUsed(profession: ProfessionKey): number {
+    return state.hitDiceUsed[profession] ?? 0
+  }
+
+  /** 設定指定職業已使用生命骰數，clamp 至 [0, level] */
+  function setHitDiceUsed(profession: ProfessionKey, value: number, level: number): void {
+    const clamped = Math.min(Math.max(0, value), level)
+    state.hitDiceUsed = setSparseRecord(state.hitDiceUsed, profession, clamped, 0)
+    touch()
+  }
+
+  /** 調整指定職業已使用生命骰數，clamp 至 [0, level] */
+  function adjustHitDiceUsed(profession: ProfessionKey, delta: number, level: number): void {
+    if (delta === 0) return
+    setHitDiceUsed(profession, getHitDiceUsed(profession) + delta, level)
+  }
+
+  // ─── Rests ────────────────────────────────────────────────────────────
+
+  /** 短休：僅恢復傳入 id 對應的特性次數，HP 與其他臨時調整不變 */
+  function shortRest(shortRestFeatureIds: string[]): void {
+    if (shortRestFeatureIds.length === 0) return
+    const targets = new Set(shortRestFeatureIds)
+    const recoveredFeatureCount = Object.keys(state.featureUses).filter((k) =>
+      targets.has(k),
+    ).length
+    state.featureUses = Object.fromEntries(
+      Object.entries(state.featureUses).filter(([k]) => !targets.has(k)),
+    ) as Partial<Record<string, number>>
+    touch()
+
+    useToast().success(
+      recoveredFeatureCount > 0
+        ? `短休完成，${recoveredFeatureCount} 項特性使用次數已回復`
+        : '短休完成',
+    )
+  }
+
+  /** 長休：HP 回滿、清空所有臨時調整與所有特性次數，並依「大骰面優先」貪婪回復生命骰 */
+  function longRest(professions: readonly ProfessionEntry[] = []): void {
+    const hitDiceUsedBefore = Object.values(state.hitDiceUsed).reduce((sum, n) => sum + (n ?? 0), 0)
+
     state.hp.current = null
     state.hp.tempHp = 0
     state.hp.maxAdjustment = 0
     state.acAdjustment = 0
     state.speedAdjustment = 0
     state.savingThrowAdjustments = {}
+    state.featureUses = {}
+    state.hitDiceUsed = recoverHitDice(state.hitDiceUsed, professions)
     touch()
+
+    const hitDiceUsedAfter = Object.values(state.hitDiceUsed).reduce((sum, n) => sum + (n ?? 0), 0)
+    const recoveredHitDice = hitDiceUsedBefore - hitDiceUsedAfter
+
+    useToast().success(
+      recoveredHitDice > 0
+        ? `長休完成，HP 已回滿並回復 ${recoveredHitDice} 個生命骰`
+        : '長休完成，HP 已回滿',
+    )
   }
 
   // ─── Persist ──────────────────────────────────────────────────────────
@@ -196,6 +320,13 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     adjustAc,
     adjustSpeed,
     adjustSavingThrow,
-    resetAll,
+    getFeatureUse,
+    setFeatureUse,
+    adjustFeatureUse,
+    getHitDiceUsed,
+    setHitDiceUsed,
+    adjustHitDiceUsed,
+    shortRest,
+    longRest,
   }
 }

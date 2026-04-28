@@ -40,7 +40,7 @@
             :options="SPELL_SCHOOL_OPTIONS"
             size="sm"
             class="w-24"
-            @update:model-value="filter.school = ($event ?? '').toString()"
+            @update:model-value="filter.school = ($event ?? '') as SchoolFilter"
           />
         </div>
         <Button
@@ -63,6 +63,7 @@
             :model-value="filter.ritual"
             size="sm"
             aria-label="只顯示儀式法術"
+            color="var(--color-info)"
             @update:model-value="filter.ritual = $event"
           />
           儀式
@@ -72,6 +73,7 @@
             :model-value="filter.concentration"
             size="sm"
             aria-label="只顯示需要專注的法術"
+            color="var(--color-warning)"
             @update:model-value="filter.concentration = $event"
           />
           專注
@@ -102,6 +104,7 @@
                   class="shrink-0"
                   :model-value="isLearned(spell.name)"
                   size="sm"
+                  color="var(--color-primary)"
                   :aria-label="`掌握 ${spell.name}`"
                   @click.stop
                   @update:model-value="emit('toggleLearned', spell.name)"
@@ -175,6 +178,8 @@ import {
 } from '~/constants/spell-options'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
+type SchoolFilter = SpellSchool | ''
+
 const props = defineProps<{
   learnedSpells: string[]
 }>()
@@ -194,7 +199,7 @@ const schoolSelectId = useId()
 interface SpellFilter {
   keyword: string
   level: SpellLevelFilter
-  school: string
+  school: SpellSchool | ''
   ritual: boolean
   concentration: boolean
 }
@@ -245,7 +250,7 @@ const filteredSpells = computed<Spell[]>(() => {
 
   const keyword = filter.keyword.trim().toLowerCase()
   const level = filter.level === 'all' ? null : filter.level
-  const school = filter.school === '' ? null : (filter.school as SpellSchool)
+  const school = filter.school === '' ? null : filter.school
 
   return spells.value.filter((s) => {
     if (keyword && !s.name.toLowerCase().includes(keyword)) return false

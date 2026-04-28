@@ -49,7 +49,7 @@
           :options="abilityOptions"
           size="sm"
           placeholder="無"
-          class="w-18"
+          class="min-w-18"
           @update:model-value="
             emit('update:armorAbilityKey', ($event || null) as AbilityKey | null)
           "

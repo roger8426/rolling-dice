@@ -76,7 +76,7 @@
             outline
             placeholder="0"
             aria-label="調整數值"
-            class="w-12"
+            class="w-9 sm:w-12"
             @update:model-value="amount = parseIntegerInput($event, 0)"
           />
           <button

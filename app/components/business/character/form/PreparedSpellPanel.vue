@@ -36,6 +36,7 @@
               v-if="group.level !== 0"
               :model-value="isPrepared(spell.name)"
               size="sm"
+              color="var(--color-primary)"
               :aria-label="`準備 ${spell.name}`"
               @update:model-value="emit('togglePrepared', spell.name)"
             />

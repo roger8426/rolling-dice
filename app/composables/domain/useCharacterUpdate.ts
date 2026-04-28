@@ -1,9 +1,14 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { createDefaultArmorClass } from '~/helpers/character'
-import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
+import type {
+  AttackDraft,
+  Character,
+  CharacterUpdateFormState,
+  FeatureDraft,
+} from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
-export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'backpack'
+export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'features' | 'backpack'
 
 // ─── Form State Factories ─────────────────────────────────────────────────────
 
@@ -44,9 +49,13 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     initiativeBonus: character.initiativeBonus,
     passivePerceptionBonus: character.passivePerceptionBonus,
     extraHp: character.extraHp,
-    attacks: character.attacks.map((a) => ({ ...a, damageDice: { ...a.damageDice } })),
+    attacks: character.attacks.map((a) => ({
+      ...a,
+      damageDice: a.damageDice.map((e) => ({ ...e })),
+    })),
     learnedSpells: [...character.learnedSpells],
     preparedSpells: [...character.preparedSpells],
+    features: character.features.map((f) => ({ ...f, usage: { ...f.usage } })),
   }
 }
 
@@ -84,6 +93,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
   }
 }
 
@@ -181,6 +191,24 @@ export function useCharacterUpdate(id: string) {
     }
   }
 
+  // ─── Features ─────────────────────────────────────────────────────────
+
+  function addFeature(draft: FeatureDraft): void {
+    formState.features.push({ id: crypto.randomUUID(), ...draft, usage: { ...draft.usage } })
+  }
+
+  function removeFeature(id: string): void {
+    const index = formState.features.findIndex((f) => f.id === id)
+    if (index !== -1) formState.features.splice(index, 1)
+  }
+
+  function updateFeature(id: string, draft: FeatureDraft): void {
+    const index = formState.features.findIndex((f) => f.id === id)
+    if (index !== -1) {
+      formState.features[index] = { id, ...draft, usage: { ...draft.usage } }
+    }
+  }
+
   // ─── Submit ───────────────────────────────────────────────────────────
 
   const logger = createLogger('[CharacterUpdate]')
@@ -232,6 +260,12 @@ export function useCharacterUpdate(id: string) {
     spells: {
       toggleLearnedSpell,
       togglePreparedSpell,
+    },
+
+    features: {
+      addFeature,
+      removeFeature,
+      updateFeature,
     },
 
     submit,

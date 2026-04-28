@@ -1,18 +1,12 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createAttackDraft, createMockCharacter } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
-import type { Character } from '~/types/business/character'
 
 const mockNavigateTo = vi.fn()
 
-const MOCK_CHARACTER: Character = {
+const MOCK_CHARACTER = createMockCharacter({
   id: 'update-001',
-  name: '測試角色',
-  gender: 'male',
-  race: 'human',
-  alignment: 'trueNeutral',
-  professions: [{ profession: 'fighter', level: 5 }],
-  totalLevel: 5,
   abilities: {
     strength: { basicScore: 15, bonusScore: 2 },
     dexterity: { basicScore: 14, bonusScore: 0 },
@@ -21,11 +15,6 @@ const MOCK_CHARACTER: Character = {
     wisdom: { basicScore: 10, bonusScore: 0 },
     charisma: { basicScore: 8, bonusScore: 0 },
   },
-  savingThrowProficiencies: ['strength', 'constitution'],
-  savingThrowExtras: [],
-  skills: { athletics: 'proficient' },
-  background: '士兵',
-  isJackOfAllTrades: false,
   isTough: true,
   faith: '坦帕斯',
   age: 35,
@@ -37,17 +26,7 @@ const MOCK_CHARACTER: Character = {
   tools: '鍛造工具',
   weaponProficiencies: '長劍',
   armorProficiencies: '鎧甲',
-  avatar: null,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  extraHp: 0,
-  speedBonus: null,
-  initiativeBonus: null,
-  passivePerceptionBonus: null,
-  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
-  attacks: [],
-  learnedSpells: [],
-  preparedSpells: [],
-}
+})
 
 const mockToastError = vi.fn()
 
@@ -234,13 +213,7 @@ describe('useCharacterUpdate — 護甲設定', () => {
 
 // ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
 
-const defaultEntry = (): import('~/types/business/character').AttackDraft => ({
-  name: '',
-  abilityKey: null,
-  damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
-  extraHitBonus: null,
-  extraDamageBonus: null,
-})
+const defaultEntry = () => createAttackDraft()
 
 describe('useCharacterUpdate — 自訂攻擊', () => {
   it('addAttack 應新增一筆攻擊', async () => {
@@ -250,9 +223,8 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
     expect(formState.attacks[0]).toMatchObject({
       name: '',
       abilityKey: null,
-      damageDice: { d4: 0, d6: 0, d8: 0, d10: 0, d12: 0 },
+      damageDice: [],
       extraHitBonus: null,
-      extraDamageBonus: null,
     })
     expect(formState.attacks[0]!.id).toBeTypeOf('string')
   })
@@ -289,17 +261,15 @@ describe('useCharacterUpdate — 自訂攻擊', () => {
     combat.updateAttack(id, {
       name: '長劍',
       abilityKey: 'strength',
-      damageDice: { d4: 0, d6: 0, d8: 1, d10: 0, d12: 0 },
+      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
-      extraDamageBonus: 3,
     })
     expect(formState.attacks[0]).toMatchObject({
       id,
       name: '長劍',
       abilityKey: 'strength',
-      damageDice: { d8: 1 },
+      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
-      extraDamageBonus: 3,
     })
   })
 })
@@ -382,6 +352,112 @@ describe('useCharacterUpdate — 法術', () => {
     expect(formState.preparedSpells).toContain('火球術')
     spells.togglePreparedSpell('火球術')
     expect(formState.preparedSpells).not.toContain('火球術')
+  })
+})
+
+// ─── Features ──────────────────────────────────────────────────────────────
+
+const defaultFeatureDraft = (
+  overrides: Partial<import('~/types/business/character').FeatureDraft> = {},
+): import('~/types/business/character').FeatureDraft => ({
+  name: '勇氣光環',
+  description: null,
+  source: 'class',
+  usage: { hasUses: false },
+  ...overrides,
+})
+
+describe('useCharacterUpdate — 特性', () => {
+  it('addFeature 應推入帶 id 的條目', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    expect(formState.features).toHaveLength(1)
+    expect(formState.features[0]).toMatchObject({
+      name: '勇氣光環',
+      source: 'class',
+      usage: { hasUses: false },
+    })
+    expect(formState.features[0]!.id).toBeTypeOf('string')
+  })
+
+  it('多次 addFeature 應產生不重複的 id', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    features.addFeature(defaultFeatureDraft())
+    const [a, b] = formState.features
+    expect(a!.id).not.toBe(b!.id)
+  })
+
+  it('addFeature 應對 usage 做深拷貝（修改 draft 不影響已加入條目）', async () => {
+    const { formState, features } = await getComposable('update-001')
+    const draft = defaultFeatureDraft({
+      usage: { hasUses: true, max: 3, recovery: 'shortRest' },
+    })
+    features.addFeature(draft)
+    if (draft.usage.hasUses) draft.usage.max = 99
+    const stored = formState.features[0]!.usage
+    expect(stored.hasUses).toBe(true)
+    if (stored.hasUses) expect(stored.max).toBe(3)
+  })
+
+  it('removeFeature 應依 id 刪除', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    features.addFeature(defaultFeatureDraft({ name: '第二項' }))
+    const targetId = formState.features[0]!.id
+    features.removeFeature(targetId)
+    expect(formState.features).toHaveLength(1)
+    expect(formState.features[0]!.id).not.toBe(targetId)
+  })
+
+  it('removeFeature 找不到 id 時不應拋錯', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    expect(() => features.removeFeature('non-existent')).not.toThrow()
+    expect(formState.features).toHaveLength(1)
+  })
+
+  it('updateFeature 應依 id 替換並保留原 id', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    const id = formState.features[0]!.id
+    features.updateFeature(id, {
+      name: '新名稱',
+      description: '描述',
+      source: 'feat',
+      usage: { hasUses: true, max: 2, recovery: 'longRest' },
+    })
+    expect(formState.features[0]).toMatchObject({
+      id,
+      name: '新名稱',
+      description: '描述',
+      source: 'feat',
+      usage: { hasUses: true, max: 2, recovery: 'longRest' },
+    })
+  })
+
+  it('updateFeature 找不到 id 時不應拋錯且不應新增條目', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    expect(() =>
+      features.updateFeature('non-existent', defaultFeatureDraft({ name: '不存在' })),
+    ).not.toThrow()
+    expect(formState.features).toHaveLength(1)
+    expect(formState.features[0]!.name).toBe('勇氣光環')
+  })
+
+  it('updateFeature 應對 usage 做深拷貝', async () => {
+    const { formState, features } = await getComposable('update-001')
+    features.addFeature(defaultFeatureDraft())
+    const id = formState.features[0]!.id
+    const draft = defaultFeatureDraft({
+      usage: { hasUses: true, max: 5, recovery: 'manual' },
+    })
+    features.updateFeature(id, draft)
+    if (draft.usage.hasUses) draft.usage.max = 99
+    const stored = formState.features[0]!.usage
+    expect(stored.hasUses).toBe(true)
+    if (stored.hasUses) expect(stored.max).toBe(5)
   })
 })
 

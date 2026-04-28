@@ -5,13 +5,18 @@ import { getCombatStateStorageKey } from '~/constants/storage'
 
 const CHAR_ID = 'char-001'
 
+const mockToastSuccess = vi.fn()
+
 beforeEach(() => {
   localStorage.clear()
   vi.useFakeTimers()
+  vi.stubGlobal('useToast', () => ({ success: mockToastSuccess }))
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
+  vi.clearAllMocks()
 })
 
 describe('useCharacterCombatState — 預設與初始狀態', () => {
@@ -176,7 +181,7 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.savingThrowAdjustments.strength).toBeUndefined()
   })
 
-  it('resetAll 應清空所有臨時調整與 HP / tempHp / maxAdjustment', () => {
+  it('longRest 應清空所有臨時調整與 HP / tempHp / maxAdjustment / featureUses', () => {
     const {
       adjustAc,
       adjustSpeed,
@@ -184,7 +189,8 @@ describe('useCharacterCombatState — 臨時調整', () => {
       setTempHp,
       damageHp,
       adjustMaxHp,
-      resetAll,
+      adjustFeatureUse,
+      longRest,
       state,
     } = useCharacterCombatState(CHAR_ID, ref(30))
     adjustAc(2)
@@ -193,8 +199,9 @@ describe('useCharacterCombatState — 臨時調整', () => {
     setTempHp(5)
     damageHp(10)
     adjustMaxHp(7)
+    adjustFeatureUse('feat-1', -1, 3)
 
-    resetAll()
+    longRest()
 
     expect(state.acAdjustment).toBe(0)
     expect(state.speedAdjustment).toBe(0)
@@ -202,6 +209,215 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.hp.tempHp).toBe(0)
     expect(state.hp.current).toBeNull()
     expect(state.hp.maxAdjustment).toBe(0)
+    expect(state.featureUses).toEqual({})
+  })
+})
+
+describe('useCharacterCombatState — 休息 toast 通知', () => {
+  it('shortRest 有恢復項時應彈出含項目數的 success toast', () => {
+    const { adjustFeatureUse, shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 2)
+    adjustFeatureUse('feat-2', -1, 2)
+    shortRest(['feat-1', 'feat-2'])
+    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成，2 項特性使用次數已回復')
+  })
+
+  it('shortRest 無已使用特性時應彈出精簡 toast', () => {
+    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    shortRest(['feat-1'])
+    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成')
+  })
+
+  it('shortRest([]) early return 不應彈 toast', () => {
+    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    shortRest([])
+    expect(mockToastSuccess).not.toHaveBeenCalled()
+  })
+
+  it('longRest 有回復生命骰時應彈出含骰數的 success toast', () => {
+    const { adjustHitDiceUsed, longRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 5, 5)
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿並回復 2 個生命骰')
+  })
+
+  it('longRest 無生命骰可回復時應彈出精簡 toast', () => {
+    const { longRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿')
+  })
+})
+
+describe('useCharacterCombatState — 生命骰', () => {
+  it('未調整時 getHitDiceUsed 應回傳 0', () => {
+    const { getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('adjustHitDiceUsed 應夾在 0..level 之間', () => {
+    const { adjustHitDiceUsed, getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 1, 5)
+    expect(getHitDiceUsed('fighter')).toBe(1)
+    adjustHitDiceUsed('fighter', 99, 5)
+    expect(getHitDiceUsed('fighter')).toBe(5)
+    adjustHitDiceUsed('fighter', -99, 5)
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('歸零時應從 record 移除 entry', () => {
+    const { adjustHitDiceUsed, setHitDiceUsed, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 2, 5)
+    expect(state.hitDiceUsed.fighter).toBe(2)
+    setHitDiceUsed('fighter', 0, 5)
+    expect(state.hitDiceUsed.fighter).toBeUndefined()
+  })
+
+  it('adjustHitDiceUsed(delta = 0) 應為 no-op', () => {
+    const { adjustHitDiceUsed, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    const beforeUpdatedAt = state.updatedAt
+    adjustHitDiceUsed('fighter', 0, 5)
+    expect(state.hitDiceUsed).toEqual({})
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+
+  it('多職業各自獨立追蹤', () => {
+    const { adjustHitDiceUsed, getHitDiceUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 3, 5)
+    adjustHitDiceUsed('wizard', 1, 2)
+    expect(getHitDiceUsed('fighter')).toBe(3)
+    expect(getHitDiceUsed('wizard')).toBe(1)
+  })
+
+  it('longRest 共回復 floor(totalLevel/2) 顆，依骰面由大到小貪婪分配', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 5, 5)
+    adjustHitDiceUsed('wizard', 2, 2)
+    adjustHitDiceUsed('rogue', 1, 1)
+    // totalLevel 8 → pool 4；hitDie: fighter d10 > rogue d8 > wizard d6
+    longRest([
+      { profession: 'fighter', level: 5 },
+      { profession: 'wizard', level: 2 },
+      { profession: 'rogue', level: 1 },
+    ])
+    expect(getHitDiceUsed('fighter')).toBe(1)
+    expect(getHitDiceUsed('rogue')).toBe(1)
+    expect(getHitDiceUsed('wizard')).toBe(2)
+  })
+
+  it('longRest 池有剩時應跨職業繼續分配', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 2, 4)
+    adjustHitDiceUsed('wizard', 4, 4)
+    // totalLevel 8 → pool 4；fighter 用完 2 後池剩 2 接著回 wizard 2 顆
+    longRest([
+      { profession: 'fighter', level: 4 },
+      { profession: 'wizard', level: 4 },
+    ])
+    expect(getHitDiceUsed('fighter')).toBe(0)
+    expect(getHitDiceUsed('wizard')).toBe(2)
+  })
+
+  it('longRest 至少回復 1 顆（總等級 1）', () => {
+    const { adjustHitDiceUsed, longRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 1, 1)
+    longRest([{ profession: 'fighter', level: 1 }])
+    expect(getHitDiceUsed('fighter')).toBe(0)
+  })
+
+  it('longRest 對未使用的職業不增條目', () => {
+    const { longRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(state.hitDiceUsed).toEqual({})
+  })
+
+  it('shortRest 不影響生命骰使用狀態', () => {
+    const { adjustHitDiceUsed, shortRest, getHitDiceUsed } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustHitDiceUsed('fighter', 2, 5)
+    shortRest([])
+    expect(getHitDiceUsed('fighter')).toBe(2)
+  })
+})
+
+describe('useCharacterCombatState — 特性次數', () => {
+  it('未調整時 getFeatureUse 應回傳 max', () => {
+    const { getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('adjustFeatureUse 應夾在 0..max 之間', () => {
+    const { adjustFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(2)
+    adjustFeatureUse('feat-1', -10, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(0)
+    adjustFeatureUse('feat-1', 10, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('恢復至滿時應從 record 移除 entry', () => {
+    const { adjustFeatureUse, setFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 3)
+    expect(state.featureUses['feat-1']).toBe(2)
+    setFeatureUse('feat-1', 3, 3)
+    expect(state.featureUses['feat-1']).toBeUndefined()
+  })
+
+  it('shortRest 僅恢復指定 id 的特性，其他不動', () => {
+    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('short-feat', -1, 2)
+    adjustFeatureUse('long-feat', -1, 1)
+    shortRest(['short-feat'])
+    expect(state.featureUses['short-feat']).toBeUndefined()
+    expect(state.featureUses['long-feat']).toBe(0)
+  })
+
+  it('shortRest 與 HP / 臨時調整無關', () => {
+    const { adjustFeatureUse, adjustAc, damageHp, shortRest, state, displayCurrentHp } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('short-feat', -1, 2)
+    adjustAc(2)
+    damageHp(5)
+    shortRest(['short-feat'])
+    expect(state.acAdjustment).toBe(2)
+    expect(displayCurrentHp.value).toBe(25)
+  })
+
+  it('setFeatureUse 應直接 clamp 至 [0, max]', () => {
+    const { setFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
+    setFeatureUse('feat-1', -5, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(0)
+    setFeatureUse('feat-1', 99, 3)
+    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  })
+
+  it('adjustFeatureUse(delta = 0) 應為 no-op', () => {
+    const { adjustFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    const beforeUpdatedAt = state.updatedAt
+    adjustFeatureUse('feat-1', 0, 3)
+    expect(state.featureUses).toEqual({})
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+
+  it('shortRest([]) 應為 no-op，不變更 updatedAt', () => {
+    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('long-feat', -1, 2)
+    const beforeUpdatedAt = state.updatedAt
+    vi.advanceTimersByTime(10)
+    shortRest([])
+    expect(state.featureUses['long-feat']).toBe(1)
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
   })
 })
 

@@ -29,6 +29,8 @@ function normalizeCharacter(character: Character): Character {
   return {
     ...character,
     savingThrowExtras: character.savingThrowExtras ?? [],
+    features: character.features ?? [],
+    attacks: character.attacks ?? [],
   }
 }
 
@@ -68,6 +70,7 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: [],
       learnedSpells: [],
       preparedSpells: [],
+      features: [],
     }
     characters.value.push(character)
     if (!saveToStorage(characters.value)) {
@@ -111,6 +114,7 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: JSON.parse(JSON.stringify(formState.attacks)),
       learnedSpells,
       preparedSpells,
+      features: JSON.parse(JSON.stringify(formState.features)),
     }
 
     characters.value[index] = updated

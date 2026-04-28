@@ -1,4 +1,4 @@
-import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
+import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE, UNASSIGNED_ABILITY_SCORE } from '~/constants/dnd'
 import { createDicePool, tryCalculateSpentPoints } from '~/helpers/ability'
 import type { AbilityMethod, AbilityScores, CharacterFormState } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
@@ -62,7 +62,7 @@ export function useCharacterBuild() {
     if (previous) previous.assignedTo = null
 
     if (slotId === null) {
-      formState.abilities[key] = POINT_BUY_DEFAULT_SCORE
+      formState.abilities[key] = UNASSIGNED_ABILITY_SCORE
       return
     }
 

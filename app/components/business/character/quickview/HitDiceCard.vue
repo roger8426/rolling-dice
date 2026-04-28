@@ -1,0 +1,105 @@
+<template>
+  <section aria-labelledby="quickview-hit-dice-label">
+    <h3 id="quickview-hit-dice-label" class="mb-2 font-display text-sm font-bold text-content">
+      生命骰
+    </h3>
+
+    <p
+      v-if="professions.length === 0"
+      class="rounded-lg border border-dashed border-border-soft bg-surface px-3 py-6 text-center text-xs text-content-muted"
+    >
+      尚未設定任何職業
+    </p>
+
+    <ul v-else class="grid items-start gap-2 sm:grid-cols-2">
+      <li
+        v-for="entry in professions"
+        :key="entry.profession"
+        class="flex items-center justify-between gap-3 rounded-lg border border-border-soft bg-surface px-3 py-2"
+      >
+        <div class="flex min-w-0 flex-wrap items-center gap-1.5">
+          <span class="text-sm font-semibold text-content">
+            {{ PROFESSION_CONFIG[entry.profession].label }}
+          </span>
+          <Badge size="sm" bg-color="var(--color-surface-2)">
+            d{{ PROFESSION_CONFIG[entry.profession].hitDie }}
+          </Badge>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-1">
+          <span
+            role="button"
+            :tabindex="canDecrement(entry) ? 0 : -1"
+            :aria-label="`${PROFESSION_CONFIG[entry.profession].label} 生命骰 -1`"
+            :aria-disabled="!canDecrement(entry)"
+            class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-content-muted"
+            @click="onDecrement(entry)"
+            @keydown.enter.prevent="onDecrement(entry)"
+            @keydown.space.prevent="onDecrement(entry)"
+          >
+            <Icon name="minus" :size="14" />
+          </span>
+          <span class="min-w-12 text-center text-base font-bold text-content">
+            {{ getRemaining(entry) }}
+            <span class="text-xs text-content-muted">/{{ entry.level }}</span>
+          </span>
+          <span
+            role="button"
+            :tabindex="canIncrement(entry) ? 0 : -1"
+            :aria-label="`${PROFESSION_CONFIG[entry.profession].label} 生命骰 +1`"
+            :aria-disabled="!canIncrement(entry)"
+            class="flex size-7 items-center justify-center rounded-md text-content-muted hover:bg-surface-raised hover:text-content aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-content-muted"
+            @click="onIncrement(entry)"
+            @keydown.enter.prevent="onIncrement(entry)"
+            @keydown.space.prevent="onIncrement(entry)"
+          >
+            <Icon name="plus" :size="14" />
+          </span>
+        </div>
+      </li>
+    </ul>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { Badge, Icon } from '@ui'
+import { PROFESSION_CONFIG } from '~/constants/dnd'
+import type { ProfessionEntry } from '~/types/business/character'
+import type { ProfessionKey } from '~/types/business/dnd'
+
+const props = defineProps<{
+  professions: ProfessionEntry[]
+  hitDiceUsed: Partial<Record<ProfessionKey, number>>
+}>()
+
+const emit = defineEmits<{
+  adjust: [profession: ProfessionKey, delta: number, level: number]
+}>()
+
+function getUsed(entry: ProfessionEntry): number {
+  return props.hitDiceUsed[entry.profession] ?? 0
+}
+
+function getRemaining(entry: ProfessionEntry): number {
+  return Math.max(0, entry.level - getUsed(entry))
+}
+
+function canDecrement(entry: ProfessionEntry): boolean {
+  return getRemaining(entry) > 0
+}
+
+function canIncrement(entry: ProfessionEntry): boolean {
+  return getRemaining(entry) < entry.level
+}
+
+// state 存「已使用數」、UI 顯示「剩餘」，故 -1 按鈕送出 +1 delta（消耗一顆）
+function onDecrement(entry: ProfessionEntry): void {
+  if (!canDecrement(entry)) return
+  emit('adjust', entry.profession, 1, entry.level)
+}
+
+function onIncrement(entry: ProfessionEntry): void {
+  if (!canIncrement(entry)) return
+  emit('adjust', entry.profession, -1, entry.level)
+}
+</script>

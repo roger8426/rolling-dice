@@ -8,6 +8,7 @@
         <div class="flex items-center justify-between gap-2">
           <span id="hp-label" class="text-xs text-content-muted">生命值</span>
           <div class="flex items-center gap-1.5">
+            <span class="text-[10px] text-content-muted">健壯</span>
             <Toggle
               :model-value="isTough"
               size="sm"
@@ -15,7 +16,6 @@
               color="var(--color-success)"
               @update:model-value="emit('update:isTough', $event)"
             />
-            <span class="text-[10px] text-content-muted">健壯</span>
           </div>
         </div>
         <output aria-labelledby="hp-label" class="mt-1 text-2xl font-bold text-content">

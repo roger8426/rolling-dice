@@ -44,6 +44,7 @@ function createFormState(
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
+    features: [],
     ...overrides,
   })
 }

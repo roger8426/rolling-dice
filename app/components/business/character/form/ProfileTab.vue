@@ -83,7 +83,7 @@
       class="w-full flex flex-col items-center justify-center border border-primary rounded-md md:w-1/3 px-1 gap-2"
     >
       <img src="~/assets/images/imbad.png" alt="" loading="lazy" aria-hidden="true" />
-      角色圖片上傳區，開發中...
+      <span class="text-xs text-content-muted">角色圖片上傳（即將推出）</span>
     </div>
   </div>
 </template>

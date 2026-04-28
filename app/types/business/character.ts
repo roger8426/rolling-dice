@@ -4,6 +4,7 @@ import type {
   AlignmentKey,
   ArmorType,
   DamageDieType,
+  DamageTypeKey,
   GenderKey,
   ProfessionKey,
   ProficiencyLevel,
@@ -126,6 +127,8 @@ export interface Character {
   learnedSpells: string[]
   /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 角色特性列表（專長、職業能力等） */
+  features: CharacterFeature[]
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -198,6 +201,20 @@ export interface ArmorClassConfig {
 
 // ─── Attack ───────────────────────────────────────────────────────────────────
 
+/** 單行傷害條目（攻擊內可有多行不同骰面 / 類型 / 加值） */
+export interface DamageDieEntry {
+  /** 行內穩定識別 */
+  id: string
+  /** 骰面（null 表未指定；count > 0 但 dieType 為 null 時不渲染骰部分） */
+  dieType: DamageDieType | null
+  /** 骰數（>= 0；count = 0 + bonus !== 0 表示純定額傷害，例如「10 酸蝕」） */
+  count: number
+  /** 此行的加值（null 或 0 不顯示；可為負數） */
+  bonus: number | null
+  /** 傷害類型（null 表未指定） */
+  damageType: DamageTypeKey | null
+}
+
 /** 自訂攻擊項目 */
 export interface AttackEntry {
   /** 唯一識別 */
@@ -206,16 +223,39 @@ export interface AttackEntry {
   name: string
   /** 命中使用的屬性（null 表示未選擇） */
   abilityKey: AbilityKey | null
-  /** 傷害骰數量（0 表示不使用該骰型） */
-  damageDice: Record<DamageDieType, number>
+  /** 傷害條目（可有多行，例如 1d8+5 劈砍 + 4d8 光耀） */
+  damageDice: DamageDieEntry[]
   /** 額外命中加值（疊加於屬性調整值 + 熟練加值之上） */
   extraHitBonus: number | null
-  /** 額外傷害加值（疊加於傷害骰之上） */
-  extraDamageBonus: number | null
 }
 
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */
 export type AttackDraft = Omit<AttackEntry, 'id'>
+
+// ─── Features ─────────────────────────────────────────────────────────────────
+
+/** 特性來源分類 */
+export type FeatureSource = 'feat' | 'class' | 'race' | 'background' | 'other'
+
+/** 特性次數恢復時機 */
+export type FeatureUsageRecovery = 'shortRest' | 'longRest' | 'manual'
+
+/** 特性使用次數設定（discriminated union） */
+export type FeatureUsage =
+  | { hasUses: false }
+  | { hasUses: true; max: number; recovery: FeatureUsageRecovery }
+
+/** 角色特性條目（專長、職業能力等） */
+export interface CharacterFeature {
+  id: string
+  name: string
+  description: string | null
+  source: FeatureSource
+  usage: FeatureUsage
+}
+
+/** 特性草稿（尚未具備 id 的條目） */
+export type FeatureDraft = Omit<CharacterFeature, 'id'>
 
 /** 更新角色表單的狀態（abilities 保留 basicScore + bonusScore 結構） */
 export interface CharacterUpdateFormState extends CharacterFormStateBase {
@@ -239,4 +279,6 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   learnedSpells: string[]
   /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 角色特性列表 */
+  features: CharacterFeature[]
 }

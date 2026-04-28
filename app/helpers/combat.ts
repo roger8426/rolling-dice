@@ -1,5 +1,5 @@
-import { DAMAGE_DIE_TYPES } from '~/constants/dnd'
-import type { AbilityScores, AttackDraft } from '~/types/business/character'
+import { DAMAGE_TYPE_LABELS } from '~/constants/dnd'
+import type { AbilityScores, AttackDraft, DamageDieEntry } from '~/types/business/character'
 
 /** 計算攻擊命中加值：屬性調整值 + 熟練加值 + 額外命中 */
 export function getAttackHit(
@@ -18,15 +18,26 @@ export function getHitBonusColorClass(hit: number): string {
   return 'text-content-muted'
 }
 
-/** 將攻擊的傷害骰與額外加值組合為顯示字串，例如 `1d8 +2d6 +3` */
-export function formatDamageSummary(attack: AttackDraft): string {
-  const parts = DAMAGE_DIE_TYPES.filter((die) => attack.damageDice[die] > 0).map(
-    (die, index) => `${index > 0 ? '+' : ''}${attack.damageDice[die]}${die}`,
-  )
-  if (attack.extraDamageBonus) {
-    parts.push(
-      attack.extraDamageBonus > 0 ? `+${attack.extraDamageBonus}` : String(attack.extraDamageBonus),
-    )
+function hasDicePart(entry: DamageDieEntry): boolean {
+  return entry.count > 0 && entry.dieType != null
+}
+
+function formatDamageEntry(entry: DamageDieEntry): string {
+  const bonus = entry.bonus ?? 0
+  const typeLabel = entry.damageType ? ` ${DAMAGE_TYPE_LABELS[entry.damageType]}` : ''
+  if (hasDicePart(entry)) {
+    const dice = `${entry.count}${entry.dieType}`
+    const bonusStr = bonus > 0 ? `+${bonus}` : bonus < 0 ? String(bonus) : ''
+    return `${dice}${bonusStr}${typeLabel}`
   }
-  return parts.join(' ') || '—'
+  return `${bonus}${typeLabel}`
+}
+
+/** 將攻擊的傷害條目組合為顯示字串，例如 `1d8+5 劈砍 + 4d8+10 光耀` 或 `10 酸蝕` */
+export function formatDamageSummary(attack: AttackDraft): string {
+  const renderable = attack.damageDice.filter(
+    (entry) => hasDicePart(entry) || (entry.bonus ?? 0) !== 0,
+  )
+  if (renderable.length === 0) return '—'
+  return renderable.map((entry, i) => `${i > 0 ? '+ ' : ''}${formatDamageEntry(entry)}`).join(' ')
 }

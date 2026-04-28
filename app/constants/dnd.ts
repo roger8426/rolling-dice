@@ -3,6 +3,7 @@ import type {
   AlignmentKey,
   ArmorType,
   DamageDieType,
+  DamageTypeKey,
   GenderKey,
   ProfessionData,
   ProfessionKey,
@@ -177,6 +178,41 @@ export const DAMAGE_DIE_TYPES = [
   'd12',
 ] as const satisfies readonly DamageDieType[]
 
+// ─── Damage Type ──────────────────────────────────────────────────────────────
+
+export const DAMAGE_TYPE_KEYS = [
+  'bludgeoning',
+  'piercing',
+  'slashing',
+  'acid',
+  'cold',
+  'fire',
+  'lightning',
+  'thunder',
+  'poison',
+  'force',
+  'necrotic',
+  'radiant',
+  'psychic',
+] as const satisfies readonly DamageTypeKey[]
+
+/** 傷害類型顯示文字 */
+export const DAMAGE_TYPE_LABELS: Readonly<Record<DamageTypeKey, string>> = {
+  bludgeoning: '鈍擊',
+  piercing: '穿刺',
+  slashing: '劈砍',
+  acid: '酸蝕',
+  cold: '寒冰',
+  fire: '火焰',
+  lightning: '閃電',
+  thunder: '雷鳴',
+  poison: '毒素',
+  force: '力場',
+  necrotic: '暗蝕',
+  radiant: '光耀',
+  psychic: '心靈',
+}
+
 // ─── Armor Type ─────────────────────────────────────────────────────────────────
 
 /** 護甲類型中文名稱對照表 */
@@ -242,6 +278,9 @@ export const PROFICIENCY_OPTIONS: ReadonlyArray<{
 
 /** 購點制的各屬性初始分數 */
 export const POINT_BUY_DEFAULT_SCORE = 8
+
+/** 擲骰模式下，尚未指派骰值的屬性顯示分數 */
+export const UNASSIGNED_ABILITY_SCORE = 8
 
 /** 所有 AbilityKey，用於迭代 */
 export const ABILITY_KEYS: readonly AbilityKey[] = [

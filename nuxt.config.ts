@@ -13,8 +13,15 @@ export default defineNuxtConfig({
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
     head: {
-      link: [{ rel: 'icon', type: 'image/png', href: './dice-20.png' }],
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: `${process.env.NUXT_APP_BASE_URL ?? '/'}dice-20.png`,
+        },
+      ],
       title: 'Rolling Dice',
+      titleTemplate: '%s | Rolling Dice',
     },
   },
 

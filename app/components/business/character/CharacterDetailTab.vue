@@ -85,10 +85,10 @@
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-border-soft text-left text-xs text-content-muted">
-                <th class="pb-2 pr-4 font-normal">職業</th>
-                <th class="pb-2 pr-4 font-normal text-right">等級</th>
-                <th class="pb-2 pr-4 font-normal text-right">生命骰</th>
-                <th class="pb-2 pr-4 font-normal text-right">生命值</th>
+                <th class="pb-2 pr-2 font-normal">職業</th>
+                <th class="pb-2 pr-2 font-normal text-right">等級</th>
+                <th class="pb-2 pr-2 font-normal text-right">生命骰</th>
+                <th class="pb-2 pr-2 font-normal text-right">生命值</th>
                 <th class="pb-2 font-normal text-right">體質</th>
                 <th class="pb-2 font-normal text-right">健壯</th>
               </tr>
@@ -99,7 +99,7 @@
                 :key="row.profession"
                 class="border-b border-border-soft"
               >
-                <td class="py-2 pr-4 text-content-soft">
+                <td class="py-2 pr-2 text-content-soft">
                   <div class="flex items-center gap-1.5">
                     <img
                       v-if="PROFESSION_IMAGES[row.profession]"
@@ -112,9 +112,9 @@
                     {{ row.label }}
                   </div>
                 </td>
-                <td class="py-2 pr-4 text-right text-content-soft">{{ row.level }}</td>
-                <td class="py-2 pr-4 text-right text-content-soft">d{{ row.hitDie }}</td>
-                <td class="py-2 pr-4 text-right text-content-soft">{{ row.hp }}</td>
+                <td class="py-2 pr-2 text-right text-content-soft">{{ row.level }}</td>
+                <td class="py-2 pr-2 text-right text-content-soft">d{{ row.hitDie }}</td>
+                <td class="py-2 pr-2 text-right text-content-soft">{{ row.hp }}</td>
                 <td class="py-2 text-right text-content-soft">{{ row.conBonus }}</td>
                 <td class="py-2 text-right text-content-soft">
                   {{ character.isTough ? row.level * 2 : '-' }}
@@ -123,9 +123,9 @@
             </tbody>
             <tfoot>
               <tr class="font-bold text-content">
-                <td class="pt-2 pr-4">合計</td>
-                <td class="pt-2 pr-4 text-right">{{ character.totalLevel }}</td>
-                <td class="pt-2 pr-4 text-right">—</td>
+                <td class="pt-2 pr-2">合計</td>
+                <td class="pt-2 pr-2 text-right">{{ character.totalLevel }}</td>
+                <td class="pt-2 pr-3 text-right">—</td>
                 <td class="pt-2 text-right" colspan="3">{{ totalHp }}</td>
               </tr>
             </tfoot>
@@ -185,7 +185,7 @@
           <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
             其他屬性
           </h2>
-          <div class="grid grid-cols-4 gap-3 mt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
