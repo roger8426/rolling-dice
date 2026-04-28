@@ -49,6 +49,8 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
     ...overrides,
   }
 }
@@ -132,6 +134,8 @@ export function createMockUpdateFormState(
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
     ...overrides,
   }
 }

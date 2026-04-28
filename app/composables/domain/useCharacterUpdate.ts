@@ -1,4 +1,5 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
+import { DEFAULT_CURRENCY } from '~/constants/inventory'
 import { createDefaultArmorClass } from '~/helpers/character'
 import type {
   AttackDraft,
@@ -56,6 +57,8 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     learnedSpells: [...character.learnedSpells],
     preparedSpells: [...character.preparedSpells],
     features: character.features.map((f) => ({ ...f, usage: { ...f.usage } })),
+    items: character.items.map((i) => ({ ...i })),
+    currency: { ...character.currency },
   }
 }
 
@@ -94,6 +97,8 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { ...DEFAULT_CURRENCY },
   }
 }
 

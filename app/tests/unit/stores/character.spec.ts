@@ -205,6 +205,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   learnedSpells: [],
   preparedSpells: [],
   features: [],
+  items: [],
+  currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
 }
 
 describe('useCharacterStore — updateCharacter', () => {
@@ -351,5 +353,21 @@ describe('useCharacterStore — loadFromStorage migration', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
     const store = useCharacterStore()
     expect(store.characters[0]!.savingThrowExtras).toEqual([])
+  })
+
+  it('舊資料缺少 items 時應自動補為空陣列', () => {
+    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
+    delete legacyCharacter.items
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+    const store = useCharacterStore()
+    expect(store.characters[0]!.items).toEqual([])
+  })
+
+  it('舊資料缺少 currency 時應自動補為全零', () => {
+    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
+    delete legacyCharacter.currency
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+    const store = useCharacterStore()
+    expect(store.characters[0]!.currency).toEqual({ cp: 0, sp: 0, gp: 0, pp: 0 })
   })
 })

@@ -48,6 +48,8 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
   {
     id: 'char-002',
@@ -92,6 +94,8 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
   {
     id: 'char-003',
@@ -141,6 +145,8 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
   {
     id: 'char-004',
@@ -188,6 +194,8 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
   {
     id: 'char-005',
@@ -240,6 +248,8 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
   {
     id: 'char-006',
@@ -293,5 +303,7 @@ export const MOCK_CHARACTERS: Character[] = [
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
   },
 ]
