@@ -1,6 +1,7 @@
 <template>
   <Select
     class="app-select bg-canvas-inset rounded-md"
+    color="var(--color-content)"
     :border-color="borderColor"
     :dropdown-bg="dropdownBg"
     :option-hover-color="optionHoverColor"
