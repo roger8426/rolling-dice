@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMockCharacter, createMockFormState } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import { useCharacterStore } from '~/stores/character'
-import type { CharacterUpdateFormState } from '~/types/business/character'
+import type { Character, CharacterUpdateFormState } from '~/types/business/character'
 
 const MOCK_CHARACTER = createMockCharacter({ isTough: true })
 
