@@ -249,14 +249,25 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
   function shortRest(shortRestFeatureIds: string[]): void {
     if (shortRestFeatureIds.length === 0) return
     const targets = new Set(shortRestFeatureIds)
+    const recoveredFeatureCount = Object.keys(state.featureUses).filter((k) =>
+      targets.has(k),
+    ).length
     state.featureUses = Object.fromEntries(
       Object.entries(state.featureUses).filter(([k]) => !targets.has(k)),
     ) as Partial<Record<string, number>>
     touch()
+
+    useToast().success(
+      recoveredFeatureCount > 0
+        ? `短休完成，${recoveredFeatureCount} 項特性使用次數已回復`
+        : '短休完成',
+    )
   }
 
   /** 長休：HP 回滿、清空所有臨時調整與所有特性次數，並依「大骰面優先」貪婪回復生命骰 */
   function longRest(professions: readonly ProfessionEntry[] = []): void {
+    const hitDiceUsedBefore = Object.values(state.hitDiceUsed).reduce((sum, n) => sum + (n ?? 0), 0)
+
     state.hp.current = null
     state.hp.tempHp = 0
     state.hp.maxAdjustment = 0
@@ -266,6 +277,15 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     state.featureUses = {}
     state.hitDiceUsed = recoverHitDice(state.hitDiceUsed, professions)
     touch()
+
+    const hitDiceUsedAfter = Object.values(state.hitDiceUsed).reduce((sum, n) => sum + (n ?? 0), 0)
+    const recoveredHitDice = hitDiceUsedBefore - hitDiceUsedAfter
+
+    useToast().success(
+      recoveredHitDice > 0
+        ? `長休完成，HP 已回滿並回復 ${recoveredHitDice} 個生命骰`
+        : '長休完成，HP 已回滿',
+    )
   }
 
   // ─── Persist ──────────────────────────────────────────────────────────

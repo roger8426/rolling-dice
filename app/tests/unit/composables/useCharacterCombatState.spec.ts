@@ -5,13 +5,18 @@ import { getCombatStateStorageKey } from '~/constants/storage'
 
 const CHAR_ID = 'char-001'
 
+const mockToastSuccess = vi.fn()
+
 beforeEach(() => {
   localStorage.clear()
   vi.useFakeTimers()
+  vi.stubGlobal('useToast', () => ({ success: mockToastSuccess }))
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
+  vi.clearAllMocks()
 })
 
 describe('useCharacterCombatState — 預設與初始狀態', () => {
@@ -205,6 +210,41 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.hp.current).toBeNull()
     expect(state.hp.maxAdjustment).toBe(0)
     expect(state.featureUses).toEqual({})
+  })
+})
+
+describe('useCharacterCombatState — 休息 toast 通知', () => {
+  it('shortRest 有恢復項時應彈出含項目數的 success toast', () => {
+    const { adjustFeatureUse, shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUse('feat-1', -1, 2)
+    adjustFeatureUse('feat-2', -1, 2)
+    shortRest(['feat-1', 'feat-2'])
+    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成，2 項特性使用次數已回復')
+  })
+
+  it('shortRest 無已使用特性時應彈出精簡 toast', () => {
+    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    shortRest(['feat-1'])
+    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成')
+  })
+
+  it('shortRest([]) early return 不應彈 toast', () => {
+    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    shortRest([])
+    expect(mockToastSuccess).not.toHaveBeenCalled()
+  })
+
+  it('longRest 有回復生命骰時應彈出含骰數的 success toast', () => {
+    const { adjustHitDiceUsed, longRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustHitDiceUsed('fighter', 5, 5)
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿並回復 2 個生命骰')
+  })
+
+  it('longRest 無生命骰可回復時應彈出精簡 toast', () => {
+    const { longRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    longRest([{ profession: 'fighter', level: 5 }])
+    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿')
   })
 })
 
