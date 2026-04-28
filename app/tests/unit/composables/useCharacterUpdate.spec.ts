@@ -1,18 +1,12 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createAttackDraft, createMockCharacter } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
-import type { Character } from '~/types/business/character'
 
 const mockNavigateTo = vi.fn()
 
-const MOCK_CHARACTER: Character = {
+const MOCK_CHARACTER = createMockCharacter({
   id: 'update-001',
-  name: '測試角色',
-  gender: 'male',
-  race: 'human',
-  alignment: 'trueNeutral',
-  professions: [{ profession: 'fighter', level: 5 }],
-  totalLevel: 5,
   abilities: {
     strength: { basicScore: 15, bonusScore: 2 },
     dexterity: { basicScore: 14, bonusScore: 0 },
@@ -21,11 +15,6 @@ const MOCK_CHARACTER: Character = {
     wisdom: { basicScore: 10, bonusScore: 0 },
     charisma: { basicScore: 8, bonusScore: 0 },
   },
-  savingThrowProficiencies: ['strength', 'constitution'],
-  savingThrowExtras: [],
-  skills: { athletics: 'proficient' },
-  background: '士兵',
-  isJackOfAllTrades: false,
   isTough: true,
   faith: '坦帕斯',
   age: 35,
@@ -37,18 +26,7 @@ const MOCK_CHARACTER: Character = {
   tools: '鍛造工具',
   weaponProficiencies: '長劍',
   armorProficiencies: '鎧甲',
-  avatar: null,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  extraHp: 0,
-  speedBonus: null,
-  initiativeBonus: null,
-  passivePerceptionBonus: null,
-  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
-  attacks: [],
-  learnedSpells: [],
-  preparedSpells: [],
-  features: [],
-}
+})
 
 const mockToastError = vi.fn()
 
@@ -235,12 +213,7 @@ describe('useCharacterUpdate — 護甲設定', () => {
 
 // ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
 
-const defaultEntry = (): import('~/types/business/character').AttackDraft => ({
-  name: '',
-  abilityKey: null,
-  damageDice: [],
-  extraHitBonus: null,
-})
+const defaultEntry = () => createAttackDraft()
 
 describe('useCharacterUpdate — 自訂攻擊', () => {
   it('addAttack 應新增一筆攻擊', async () => {

@@ -1,59 +1,13 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createMockCharacter, createMockFormState } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 import { useCharacterStore } from '~/stores/character'
-import type {
-  Character,
-  CharacterFormState,
-  CharacterUpdateFormState,
-} from '~/types/business/character'
+import type { CharacterUpdateFormState } from '~/types/business/character'
 
-const MOCK_CHARACTER: Character = {
-  id: 'test-001',
-  name: '測試角色',
-  gender: 'male',
-  race: 'human',
-  alignment: 'trueNeutral',
-  professions: [{ profession: 'fighter', level: 5 }],
-  totalLevel: 5,
-  abilities: {
-    strength: { basicScore: 15, bonusScore: 0 },
-    dexterity: { basicScore: 14, bonusScore: 0 },
-    constitution: { basicScore: 13, bonusScore: 0 },
-    intelligence: { basicScore: 12, bonusScore: 0 },
-    wisdom: { basicScore: 10, bonusScore: 0 },
-    charisma: { basicScore: 8, bonusScore: 0 },
-  },
-  savingThrowProficiencies: ['strength', 'constitution'],
-  savingThrowExtras: [],
-  skills: { athletics: 'proficient' },
-  background: '士兵',
-  isJackOfAllTrades: false,
-  isTough: true,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  faith: null,
-  age: null,
-  height: null,
-  weight: null,
-  appearance: null,
-  story: null,
-  languages: null,
-  tools: null,
-  weaponProficiencies: null,
-  armorProficiencies: null,
-  avatar: null,
-  extraHp: 0,
-  speedBonus: null,
-  initiativeBonus: null,
-  passivePerceptionBonus: null,
-  armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
-  attacks: [],
-  learnedSpells: [],
-  preparedSpells: [],
-  features: [],
-}
+const MOCK_CHARACTER = createMockCharacter({ isTough: true })
 
-const MOCK_FORM_STATE: CharacterFormState = {
+const MOCK_FORM_STATE = createMockFormState({
   name: '新角色',
   gender: 'female',
   race: 'elf',
@@ -67,23 +21,9 @@ const MOCK_FORM_STATE: CharacterFormState = {
     wisdom: 13,
     charisma: 10,
   },
-  abilityMethod: 'custom',
-  dicePool: [],
   skills: { arcana: 'proficient' },
   background: '學者',
-  isJackOfAllTrades: false,
-  isTough: false,
-  faith: null,
-  age: null,
-  height: null,
-  weight: null,
-  appearance: null,
-  story: null,
-  languages: null,
-  tools: null,
-  weaponProficiencies: null,
-  armorProficiencies: null,
-}
+})
 
 beforeEach(() => {
   localStorage.clear()
