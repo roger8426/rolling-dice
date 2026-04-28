@@ -40,7 +40,7 @@
             :options="SPELL_SCHOOL_OPTIONS"
             size="sm"
             class="w-24"
-            @update:model-value="filter.school = ($event ?? '').toString()"
+            @update:model-value="filter.school = ($event ?? '') as SchoolFilter"
           />
         </div>
         <Button
@@ -178,6 +178,8 @@ import {
 } from '~/constants/spell-options'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
+type SchoolFilter = SpellSchool | ''
+
 const props = defineProps<{
   learnedSpells: string[]
 }>()
@@ -197,7 +199,7 @@ const schoolSelectId = useId()
 interface SpellFilter {
   keyword: string
   level: SpellLevelFilter
-  school: string
+  school: SpellSchool | ''
   ritual: boolean
   concentration: boolean
 }
@@ -248,7 +250,7 @@ const filteredSpells = computed<Spell[]>(() => {
 
   const keyword = filter.keyword.trim().toLowerCase()
   const level = filter.level === 'all' ? null : filter.level
-  const school = filter.school === '' ? null : (filter.school as SpellSchool)
+  const school = filter.school === '' ? null : filter.school
 
   return spells.value.filter((s) => {
     if (keyword && !s.name.toLowerCase().includes(keyword)) return false
