@@ -32,6 +32,24 @@
           </template>
           <BusinessCharacterCombatQuickView :character="character" />
         </Tab>
+        <Tab value="backpack">
+          <template #label>
+            <span class="text-content">背包</span>
+          </template>
+          <BusinessCharacterFormInventoryTab
+            :backpack-items="backpackItems"
+            :dimensional-bag-items="dimensionalBagItems"
+            :currency="currency"
+            :backpack-load="backpackLoad"
+            :max-carry-weight="maxCarryWeight"
+            :is-over-encumbered="isOverEncumbered"
+            @add-item="addItem"
+            @remove-item="removeItem"
+            @update-item="updateItem"
+            @move-item="moveItem"
+            @update-currency="updateCurrency"
+          />
+        </Tab>
       </Tabs>
     </div>
 
@@ -47,8 +65,21 @@ useHead({ title: '角色卡詳情' })
 const activeTab = ref('profile')
 
 const route = useRoute()
-const characterStore = useCharacterStore()
-
 const id = getRouteParam(route.params.id)
+const characterStore = useCharacterStore()
 const character = computed(() => characterStore.getById(id))
+
+const {
+  currency,
+  backpackItems,
+  dimensionalBagItems,
+  backpackLoad,
+  maxCarryWeight,
+  isOverEncumbered,
+  addItem,
+  removeItem,
+  updateItem,
+  moveItem,
+  updateCurrency,
+} = useCharacterInventory(id)
 </script>

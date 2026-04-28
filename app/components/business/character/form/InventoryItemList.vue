@@ -33,7 +33,11 @@
           <Icon name="list" :size="14" class="shrink-0 text-content-muted" />
 
           <!-- Type badge -->
-          <Badge size="sm" bg-color="var(--color-surface-3)" class="shrink-0">
+          <Badge
+            size="sm"
+            bg-color="var(--color-surface-3)"
+            class="shrink-0 hidden! xs:inline-flex!"
+          >
             <span class="text-content-muted">{{ ITEM_TYPE_LABELS[item.type] }}</span>
           </Badge>
 
@@ -48,8 +52,8 @@
           <!-- Stats -->
           <div class="flex shrink-0 items-center gap-3 text-xs text-content-muted">
             <span>×{{ item.quantity }}</span>
-            <span>{{ formatWeight(item.weight) }} 磅</span>
-            <span class="font-medium text-content">
+            <span class="hidden xxs:inline">{{ formatWeight(item.weight) }} 磅</span>
+            <span class="font-medium text-content hidden xxs:inline">
               {{ formatWeight(item.weight * item.quantity) }} 磅
             </span>
           </div>

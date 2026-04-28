@@ -9,6 +9,7 @@
 }
 
 @theme {
+  --breakpoint-xxs: 24rem; /* 384px */
   --breakpoint-xs: 30rem; /* 480px */
 }
 

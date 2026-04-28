@@ -1,7 +1,9 @@
 import type {
   Character,
+  CharacterCurrency,
   CharacterFormState,
   CharacterUpdateFormState,
+  InventoryItem,
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import { ABILITY_KEYS } from '~/constants/dnd'
@@ -127,6 +129,26 @@ export const useCharacterStore = defineStore('character', () => {
     return cloneCharacter(updated)
   }
 
+  function updateInventory(
+    id: string,
+    items: InventoryItem[],
+    currency: CharacterCurrency,
+  ): boolean {
+    const index = characters.value.findIndex((c) => c.id === id)
+    if (index === -1) return false
+    const previous = characters.value[index]!
+    characters.value[index] = {
+      ...previous,
+      items: JSON.parse(JSON.stringify(items)),
+      currency: { ...currency },
+    }
+    if (!saveToStorage(characters.value)) {
+      characters.value[index] = previous
+      return false
+    }
+    return true
+  }
+
   /** 重設角色為預設 MOCK_CHARACTERS 並寫回 localStorage（僅供開發階段使用）。 */
   function resetCharacters(): void {
     if (!import.meta.dev) return
@@ -134,5 +156,13 @@ export const useCharacterStore = defineStore('character', () => {
     saveToStorage(characters.value)
   }
 
-  return { characters, getById, addCharacter, updateCharacter, removeCharacter, resetCharacters }
+  return {
+    characters,
+    getById,
+    addCharacter,
+    updateCharacter,
+    updateInventory,
+    removeCharacter,
+    resetCharacters,
+  }
 })
