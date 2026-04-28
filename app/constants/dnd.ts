@@ -197,7 +197,7 @@ export const DAMAGE_TYPE_KEYS = [
 ] as const satisfies readonly DamageTypeKey[]
 
 /** 傷害類型顯示文字 */
-export const DAMAGE_TYPE_LABELS: Record<DamageTypeKey, string> = {
+export const DAMAGE_TYPE_LABELS: Readonly<Record<DamageTypeKey, string>> = {
   bludgeoning: '鈍擊',
   piercing: '穿刺',
   slashing: '劈砍',
