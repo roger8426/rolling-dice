@@ -53,6 +53,38 @@ export type CharacterAbilityScores = Record<AbilityKey, AbilityScoreEntry>
 /** 角色技能熟練度，僅記錄有熟練或專精的技能；'none' 以 key 不存在表示 */
 export type SkillProficiencies = Partial<Record<SkillKey, Exclude<ProficiencyLevel, 'none'>>>
 
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+/** 物品類型 */
+export type ItemType = 'weapon' | 'armor' | 'consumable' | 'other'
+
+/** 物品存放位置：一般背包或次元袋（不計入負重） */
+export type InventoryLocation = 'backpack' | 'dimensionalBag'
+
+/** 背包物品條目 */
+export interface InventoryItem {
+  id: string
+  name: string
+  description: string | null
+  /** 數量（整數） */
+  quantity: number
+  /** 每件重量（磅，可為小數） */
+  weight: number
+  type: ItemType
+  location: InventoryLocation
+}
+
+/** 物品草稿（尚未具備 id） */
+export type InventoryItemDraft = Omit<InventoryItem, 'id'>
+
+/** 角色持有金錢 */
+export interface CharacterCurrency {
+  cp: number
+  sp: number
+  gp: number
+  pp: number
+}
+
 // ─── Character ────────────────────────────────────────────────────────────────
 
 /**
@@ -129,6 +161,10 @@ export interface Character {
   preparedSpells: string[]
   /** 角色特性列表（專長、職業能力等） */
   features: CharacterFeature[]
+  /** 背包與儲物袋的物品列表（以 location 區分位置） */
+  items: InventoryItem[]
+  /** 持有金錢 */
+  currency: CharacterCurrency
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -281,4 +317,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   preparedSpells: string[]
   /** 角色特性列表 */
   features: CharacterFeature[]
+  /** 背包與儲物袋的物品列表（以 location 區分位置） */
+  items: InventoryItem[]
+  /** 持有金錢 */
+  currency: CharacterCurrency
 }

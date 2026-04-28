@@ -11,6 +11,7 @@ import {
   createDefaultArmorClass,
   formStateToCharacterPatch,
 } from '~/helpers/character'
+import { createDefaultInventory } from '~/helpers/inventory'
 import { MOCK_CHARACTERS } from '~/mocks/characters'
 
 /** 對 Character 做深拷貝，斷開與 store 內部 reactive proxy 的關聯。 */
@@ -20,18 +21,16 @@ function cloneCharacter(c: Character): Character {
 
 function loadFromStorage(): Character[] {
   const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
-  if (stored) return stored.map(normalizeCharacter)
-  return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
-}
-
-/** 補齊新版欄位的預設值，避免舊資料反序列化後缺漏。 */
-function normalizeCharacter(character: Character): Character {
-  return {
-    ...character,
-    savingThrowExtras: character.savingThrowExtras ?? [],
-    features: character.features ?? [],
-    attacks: character.attacks ?? [],
+  if (stored) {
+    return stored.map((c) => ({
+      ...createDefaultInventory(),
+      ...c,
+      savingThrowExtras: c.savingThrowExtras ?? [],
+      features: c.features ?? [],
+      attacks: c.attacks ?? [],
+    }))
   }
+  return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
 }
 
 function saveToStorage(characters: Character[]): boolean {
@@ -71,6 +70,7 @@ export const useCharacterStore = defineStore('character', () => {
       learnedSpells: [],
       preparedSpells: [],
       features: [],
+      ...createDefaultInventory(),
     }
     characters.value.push(character)
     if (!saveToStorage(characters.value)) {
@@ -115,6 +115,8 @@ export const useCharacterStore = defineStore('character', () => {
       learnedSpells,
       preparedSpells,
       features: JSON.parse(JSON.stringify(formState.features)),
+      items: JSON.parse(JSON.stringify(formState.items)),
+      currency: { ...formState.currency },
     }
 
     characters.value[index] = updated

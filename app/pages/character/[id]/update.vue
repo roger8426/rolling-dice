@@ -138,6 +138,25 @@
             @toggle-prepared="togglePreparedSpell"
           />
         </Tab>
+
+        <Tab value="backpack">
+          <template #label>
+            <span class="text-content">背包</span>
+          </template>
+          <BusinessCharacterFormInventoryTab
+            :backpack-items="backpackItems"
+            :dimensional-bag-items="dimensionalBagItems"
+            :currency="formState.currency"
+            :backpack-load="backpackLoad"
+            :max-carry-weight="maxCarryWeight"
+            :is-over-encumbered="isOverEncumbered"
+            @add-item="addItem"
+            @remove-item="removeItem"
+            @update-item="updateItem"
+            @move-item="moveItem"
+            @update-currency="updateCurrency"
+          />
+        </Tab>
       </Tabs>
     </template>
   </div>
@@ -161,6 +180,8 @@ const {
   combat,
   spells,
   features,
+  inventory,
+  inventoryDerived,
   submit,
 } = useCharacterUpdate(id)
 
@@ -205,4 +226,9 @@ const {
 const { toggleLearnedSpell, togglePreparedSpell } = spells
 
 const { addFeature, removeFeature, updateFeature } = features
+
+const { addItem, removeItem, updateItem, moveItem, updateCurrency } = inventory
+
+const { backpackItems, dimensionalBagItems, backpackLoad, maxCarryWeight, isOverEncumbered } =
+  inventoryDerived
 </script>

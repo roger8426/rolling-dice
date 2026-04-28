@@ -27,4 +27,4 @@ logs
 coverage/
 
 # Local code review reports (not versioned)
-docs/reviews/
+docs/

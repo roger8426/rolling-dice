@@ -1,10 +1,14 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
+import { DEFAULT_CURRENCY } from '~/constants/inventory'
 import { createDefaultArmorClass } from '~/helpers/character'
+import { calculateBackpackLoad, calculateMaxCarryWeight } from '~/helpers/inventory'
 import type {
   AttackDraft,
   Character,
+  CharacterCurrency,
   CharacterUpdateFormState,
   FeatureDraft,
+  InventoryItemDraft,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
@@ -56,6 +60,8 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     learnedSpells: [...character.learnedSpells],
     preparedSpells: [...character.preparedSpells],
     features: character.features.map((f) => ({ ...f, usage: { ...f.usage } })),
+    items: character.items.map((i) => ({ ...i })),
+    currency: { ...character.currency },
   }
 }
 
@@ -94,6 +100,8 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     learnedSpells: [],
     preparedSpells: [],
     features: [],
+    items: [],
+    currency: { ...DEFAULT_CURRENCY },
   }
 }
 
@@ -209,6 +217,52 @@ export function useCharacterUpdate(id: string) {
     }
   }
 
+  // ─── Inventory ────────────────────────────────────────────────────────
+
+  function addItem(draft: InventoryItemDraft): void {
+    formState.items.push({ id: crypto.randomUUID(), ...draft })
+  }
+
+  function removeItem(itemId: string): void {
+    const index = formState.items.findIndex((i) => i.id === itemId)
+    if (index !== -1) formState.items.splice(index, 1)
+  }
+
+  function updateItem(itemId: string, draft: InventoryItemDraft): void {
+    const index = formState.items.findIndex((i) => i.id === itemId)
+    if (index !== -1) formState.items[index] = { id: itemId, ...draft }
+  }
+
+  function moveItem(itemId: string): void {
+    const item = formState.items.find((i) => i.id === itemId)
+    if (!item) return
+    item.location = item.location === 'backpack' ? 'dimensionalBag' : 'backpack'
+  }
+
+  function updateCurrency(value: CharacterCurrency): void {
+    formState.currency = { ...value }
+  }
+
+  const backpackItems = computed(() => formState.items.filter((i) => i.location === 'backpack'))
+  const dimensionalBagItems = computed(() =>
+    formState.items.filter((i) => i.location === 'dimensionalBag'),
+  )
+  const backpackLoad = computed(() =>
+    calculateBackpackLoad(backpackItems.value, formState.currency),
+  )
+  const maxCarryWeight = computed(() =>
+    calculateMaxCarryWeight(derived.totalAbilityScores.value.strength),
+  )
+  const isOverEncumbered = computed(() => backpackLoad.value > maxCarryWeight.value)
+
+  const inventoryDerived = {
+    backpackItems,
+    dimensionalBagItems,
+    backpackLoad,
+    maxCarryWeight,
+    isOverEncumbered,
+  }
+
   // ─── Submit ───────────────────────────────────────────────────────────
 
   const logger = createLogger('[CharacterUpdate]')
@@ -267,6 +321,16 @@ export function useCharacterUpdate(id: string) {
       removeFeature,
       updateFeature,
     },
+
+    inventory: {
+      addItem,
+      removeItem,
+      updateItem,
+      moveItem,
+      updateCurrency,
+    },
+
+    inventoryDerived,
 
     submit,
   }
