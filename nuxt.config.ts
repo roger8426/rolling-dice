@@ -21,6 +21,7 @@ export default defineNuxtConfig({
         },
       ],
       title: 'Rolling Dice',
+      titleTemplate: '%s | Rolling Dice',
     },
   },
 

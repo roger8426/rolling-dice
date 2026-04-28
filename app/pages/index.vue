@@ -65,6 +65,8 @@
 import { PROFESSION_CONFIG } from '~/constants/dnd'
 import type { ProfessionKey } from '~/types/business/dnd'
 
+useHead({ titleTemplate: '%s' })
+
 // ─── Profession ring data ──────────────────────────────────────────────────────
 const OUTER_RING_PROFESSIONS: ProfessionKey[] = [
   'artificer',
