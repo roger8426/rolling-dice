@@ -175,6 +175,8 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Spells ───────────────────────────────────────────────────────────
 
+  const { getSpell } = useSpells()
+
   function toggleLearnedSpell(id: string): void {
     const index = formState.learnedSpells.indexOf(id)
     if (index === -1) {
@@ -187,6 +189,7 @@ export function useCharacterUpdate(id: string) {
   }
 
   function togglePreparedSpell(id: string): void {
+    if (getSpell(id)?.level === 0) return
     if (!formState.learnedSpells.includes(id)) return
     const index = formState.preparedSpells.indexOf(id)
     if (index === -1) {
