@@ -1,9 +1,5 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { DEFAULT_CURRENCY } from '~/constants/inventory'
-import { useCharacterAttacksForm } from '~/composables/domain/useCharacterAttacksForm'
-import { useCharacterFeaturesForm } from '~/composables/domain/useCharacterFeaturesForm'
-import { useCharacterSpellsForm } from '~/composables/domain/useCharacterSpellsForm'
-import { useCharacterStatsForm } from '~/composables/domain/useCharacterStatsForm'
 import { createDefaultArmorClass } from '~/helpers/character'
 import type { Character, CharacterUpdateFormState } from '~/types/business/character'
 

@@ -40,7 +40,20 @@ async function getComposable(characterId: string) {
   const { useCharacterDerivedStats } = await import('~/composables/domain/useCharacterDerivedStats')
   vi.stubGlobal('useCharacterDerivedStats', useCharacterDerivedStats)
 
+  const { useCharacterStatsForm } = await import('~/composables/domain/useCharacterStatsForm')
+  vi.stubGlobal('useCharacterStatsForm', useCharacterStatsForm)
+
+  const { useCharacterAttacksForm } = await import('~/composables/domain/useCharacterAttacksForm')
+  vi.stubGlobal('useCharacterAttacksForm', useCharacterAttacksForm)
+
+  const { useCharacterSpellsForm } = await import('~/composables/domain/useCharacterSpellsForm')
+  vi.stubGlobal('useCharacterSpellsForm', useCharacterSpellsForm)
+
+  const { useCharacterFeaturesForm } = await import('~/composables/domain/useCharacterFeaturesForm')
+  vi.stubGlobal('useCharacterFeaturesForm', useCharacterFeaturesForm)
+
   vi.stubGlobal('useToast', () => ({ error: mockToastError }))
+  // useSpells 為 useCharacterSpellsForm 的依賴，需 stub 避免載入真實 fetch
   vi.stubGlobal('useSpells', () => ({ getSpell: () => undefined }))
 
   const { useCharacterUpdate } = await import('~/composables/domain/useCharacterUpdate')

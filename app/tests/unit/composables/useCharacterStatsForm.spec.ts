@@ -123,3 +123,20 @@ describe('useCharacterStatsForm — 額外生命值', () => {
     expect(formState.customHpBonus).toBe(12)
   })
 })
+
+// ─── 豁免熟練 ──────────────────────────────────────────────────────────────────
+
+describe('useCharacterStatsForm — 豁免熟練', () => {
+  it('updateSavingThrowExtras 應更新額外熟練清單', () => {
+    const { formState, stats } = setup()
+    stats.updateSavingThrowExtras(['wisdom', 'charisma'])
+    expect(formState.savingThrowExtras).toEqual(['wisdom', 'charisma'])
+  })
+
+  it('updateSavingThrowExtras 可清空為空陣列', () => {
+    const { formState, stats } = setup()
+    stats.updateSavingThrowExtras(['wisdom'])
+    stats.updateSavingThrowExtras([])
+    expect(formState.savingThrowExtras).toEqual([])
+  })
+})
