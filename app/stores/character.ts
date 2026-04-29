@@ -80,9 +80,16 @@ export const useCharacterStore = defineStore('character', () => {
     return cloneCharacter(character)
   }
 
-  function removeCharacter(id: string): void {
-    characters.value = characters.value.filter((c) => c.id !== id)
-    saveToStorage(characters.value)
+  function removeCharacter(id: string): boolean {
+    const index = characters.value.findIndex((c) => c.id === id)
+    if (index === -1) return false
+    const previous = characters.value[index]!
+    characters.value.splice(index, 1)
+    if (!saveToStorage(characters.value)) {
+      characters.value.splice(index, 0, previous)
+      return false
+    }
+    return true
   }
 
   function updateCharacter(id: string, formState: CharacterUpdateFormState): Character | null {

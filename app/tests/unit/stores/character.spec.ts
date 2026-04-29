@@ -139,10 +139,11 @@ describe('useCharacterStore — addCharacter', () => {
 })
 
 describe('useCharacterStore — removeCharacter', () => {
-  it('刪除後該角色不應出現在 characters 中', () => {
+  it('刪除成功時應回傳 true，且該角色不應出現在 characters 中', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
-    store.removeCharacter('test-001')
+    const result = store.removeCharacter('test-001')
+    expect(result).toBe(true)
     expect(store.getById('test-001')).toBeUndefined()
   })
 
@@ -154,11 +155,25 @@ describe('useCharacterStore — removeCharacter', () => {
     expect(stored.some((c: Character) => c.id === 'test-001')).toBe(false)
   })
 
-  it('刪除不存在的 id 時 characters 長度應保持不變', () => {
+  it('刪除不存在的 id 時應回傳 false 且 characters 長度保持不變', () => {
     const store = useCharacterStore()
     const before = store.characters.length
-    store.removeCharacter('non-existent-id')
+    const result = store.removeCharacter('non-existent-id')
+    expect(result).toBe(false)
     expect(store.characters).toHaveLength(before)
+  })
+
+  it('寫入 localStorage 失敗時應回傳 false 且角色仍保留在原位置', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const before = [...store.characters]
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const result = store.removeCharacter('test-001')
+    expect(result).toBe(false)
+    expect(store.characters).toEqual(before)
   })
 })
 

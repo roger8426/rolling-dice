@@ -200,7 +200,12 @@ const handleDeleteRequest = (character: Character) => {
 
 const handleDeleteConfirm = () => {
   if (deleteTarget.value) {
-    characterStore.removeCharacter(deleteTarget.value.id)
+    const name = deleteTarget.value.name
+    if (characterStore.removeCharacter(deleteTarget.value.id)) {
+      useToast().success(`已刪除「${name}」`)
+    } else {
+      useToast().error('刪除失敗，請稍後再試')
+    }
   }
   showDeleteModal.value = false
   deleteTarget.value = null
