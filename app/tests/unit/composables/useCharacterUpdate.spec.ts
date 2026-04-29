@@ -464,10 +464,10 @@ describe('useCharacterUpdate — 特性', () => {
 // ─── 額外生命值 ────────────────────────────────────────────────────────────
 
 describe('useCharacterUpdate — 額外生命值', () => {
-  it('updateExtraHp 應更新 extraHp', async () => {
+  it('updateCustomHpBonus 應更新 customHpBonus', async () => {
     const { formState, combat } = await getComposable('update-001')
-    combat.updateExtraHp(12)
-    expect(formState.extraHp).toBe(12)
+    combat.updateCustomHpBonus(12)
+    expect(formState.customHpBonus).toBe(12)
   })
 })
 

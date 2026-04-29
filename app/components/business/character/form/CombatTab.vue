@@ -3,7 +3,7 @@
     <!-- 左欄：基礎數據 + 護甲等級 -->
     <div class="w-full space-y-8 sm:w-1/2 lg:w-1/3">
       <BusinessCharacterFormCombatOtherAttributesPanel
-        :extra-hp="extraHp"
+        :custom-hp-bonus="customHpBonus"
         :total-hp="totalHp"
         :is-tough="isTough"
         :speed-bonus="speedBonus"
@@ -12,7 +12,7 @@
         :total-speed="totalSpeed"
         :total-initiative="totalInitiative"
         :total-passive-perception="totalPassivePerception"
-        @update:extra-hp="emit('update:extraHp', $event)"
+        @update:custom-hp-bonus="emit('update:customHpBonus', $event)"
         @update:is-tough="emit('update:isTough', $event)"
         @update:speed-bonus="emit('update:speedBonus', $event)"
         @update:initiative-bonus="emit('update:initiativeBonus', $event)"
@@ -65,7 +65,7 @@ defineProps<{
   armorClass: ArmorClassConfig
   attacks: AttackEntry[]
   abilityScores: AbilityScores
-  extraHp: number
+  customHpBonus: number
   totalHp: number
   isTough: boolean
   proficiencyBonus: number
@@ -84,7 +84,7 @@ const emit = defineEmits<{
   'update:armorValue': [value: number | null]
   'update:armorAbilityKey': [value: AbilityKey | null]
   'update:shieldValue': [value: number]
-  'update:extraHp': [value: number]
+  'update:customHpBonus': [value: number]
   'update:isTough': [value: boolean]
   'update:speedBonus': [value: number | null]
   'update:initiativeBonus': [value: number | null]

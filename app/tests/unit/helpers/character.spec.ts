@@ -363,7 +363,7 @@ describe('calculateTotalHp', () => {
         professions: [{ profession: 'fighter', level: 3 }],
         conModifier: 2,
         isTough: false,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(28)
   })
@@ -380,7 +380,7 @@ describe('calculateTotalHp', () => {
         ],
         conModifier: 2,
         isTough: false,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(26)
   })
@@ -392,24 +392,26 @@ describe('calculateTotalHp', () => {
         professions: [{ profession: 'fighter', level: 3 }],
         conModifier: 2,
         isTough: true,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(34)
   })
 
-  it('extraHp 加值應直接疊加', () => {
+  it('customHpBonus 加值應直接疊加', () => {
     expect(
       calculateTotalHp({
         professions: [{ profession: 'fighter', level: 1 }],
         conModifier: 1,
         isTough: false,
-        extraHp: 5,
+        customHpBonus: 5,
       }),
     ).toBe(10 + 1 + 5)
   })
 
-  it('professions 為空時，僅回傳 extraHp（無健壯加值）', () => {
-    expect(calculateTotalHp({ professions: [], conModifier: 3, isTough: true, extraHp: 7 })).toBe(7)
+  it('professions 為空時，僅回傳 customHpBonus（無健壯加值）', () => {
+    expect(
+      calculateTotalHp({ professions: [], conModifier: 3, isTough: true, customHpBonus: 7 }),
+    ).toBe(7)
   })
 })
 

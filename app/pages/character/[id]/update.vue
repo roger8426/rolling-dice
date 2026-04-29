@@ -99,7 +99,7 @@
             :armor-class="formState.armorClass"
             :attacks="formState.attacks"
             :ability-scores="totalAbilityScores"
-            :extra-hp="formState.extraHp"
+            :custom-hp-bonus="formState.customHpBonus"
             :total-hp="totalHp"
             :is-tough="formState.isTough"
             :proficiency-bonus="proficiencyBonus"
@@ -115,7 +115,7 @@
             @update:armor-value="updateArmorValue"
             @update:armor-ability-key="updateArmorAbilityKey"
             @update:shield-value="updateShieldValue"
-            @update:extra-hp="updateExtraHp"
+            @update:custom-hp-bonus="updateCustomHpBonus"
             @update:is-tough="formState.isTough = $event"
             @update:speed-bonus="updateSpeedBonus"
             @update:initiative-bonus="updateInitiativeBonus"
@@ -188,7 +188,7 @@ const {
 const { updateBonusScore } = abilities
 
 const {
-  updateExtraHp,
+  updateCustomHpBonus,
   updateArmorType,
   updateArmorValue,
   updateArmorAbilityKey,

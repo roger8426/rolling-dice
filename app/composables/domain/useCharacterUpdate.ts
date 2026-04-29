@@ -49,7 +49,7 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     speedBonus: character.speedBonus,
     initiativeBonus: character.initiativeBonus,
     passivePerceptionBonus: character.passivePerceptionBonus,
-    extraHp: character.extraHp,
+    customHpBonus: character.customHpBonus,
     attacks: character.attacks.map((a) => ({
       ...a,
       damageDice: a.damageDice.map((e) => ({ ...e })),
@@ -92,7 +92,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     speedBonus: null,
     initiativeBonus: null,
     passivePerceptionBonus: null,
-    extraHp: 0,
+    customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
@@ -123,8 +123,8 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Combat ───────────────────────────────────────────────────────────
 
-  function updateExtraHp(value: number): void {
-    formState.extraHp = value
+  function updateCustomHpBonus(value: number): void {
+    formState.customHpBonus = value
   }
 
   function updateArmorType(type: ArmorType | null): void {
@@ -248,7 +248,7 @@ export function useCharacterUpdate(id: string) {
     },
 
     combat: {
-      updateExtraHp,
+      updateCustomHpBonus,
       updateArmorType,
       updateArmorValue,
       updateArmorAbilityKey,

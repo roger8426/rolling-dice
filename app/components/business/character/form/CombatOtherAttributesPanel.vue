@@ -22,17 +22,17 @@
           {{ totalHp }}
         </output>
         <div class="mt-2">
-          <label for="extra-hp" class="block text-xs text-content">額外加值</label>
+          <label for="custom-hp-bonus" class="block text-xs text-content">額外加值</label>
           <CommonAppInput
-            id="extra-hp"
+            id="custom-hp-bonus"
             :radius="0"
-            :model-value="String(extraHp)"
+            :model-value="String(customHpBonus)"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:extraHp', parseIntegerInput($event, 0))"
+            @update:model-value="emit('update:customHpBonus', parseIntegerInput($event, 0))"
           />
         </div>
       </div>
@@ -114,7 +114,7 @@
 import { Toggle } from '@ui'
 
 const props = defineProps<{
-  extraHp: number
+  customHpBonus: number
   totalHp: number
   isTough: boolean
   speedBonus: number | null
@@ -126,7 +126,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:extraHp': [value: number]
+  'update:customHpBonus': [value: number]
   'update:isTough': [value: boolean]
   'update:speedBonus': [value: number | null]
   'update:initiativeBonus': [value: number | null]

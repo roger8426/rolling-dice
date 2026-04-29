@@ -49,7 +49,7 @@ export function useCharacterDerivedStats(
       professions: validProfessions.value,
       conModifier: getAbilityModifier(totalAbilityScores.value.constitution),
       isTough: formState.isTough,
-      extraHp: formState.extraHp,
+      customHpBonus: formState.customHpBonus,
     }),
   )
 
@@ -106,7 +106,7 @@ export function useCharacterDerivedStatsFromCharacter(
       professions: character.value.professions,
       conModifier: getAbilityModifier(totalAbilityScores.value.constitution),
       isTough: character.value.isTough,
-      extraHp: character.value.extraHp,
+      customHpBonus: character.value.customHpBonus,
     }),
   )
 

@@ -123,7 +123,7 @@ export interface CharacterStats {
   isTough: boolean
   armorClass: ArmorClassConfig
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
-  extraHp: number
+  customHpBonus: number
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */
   speedBonus: number | null
   /** 額外先攻加值 */
@@ -328,7 +328,7 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number | null
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
-  extraHp: number
+  customHpBonus: number
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
   /** 已掌握的法術名稱列表 */

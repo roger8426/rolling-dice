@@ -40,7 +40,7 @@ function createFormState(
     speedBonus: null,
     initiativeBonus: null,
     passivePerceptionBonus: null,
-    extraHp: 0,
+    customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
@@ -114,7 +114,7 @@ describe('useCharacterDerivedStats', () => {
     const { totalHp } = useCharacterDerivedStats(formState)
     expect(totalHp.value).toBe(28)
 
-    formState.extraHp = 5
+    formState.customHpBonus = 5
     expect(totalHp.value).toBe(33)
 
     formState.isTough = true

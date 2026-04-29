@@ -133,7 +133,7 @@ export function calculateTotalHp(input: {
   professions: ProfessionEntry[]
   conModifier: number
   isTough: boolean
-  extraHp: number
+  customHpBonus: number
 }): number {
   const classHp = input.professions.reduce((sum, entry, index) => {
     const config = PROFESSION_CONFIG[entry.profession]
@@ -142,7 +142,7 @@ export function calculateTotalHp(input: {
   }, 0)
   const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
   const toughBonus = input.isTough ? totalLevel * 2 : 0
-  return classHp + toughBonus + input.extraHp
+  return classHp + toughBonus + input.customHpBonus
 }
 
 /**

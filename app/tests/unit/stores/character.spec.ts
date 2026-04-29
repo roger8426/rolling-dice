@@ -200,7 +200,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   speedBonus: null,
   initiativeBonus: null,
   passivePerceptionBonus: null,
-  extraHp: 0,
+  customHpBonus: 0,
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
