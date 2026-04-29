@@ -3,9 +3,9 @@ import { DEFAULT_CURRENCY } from '~/constants/inventory'
 import { useCharacterAttacksForm } from '~/composables/domain/useCharacterAttacksForm'
 import { useCharacterFeaturesForm } from '~/composables/domain/useCharacterFeaturesForm'
 import { useCharacterSpellsForm } from '~/composables/domain/useCharacterSpellsForm'
+import { useCharacterStatsForm } from '~/composables/domain/useCharacterStatsForm'
 import { createDefaultArmorClass } from '~/helpers/character'
 import type { Character, CharacterUpdateFormState } from '~/types/business/character'
-import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'features' | 'backpack'
 
@@ -113,49 +113,9 @@ export function useCharacterUpdate(id: string) {
   const core = useCharacterFormCore(formState)
   const derived = useCharacterDerivedStats(formState)
 
-  // ─── Abilities ────────────────────────────────────────────────────────
+  // ─── Stats ────────────────────────────────────────────────────────────
 
-  function updateBonusScore(key: AbilityKey, score: number): void {
-    formState.abilities[key].bonusScore = score
-  }
-
-  // ─── Combat ───────────────────────────────────────────────────────────
-
-  function updateCustomHpBonus(value: number): void {
-    formState.customHpBonus = value
-  }
-
-  function updateArmorType(type: ArmorType | null): void {
-    formState.armorClass.type = type
-  }
-
-  function updateArmorValue(value: number | null): void {
-    formState.armorClass.value = value
-  }
-
-  function updateArmorAbilityKey(abilityKey: AbilityKey | null): void {
-    formState.armorClass.abilityKey = abilityKey
-  }
-
-  function updateShieldValue(value: number): void {
-    formState.armorClass.shieldValue = value
-  }
-
-  function updateSpeedBonus(value: number): void {
-    formState.speedBonus = value
-  }
-
-  function updateInitiativeBonus(value: number): void {
-    formState.initiativeBonus = value
-  }
-
-  function updatePassivePerceptionBonus(value: number): void {
-    formState.passivePerceptionBonus = value
-  }
-
-  function updateSavingThrowExtras(value: AbilityKey[]): void {
-    formState.savingThrowExtras = value
-  }
+  const stats = useCharacterStatsForm(formState)
 
   // ─── Attacks ──────────────────────────────────────────────────────────
 
@@ -198,21 +158,7 @@ export function useCharacterUpdate(id: string) {
     core,
     derived,
 
-    abilities: {
-      updateBonusScore,
-    },
-
-    combat: {
-      updateCustomHpBonus,
-      updateArmorType,
-      updateArmorValue,
-      updateArmorAbilityKey,
-      updateShieldValue,
-      updateSpeedBonus,
-      updateInitiativeBonus,
-      updatePassivePerceptionBonus,
-      updateSavingThrowExtras,
-    },
+    stats,
 
     attacks,
 

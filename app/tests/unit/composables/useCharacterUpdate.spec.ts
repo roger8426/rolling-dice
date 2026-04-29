@@ -145,23 +145,6 @@ describe('useCharacterUpdate — 職業管理', () => {
   })
 })
 
-// ─── 屬性更新 ──────────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 屬性更新', () => {
-  it('updateBonusScore 應只修改 bonusScore，不影響 basicScore', async () => {
-    const { formState, abilities } = await getComposable('update-001')
-    abilities.updateBonusScore('strength', 4)
-    expect(formState.abilities.strength.bonusScore).toBe(4)
-    expect(formState.abilities.strength.basicScore).toBe(15)
-  })
-
-  it('updateBonusScore 應能設為 0', async () => {
-    const { formState, abilities } = await getComposable('update-001')
-    abilities.updateBonusScore('strength', 0)
-    expect(formState.abilities.strength.bonusScore).toBe(0)
-  })
-})
-
 // ─── 技能熟練度 ──────────────────────────────────────────────────────────────
 
 describe('useCharacterUpdate — 技能熟練度', () => {
@@ -175,93 +158,6 @@ describe('useCharacterUpdate — 技能熟練度', () => {
     const { formState, core } = await getComposable('update-001')
     core.setSkillProficiency('athletics', 'none')
     expect(formState.skills.athletics).toBeUndefined()
-  })
-})
-
-// ─── Combat — 護甲設定 ───────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 護甲設定', () => {
-  it('updateArmorType 應更新護甲類型', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorType('heavy')
-    expect(formState.armorClass.type).toBe('heavy')
-  })
-
-  it('updateArmorValue 應更新護甲基礎值', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorValue(16)
-    expect(formState.armorClass.value).toBe(16)
-  })
-
-  it('updateArmorValue 可設為 null（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorValue(null)
-    expect(formState.armorClass.value).toBeNull()
-  })
-
-  it('updateArmorAbilityKey 應更新額外屬性鍵', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorAbilityKey('wisdom')
-    expect(formState.armorClass.abilityKey).toBe('wisdom')
-  })
-
-  it('updateShieldValue 應更新盾牌加值', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateShieldValue(2)
-    expect(formState.armorClass.shieldValue).toBe(2)
-  })
-})
-
-// ─── Combat — 其他屬性 ───────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 其他屬性', () => {
-  it('updateSpeedBonus 應更新 speedBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateSpeedBonus(10)
-    expect(formState.speedBonus).toBe(10)
-  })
-
-  it('updateSpeedBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateSpeedBonus(10)
-    combat.updateSpeedBonus(0)
-    expect(formState.speedBonus).toBe(0)
-  })
-
-  it('updateInitiativeBonus 應更新 initiativeBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateInitiativeBonus(3)
-    expect(formState.initiativeBonus).toBe(3)
-  })
-
-  it('updateInitiativeBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateInitiativeBonus(3)
-    combat.updateInitiativeBonus(0)
-    expect(formState.initiativeBonus).toBe(0)
-  })
-
-  it('updatePassivePerceptionBonus 應更新 passivePerceptionBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updatePassivePerceptionBonus(2)
-    expect(formState.passivePerceptionBonus).toBe(2)
-  })
-
-  it('updatePassivePerceptionBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updatePassivePerceptionBonus(2)
-    combat.updatePassivePerceptionBonus(0)
-    expect(formState.passivePerceptionBonus).toBe(0)
-  })
-})
-
-// ─── 額外生命值 ────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 額外生命值', () => {
-  it('updateCustomHpBonus 應更新 customHpBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateCustomHpBonus(12)
-    expect(formState.customHpBonus).toBe(12)
   })
 })
 

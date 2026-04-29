@@ -128,19 +128,8 @@ const id = getRouteParam(route.params.id)
 
 useHead({ title: '編輯角色卡' })
 
-const {
-  activeTab,
-  character,
-  formState,
-  core,
-  derived,
-  abilities,
-  combat,
-  attacks,
-  spells,
-  features,
-  submit,
-} = useCharacterUpdate(id)
+const { activeTab, character, formState, core, derived, stats, attacks, spells, features, submit } =
+  useCharacterUpdate(id)
 
 const { isSubmitting, canSubmit } = core
 
@@ -155,9 +144,8 @@ const {
   totalPassivePerception,
 } = derived
 
-const { updateBonusScore } = abilities
-
 const {
+  updateBonusScore,
   updateCustomHpBonus,
   updateArmorType,
   updateArmorValue,
@@ -167,7 +155,7 @@ const {
   updateInitiativeBonus,
   updatePassivePerceptionBonus,
   updateSavingThrowExtras,
-} = combat
+} = stats
 const { addAttack, removeAttack, updateAttack } = attacks
 
 const { toggleLearnedSpell, togglePreparedSpell } = spells
