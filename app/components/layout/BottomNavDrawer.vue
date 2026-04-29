@@ -1,6 +1,7 @@
 <template>
   <!-- Swipe-up hint above footer -->
   <div
+    v-show="!isLocked"
     ref="hintRef"
     role="button"
     tabindex="0"
@@ -70,6 +71,8 @@
 import { Drawer, Icon } from '@ui'
 import { navItems } from '~/constants/navigation'
 
+const DRAWER_DISABLED_ROUTE_NAMES = ['character-build', 'character-id-update'] as const
+
 const navStore = useNavigationStore()
 const { isNavOpen } = storeToRefs(navStore)
 const { toggleNav, closeNav } = navStore
@@ -77,10 +80,15 @@ const { toggleNav, closeNav } = navStore
 const hintRef = useTemplateRef<HTMLElement>('hintRef')
 const drawerPortal = useTemplateRef<HTMLElement>('drawerPortal')
 useSwipeUpTrigger(hintRef, {
-  disabledRouteNames: ['character-build', 'character-id-update'],
+  disabledRouteNames: DRAWER_DISABLED_ROUTE_NAMES,
 })
 
 const route = useRoute()
+const isLocked = computed(() =>
+  DRAWER_DISABLED_ROUTE_NAMES.includes(
+    String(route.name) as (typeof DRAWER_DISABLED_ROUTE_NAMES)[number],
+  ),
+)
 
 function isActive(to: string): boolean {
   return route.path.startsWith(to)
