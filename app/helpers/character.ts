@@ -133,7 +133,7 @@ export function calculateTotalHp(input: {
   professions: ProfessionEntry[]
   conModifier: number
   isTough: boolean
-  extraHp: number
+  customHpBonus: number
 }): number {
   const classHp = input.professions.reduce((sum, entry, index) => {
     const config = PROFESSION_CONFIG[entry.profession]
@@ -142,24 +142,21 @@ export function calculateTotalHp(input: {
   }, 0)
   const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
   const toughBonus = input.isTough ? totalLevel * 2 : 0
-  return classHp + toughBonus + input.extraHp
+  return classHp + toughBonus + input.customHpBonus
 }
 
 /**
- * 計算總移動速度：30 呎 + 額外加值（null 視為 0）。
+ * 計算總移動速度：30 呎 + 額外加值。
  */
-export function calculateTotalSpeed(speedBonus: number | null): number {
-  return BASE_MOVEMENT_SPEED + (speedBonus ?? 0)
+export function calculateTotalSpeed(speedBonus: number): number {
+  return BASE_MOVEMENT_SPEED + speedBonus
 }
 
 /**
- * 計算總先攻加值：DEX 調整值 + 額外加值（null 視為 0）。
+ * 計算總先攻加值：DEX 調整值 + 額外加值。
  */
-export function calculateTotalInitiative(
-  dexModifier: number,
-  initiativeBonus: number | null,
-): number {
-  return dexModifier + (initiativeBonus ?? 0)
+export function calculateTotalInitiative(dexModifier: number, initiativeBonus: number): number {
+  return dexModifier + initiativeBonus
 }
 
 /**
@@ -180,13 +177,13 @@ export function calculatePerceptionSkillBonus(input: {
 }
 
 /**
- * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值（null 視為 0）。
+ * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值。
  */
 export function calculateTotalPassivePerception(
   perceptionBonus: number,
-  extraBonus: number | null,
+  extraBonus: number,
 ): number {
-  return getPassivePerception(perceptionBonus) + (extraBonus ?? 0)
+  return getPassivePerception(perceptionBonus) + extraBonus
 }
 
 /**
@@ -216,7 +213,6 @@ export function formStateToCharacterPatch(
   const professions = formState.professions.filter(
     (p): p is ProfessionEntry => p.profession !== null,
   )
-  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
 
   // skills & toggles
   const skills = { ...formState.skills }
@@ -244,7 +240,6 @@ export function formStateToCharacterPatch(
     race,
     alignment,
     professions,
-    totalLevel,
     skills,
     isJackOfAllTrades,
     isTough,

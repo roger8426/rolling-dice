@@ -1,3 +1,6 @@
+/** 法術 UUID（SRD 靜態寫死 / 自定義由 DB 生成） */
+export type SpellId = string
+
 /** 法術學派（以英文 camelCase 為 key，中文僅為顯示 label） */
 export type SpellSchool =
   | 'abjuration'

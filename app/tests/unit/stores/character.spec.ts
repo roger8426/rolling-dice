@@ -86,10 +86,10 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.createdAt).toBeTruthy()
   })
 
-  it('新增後 level 應為各職業等級的加總', () => {
+  it('新增後 professions 應正確儲存', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.totalLevel).toBe(3)
+    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3 }])
   })
 
   it('新增後應同步寫入 localStorage', () => {
@@ -111,19 +111,18 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.isTough).toBe(false)
   })
 
-  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 null', () => {
+  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 0', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.speedBonus).toBeNull()
-    expect(created!.initiativeBonus).toBeNull()
-    expect(created!.passivePerceptionBonus).toBeNull()
+    expect(created!.speedBonus).toBe(0)
+    expect(created!.initiativeBonus).toBe(0)
+    expect(created!.passivePerceptionBonus).toBe(0)
   })
 
-  it('新增後 savingThrowExtras 應為空陣列，savingThrowProficiencies 僅含主職業 baseline', () => {
+  it('新增後 savingThrowExtras 應為空陣列', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
     expect(created!.savingThrowExtras).toEqual([])
-    expect(created!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
   })
 
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
@@ -197,10 +196,10 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   weaponProficiencies: null,
   armorProficiencies: null,
   armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
-  speedBonus: null,
-  initiativeBonus: null,
-  passivePerceptionBonus: null,
-  extraHp: 0,
+  speedBonus: 0,
+  initiativeBonus: 0,
+  passivePerceptionBonus: 0,
+  customHpBonus: 0,
   attacks: [],
   learnedSpells: [],
   preparedSpells: [],
@@ -222,18 +221,14 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.age).toBe(120)
   })
 
-  it('更新後 totalLevel 應為各職業等級的加總', () => {
+  it('更新後 professions 應正確儲存', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.totalLevel).toBe(8)
-  })
-
-  it('更新後 savingThrowProficiencies 應根據主職業重新計算', () => {
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
-    const store = useCharacterStore()
-    const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
+    expect(updated!.professions).toEqual([
+      { profession: 'wizard', level: 5 },
+      { profession: 'cleric', level: 3 },
+    ])
   })
 
   it('更新後 abilities 應保留 basicScore 與 bonusScore', () => {
@@ -295,13 +290,13 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.passivePerceptionBonus).toBe(2)
   })
 
-  it('formState 的 speedBonus 等為 null 時應寫入 null', () => {
+  it('formState 的 speedBonus 等為 0 時應寫入 0', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.speedBonus).toBeNull()
-    expect(updated!.initiativeBonus).toBeNull()
-    expect(updated!.passivePerceptionBonus).toBeNull()
+    expect(updated!.speedBonus).toBe(0)
+    expect(updated!.initiativeBonus).toBe(0)
+    expect(updated!.passivePerceptionBonus).toBe(0)
   })
 
   it('空字串的 optional 欄位更新後應為 null', () => {
@@ -318,7 +313,7 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.height).toBeNull()
   })
 
-  it('savingThrowExtras 應與 baseline union 後寫入 savingThrowProficiencies', () => {
+  it('savingThrowExtras 中非 baseline 的項目應完整保留', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
@@ -326,12 +321,6 @@ describe('useCharacterStore — updateCharacter', () => {
       savingThrowExtras: ['constitution', 'charisma'],
     })
     expect(updated!.savingThrowExtras).toEqual(['constitution', 'charisma'])
-    expect(updated!.savingThrowProficiencies).toEqual([
-      'intelligence',
-      'wisdom',
-      'constitution',
-      'charisma',
-    ])
   })
 
   it('savingThrowExtras 與 baseline 重疊的項目應被去除，避免主職業切換後殘留', () => {
@@ -342,7 +331,6 @@ describe('useCharacterStore — updateCharacter', () => {
       savingThrowExtras: ['intelligence', 'charisma'],
     })
     expect(updated!.savingThrowExtras).toEqual(['charisma'])
-    expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom', 'charisma'])
   })
 })
 

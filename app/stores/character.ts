@@ -49,7 +49,6 @@ export const useCharacterStore = defineStore('character', () => {
 
   function addCharacter(formState: CharacterFormState): Character | null {
     const patch = formStateToCharacterPatch(formState)
-    const savingThrowProficiencies = calculateSavingThrowProficiencies(patch.professions)
 
     const abilities = Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, { basicScore: formState.abilities[key], bonusScore: 0 }]),
@@ -60,13 +59,12 @@ export const useCharacterStore = defineStore('character', () => {
       createdAt: new Date().toISOString(),
       ...patch,
       abilities,
-      savingThrowProficiencies,
       savingThrowExtras: [],
       avatar: null,
-      extraHp: 0,
-      speedBonus: null,
-      initiativeBonus: null,
-      passivePerceptionBonus: null,
+      customHpBonus: 0,
+      speedBonus: 0,
+      initiativeBonus: 0,
+      passivePerceptionBonus: 0,
       armorClass: createDefaultArmorClass(),
       attacks: [],
       learnedSpells: [],
@@ -96,7 +94,6 @@ export const useCharacterStore = defineStore('character', () => {
     const baselineSavingThrows = calculateSavingThrowProficiencies(patch.professions)
     const baselineSet = new Set(baselineSavingThrows)
     const savingThrowExtras = formState.savingThrowExtras.filter((key) => !baselineSet.has(key))
-    const savingThrowProficiencies = [...baselineSavingThrows, ...savingThrowExtras]
 
     const learnedSpells = [...formState.learnedSpells]
     const learnedSet = new Set(learnedSpells)
@@ -106,9 +103,8 @@ export const useCharacterStore = defineStore('character', () => {
       ...previous,
       ...patch,
       abilities: JSON.parse(JSON.stringify(formState.abilities)),
-      savingThrowProficiencies,
       savingThrowExtras,
-      extraHp: formState.extraHp,
+      customHpBonus: formState.customHpBonus,
       speedBonus: formState.speedBonus,
       initiativeBonus: formState.initiativeBonus,
       passivePerceptionBonus: formState.passivePerceptionBonus,

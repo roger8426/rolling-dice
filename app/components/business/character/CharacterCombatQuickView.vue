@@ -39,7 +39,7 @@
       <BusinessCharacterQuickviewSavingThrowList
         :ability-scores="totalAbilityScores"
         :proficiency-bonus="proficiencyBonus"
-        :proficiencies="character.savingThrowProficiencies"
+        :proficiencies="savingThrowProficiencies"
         :adjustments="state.savingThrowAdjustments"
         @adjust="adjustSavingThrow"
       />
@@ -83,6 +83,7 @@ const characterRef = computed(() => props.character)
 const {
   totalAbilityScores,
   proficiencyBonus,
+  savingThrowProficiencies,
   totalHp,
   totalArmorClass,
   totalInitiative,

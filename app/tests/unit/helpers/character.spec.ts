@@ -264,7 +264,6 @@ describe('formStateToCharacterPatch', () => {
     const patch = formStateToCharacterPatch(form)
     expect(patch.name).toBe('法師小明')
     expect(patch.professions).toEqual([{ profession: 'wizard', level: 5 }])
-    expect(patch.totalLevel).toBe(5)
     expect(patch.faith).toBe('無神論')
     expect(patch.age).toBe(25)
   })
@@ -275,7 +274,7 @@ describe('formStateToCharacterPatch', () => {
     expect(patch.gender).toBeNull()
   })
 
-  it('professions 含 null 條目時應過濾，totalLevel 僅加總有效職業', () => {
+  it('professions 含 null 條目時應過濾掉 null', () => {
     const form = createBaseFormState({
       professions: [
         { profession: 'fighter', level: 3 },
@@ -288,10 +287,9 @@ describe('formStateToCharacterPatch', () => {
       { profession: 'fighter', level: 3 },
       { profession: 'wizard', level: 1 },
     ])
-    expect(patch.totalLevel).toBe(4)
   })
 
-  it('professions 全為 null 時，professions 為空陣列、totalLevel 為 0', () => {
+  it('professions 全為 null 時，professions 為空陣列', () => {
     const form = createBaseFormState({
       professions: [
         { profession: null, level: 1 },
@@ -300,7 +298,6 @@ describe('formStateToCharacterPatch', () => {
     })
     const patch = formStateToCharacterPatch(form)
     expect(patch.professions).toEqual([])
-    expect(patch.totalLevel).toBe(0)
   })
 
   it('所有可選文字欄位為 null 時，patch 欄位保持 null', () => {
@@ -363,7 +360,7 @@ describe('calculateTotalHp', () => {
         professions: [{ profession: 'fighter', level: 3 }],
         conModifier: 2,
         isTough: false,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(28)
   })
@@ -380,7 +377,7 @@ describe('calculateTotalHp', () => {
         ],
         conModifier: 2,
         isTough: false,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(26)
   })
@@ -392,30 +389,32 @@ describe('calculateTotalHp', () => {
         professions: [{ profession: 'fighter', level: 3 }],
         conModifier: 2,
         isTough: true,
-        extraHp: 0,
+        customHpBonus: 0,
       }),
     ).toBe(34)
   })
 
-  it('extraHp 加值應直接疊加', () => {
+  it('customHpBonus 加值應直接疊加', () => {
     expect(
       calculateTotalHp({
         professions: [{ profession: 'fighter', level: 1 }],
         conModifier: 1,
         isTough: false,
-        extraHp: 5,
+        customHpBonus: 5,
       }),
     ).toBe(10 + 1 + 5)
   })
 
-  it('professions 為空時，僅回傳 extraHp（無健壯加值）', () => {
-    expect(calculateTotalHp({ professions: [], conModifier: 3, isTough: true, extraHp: 7 })).toBe(7)
+  it('professions 為空時，僅回傳 customHpBonus（無健壯加值）', () => {
+    expect(
+      calculateTotalHp({ professions: [], conModifier: 3, isTough: true, customHpBonus: 7 }),
+    ).toBe(7)
   })
 })
 
 describe('calculateTotalSpeed', () => {
-  it('speedBonus 為 null 時，回傳基礎 30', () => {
-    expect(calculateTotalSpeed(null)).toBe(30)
+  it('speedBonus 為 0 時，回傳基礎 30', () => {
+    expect(calculateTotalSpeed(0)).toBe(30)
   })
 
   it('speedBonus 為正數時，加上基礎 30', () => {
@@ -428,8 +427,8 @@ describe('calculateTotalSpeed', () => {
 })
 
 describe('calculateTotalInitiative', () => {
-  it('bonus 為 null 時，僅回傳 dexModifier', () => {
-    expect(calculateTotalInitiative(3, null)).toBe(3)
+  it('bonus 為 0 時，僅回傳 dexModifier', () => {
+    expect(calculateTotalInitiative(3, 0)).toBe(3)
   })
 
   it('bonus 為正數時，與 dexModifier 相加', () => {
@@ -488,8 +487,8 @@ describe('calculatePerceptionSkillBonus', () => {
 })
 
 describe('calculateTotalPassivePerception', () => {
-  it('extraBonus 為 null 時，等同 getPassivePerception(perceptionBonus)', () => {
-    expect(calculateTotalPassivePerception(5, null)).toBe(15)
+  it('extraBonus 為 0 時，等同 getPassivePerception(perceptionBonus)', () => {
+    expect(calculateTotalPassivePerception(5, 0)).toBe(15)
   })
 
   it('extraBonus 為正數時，疊加於 10 + perceptionBonus 之上', () => {

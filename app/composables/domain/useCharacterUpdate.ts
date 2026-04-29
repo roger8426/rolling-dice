@@ -46,10 +46,10 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     weaponProficiencies: character.weaponProficiencies,
     armorProficiencies: character.armorProficiencies,
     armorClass: { ...character.armorClass },
-    speedBonus: character.speedBonus,
-    initiativeBonus: character.initiativeBonus,
-    passivePerceptionBonus: character.passivePerceptionBonus,
-    extraHp: character.extraHp,
+    speedBonus: character.speedBonus ?? 0,
+    initiativeBonus: character.initiativeBonus ?? 0,
+    passivePerceptionBonus: character.passivePerceptionBonus ?? 0,
+    customHpBonus: character.customHpBonus,
     attacks: character.attacks.map((a) => ({
       ...a,
       damageDice: a.damageDice.map((e) => ({ ...e })),
@@ -89,10 +89,10 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     weaponProficiencies: null,
     armorProficiencies: null,
     armorClass: createDefaultArmorClass(),
-    speedBonus: null,
-    initiativeBonus: null,
-    passivePerceptionBonus: null,
-    extraHp: 0,
+    speedBonus: 0,
+    initiativeBonus: 0,
+    passivePerceptionBonus: 0,
+    customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
     preparedSpells: [],
@@ -123,8 +123,8 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Combat ───────────────────────────────────────────────────────────
 
-  function updateExtraHp(value: number): void {
-    formState.extraHp = value
+  function updateCustomHpBonus(value: number): void {
+    formState.customHpBonus = value
   }
 
   function updateArmorType(type: ArmorType | null): void {
@@ -143,15 +143,15 @@ export function useCharacterUpdate(id: string) {
     formState.armorClass.shieldValue = value
   }
 
-  function updateSpeedBonus(value: number | null): void {
+  function updateSpeedBonus(value: number): void {
     formState.speedBonus = value
   }
 
-  function updateInitiativeBonus(value: number | null): void {
+  function updateInitiativeBonus(value: number): void {
     formState.initiativeBonus = value
   }
 
-  function updatePassivePerceptionBonus(value: number | null): void {
+  function updatePassivePerceptionBonus(value: number): void {
     formState.passivePerceptionBonus = value
   }
 
@@ -248,7 +248,7 @@ export function useCharacterUpdate(id: string) {
     },
 
     combat: {
-      updateExtraHp,
+      updateCustomHpBonus,
       updateArmorType,
       updateArmorValue,
       updateArmorAbilityKey,
