@@ -85,6 +85,67 @@ export interface CharacterCurrency {
   pp: number
 }
 
+// ─── Section Interfaces ───────────────────────────────────────────────────────
+
+export interface CharacterProfile {
+  name: string
+  gender: GenderKey | null
+  race: RaceKey | null
+  alignment: AlignmentKey | null
+  background: string | null
+  faith: string | null
+  age: number | null
+  height: string | null
+  weight: string | null
+  appearance: string | null
+  story: string | null
+  languages: string | null
+  tools: string | null
+  weaponProficiencies: string | null
+  armorProficiencies: string | null
+  avatar: string | null
+}
+
+export interface CharacterProfessions {
+  professions: ProfessionEntry[]
+  totalLevel: number
+}
+
+export interface CharacterStats {
+  abilities: CharacterAbilityScores
+  skills: SkillProficiencies
+  savingThrowProficiencies: AbilityKey[]
+  /** 使用者額外勾選的豁免熟練（不含主職業 baseline） */
+  savingThrowExtras: AbilityKey[]
+  /** 是否全能高手（1/2 熟練） */
+  isJackOfAllTrades: boolean
+  /** 是否具有健壯特質（每等額外 2 HP） */
+  isTough: boolean
+  armorClass: ArmorClassConfig
+  /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
+  extraHp: number
+  /** 額外移動速度加值，移動速度 = 30 + speedBonus */
+  speedBonus: number | null
+  /** 額外先攻加值 */
+  initiativeBonus: number | null
+  /** 額外被動察覺加值 */
+  passivePerceptionBonus: number | null
+}
+
+export interface CharacterCapabilities {
+  attacks: AttackEntry[]
+  /** 已掌握的法術名稱列表 */
+  learnedSpells: string[]
+  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
+  preparedSpells: string[]
+  features: CharacterFeature[]
+}
+
+export interface CharacterInventory {
+  items: InventoryItem[]
+  currency: CharacterCurrency
+}
+
 // ─── Character ────────────────────────────────────────────────────────────────
 
 /**
@@ -115,56 +176,15 @@ export type CharacterWritablePatch = Pick<
   | 'armorProficiencies'
 >
 
-export interface Character {
+export interface Character
+  extends
+    CharacterProfile,
+    CharacterProfessions,
+    CharacterStats,
+    CharacterCapabilities,
+    CharacterInventory {
   id: string
-  name: string
-  gender: GenderKey | null
-  race: RaceKey | null
-  alignment: AlignmentKey | null
-  professions: ProfessionEntry[]
-  totalLevel: number // 角色總等級，等於所有職業等級之和
-  abilities: CharacterAbilityScores
-  savingThrowProficiencies: AbilityKey[]
-  /** 使用者額外勾選的豁免熟練（不含主職業 baseline） */
-  savingThrowExtras: AbilityKey[]
-  skills: SkillProficiencies
-  background: string | null
-  isJackOfAllTrades: boolean // 是否全能高手（1/2 熟練）
-  isTough: boolean // 是否具有健壯特質（每等額外 2 HP）
   createdAt: string
-  faith: string | null
-  age: number | null
-  height: string | null
-  weight: string | null
-  appearance: string | null
-  story: string | null
-  languages: string | null
-  tools: string | null
-  weaponProficiencies: string | null
-  armorProficiencies: string | null
-  avatar: string | null
-  /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
-  extraHp: number
-  /** 額外移動速度加值，移動速度 = 30 + speedBonus */
-  speedBonus: number | null
-  /** 額外先攻加值 */
-  initiativeBonus: number | null
-  /** 額外被動察覺加值 */
-  passivePerceptionBonus: number | null
-  /** 護甲等級設定 */
-  armorClass: ArmorClassConfig
-  /** 自訂攻擊列表 */
-  attacks: AttackEntry[]
-  /** 已掌握的法術名稱列表 */
-  learnedSpells: string[]
-  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
-  preparedSpells: string[]
-  /** 角色特性列表（專長、職業能力等） */
-  features: CharacterFeature[]
-  /** 背包與儲物袋的物品列表（以 location 區分位置） */
-  items: InventoryItem[]
-  /** 持有金錢 */
-  currency: CharacterCurrency
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
