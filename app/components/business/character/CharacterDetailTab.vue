@@ -14,7 +14,7 @@
           </div>
           <div>
             <dt class="text-xs text-content-muted">等級</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">{{ character.totalLevel }}</dd>
+            <dd class="mt-0.5 text-sm text-content-soft">{{ totalLevel }}</dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">性別</dt>
@@ -124,7 +124,7 @@
             <tfoot>
               <tr class="font-bold text-content">
                 <td class="pt-2 pr-2">合計</td>
-                <td class="pt-2 pr-2 text-right">{{ character.totalLevel }}</td>
+                <td class="pt-2 pr-2 text-right">{{ totalLevel }}</td>
                 <td class="pt-2 pr-3 text-right">—</td>
                 <td class="pt-2 text-right" colspan="3">{{ totalHp }}</td>
               </tr>
@@ -312,13 +312,15 @@ const classHpRows = computed(() =>
   }),
 )
 
-const toughBonus = computed(() => (props.character.isTough ? props.character.totalLevel * 2 : 0))
+const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
+
+const toughBonus = computed(() => (props.character.isTough ? totalLevel.value * 2 : 0))
 
 const totalHp = computed(
   () => classHpRows.value.reduce((sum, row) => sum + row.hp + row.conBonus, 0) + toughBonus.value,
 )
 
-const proficiencyBonus = computed(() => getProficiencyBonus(props.character.totalLevel))
+const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
 const savingThrowBonuses = computed(() => {
   const result = {} as Record<AbilityKey, number>

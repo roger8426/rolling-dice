@@ -19,6 +19,7 @@ import {
 import { getAbilityModifier } from '~/helpers/ability'
 
 export interface CharacterDerivedStats {
+  totalLevel: ComputedRef<number>
   totalAbilityScores: ComputedRef<AbilityScores>
   proficiencyBonus: ComputedRef<number>
   validProfessions: ComputedRef<ProfessionEntry[]>
@@ -77,6 +78,7 @@ export function useCharacterDerivedStats(
   })
 
   return {
+    totalLevel,
     totalAbilityScores,
     proficiencyBonus,
     validProfessions,
@@ -97,7 +99,10 @@ export function useCharacterDerivedStatsFromCharacter(
 ): CharacterDerivedStats {
   const totalAbilityScores = computed(() => calculateTotalAbilityScores(character.value.abilities))
 
-  const proficiencyBonus = computed(() => getProficiencyBonus(character.value.totalLevel))
+  const totalLevel = computed(() =>
+    character.value.professions.reduce((sum, p) => sum + p.level, 0),
+  )
+  const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
   const validProfessions = computed(() => character.value.professions)
 
@@ -134,6 +139,7 @@ export function useCharacterDerivedStatsFromCharacter(
   })
 
   return {
+    totalLevel,
     totalAbilityScores,
     proficiencyBonus,
     validProfessions,

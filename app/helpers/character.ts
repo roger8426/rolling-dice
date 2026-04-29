@@ -216,7 +216,6 @@ export function formStateToCharacterPatch(
   const professions = formState.professions.filter(
     (p): p is ProfessionEntry => p.profession !== null,
   )
-  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
 
   // skills & toggles
   const skills = { ...formState.skills }
@@ -244,7 +243,6 @@ export function formStateToCharacterPatch(
     race,
     alignment,
     professions,
-    totalLevel,
     skills,
     isJackOfAllTrades,
     isTough,

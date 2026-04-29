@@ -220,11 +220,12 @@ const sortKey = ref<SortKey>('default')
 
 const sortedCharacters = computed(() => {
   const list = [...characterStore.characters]
+  const getLevel = (c: Character) => c.professions.reduce((sum, p) => sum + p.level, 0)
   const byCreated = (a: Character, b: Character) => a.createdAt.localeCompare(b.createdAt)
   if (sortKey.value === 'level-asc')
-    return list.sort((a, b) => a.totalLevel - b.totalLevel || byCreated(a, b))
+    return list.sort((a, b) => getLevel(a) - getLevel(b) || byCreated(a, b))
   if (sortKey.value === 'level-desc')
-    return list.sort((a, b) => b.totalLevel - a.totalLevel || byCreated(a, b))
+    return list.sort((a, b) => getLevel(b) - getLevel(a) || byCreated(a, b))
   return list.sort(byCreated)
 })
 </script>

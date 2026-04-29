@@ -86,10 +86,10 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.createdAt).toBeTruthy()
   })
 
-  it('新增後 level 應為各職業等級的加總', () => {
+  it('新增後 professions 應正確儲存', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.totalLevel).toBe(3)
+    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3 }])
   })
 
   it('新增後應同步寫入 localStorage', () => {
@@ -222,11 +222,14 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.age).toBe(120)
   })
 
-  it('更新後 totalLevel 應為各職業等級的加總', () => {
+  it('更新後 professions 應正確儲存', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.totalLevel).toBe(8)
+    expect(updated!.professions).toEqual([
+      { profession: 'wizard', level: 5 },
+      { profession: 'cleric', level: 3 },
+    ])
   })
 
   it('更新後 savingThrowProficiencies 應根據主職業重新計算', () => {

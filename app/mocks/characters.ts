@@ -12,7 +12,6 @@ export const MOCK_CHARACTERS: Character[] = [
       { profession: 'monk', level: 3 },
       { profession: 'fighter', level: 2 },
     ],
-    totalLevel: 5,
     abilities: {
       strength: { basicScore: 14, bonusScore: 0 },
       dexterity: { basicScore: 16, bonusScore: 0 },
@@ -58,7 +57,6 @@ export const MOCK_CHARACTERS: Character[] = [
     race: 'elf',
     alignment: 'chaoticGood',
     professions: [{ profession: 'wizard', level: 3 }],
-    totalLevel: 3,
     abilities: {
       strength: { basicScore: 8, bonusScore: 0 },
       dexterity: { basicScore: 14, bonusScore: 0 },
@@ -104,7 +102,6 @@ export const MOCK_CHARACTERS: Character[] = [
     race: 'tiefling',
     alignment: 'chaoticNeutral',
     professions: [{ profession: 'rogue', level: 7 }],
-    totalLevel: 7,
     abilities: {
       strength: { basicScore: 10, bonusScore: 0 },
       dexterity: { basicScore: 18, bonusScore: 0 },
@@ -158,7 +155,6 @@ export const MOCK_CHARACTERS: Character[] = [
       { profession: 'sorcerer', level: 10 },
       { profession: 'warlock', level: 3 },
     ],
-    totalLevel: 13,
     abilities: {
       strength: { basicScore: 8, bonusScore: 0 },
       dexterity: { basicScore: 12, bonusScore: 0 },
@@ -207,7 +203,6 @@ export const MOCK_CHARACTERS: Character[] = [
       { profession: 'paladin', level: 14 },
       { profession: 'cleric', level: 4 },
     ],
-    totalLevel: 18,
     abilities: {
       strength: { basicScore: 18, bonusScore: 0 },
       dexterity: { basicScore: 10, bonusScore: 0 },
@@ -262,7 +257,6 @@ export const MOCK_CHARACTERS: Character[] = [
       { profession: 'fighter', level: 5 },
       { profession: 'ranger', level: 3 },
     ],
-    totalLevel: 20,
     abilities: {
       strength: { basicScore: 20, bonusScore: 0 },
       dexterity: { basicScore: 14, bonusScore: 0 },

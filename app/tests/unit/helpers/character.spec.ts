@@ -264,7 +264,6 @@ describe('formStateToCharacterPatch', () => {
     const patch = formStateToCharacterPatch(form)
     expect(patch.name).toBe('法師小明')
     expect(patch.professions).toEqual([{ profession: 'wizard', level: 5 }])
-    expect(patch.totalLevel).toBe(5)
     expect(patch.faith).toBe('無神論')
     expect(patch.age).toBe(25)
   })
@@ -275,7 +274,7 @@ describe('formStateToCharacterPatch', () => {
     expect(patch.gender).toBeNull()
   })
 
-  it('professions 含 null 條目時應過濾，totalLevel 僅加總有效職業', () => {
+  it('professions 含 null 條目時應過濾掉 null', () => {
     const form = createBaseFormState({
       professions: [
         { profession: 'fighter', level: 3 },
@@ -288,10 +287,9 @@ describe('formStateToCharacterPatch', () => {
       { profession: 'fighter', level: 3 },
       { profession: 'wizard', level: 1 },
     ])
-    expect(patch.totalLevel).toBe(4)
   })
 
-  it('professions 全為 null 時，professions 為空陣列、totalLevel 為 0', () => {
+  it('professions 全為 null 時，professions 為空陣列', () => {
     const form = createBaseFormState({
       professions: [
         { profession: null, level: 1 },
@@ -300,7 +298,6 @@ describe('formStateToCharacterPatch', () => {
     })
     const patch = formStateToCharacterPatch(form)
     expect(patch.professions).toEqual([])
-    expect(patch.totalLevel).toBe(0)
   })
 
   it('所有可選文字欄位為 null 時，patch 欄位保持 null', () => {

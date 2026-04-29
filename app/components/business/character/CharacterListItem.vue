@@ -55,7 +55,7 @@
             :class="{ 'tier-shimmer': isMaxLevel }"
             :style="{ backgroundColor: tierConfig.badgeBg, color: tierConfig.textColor }"
           >
-            Lv.{{ character.totalLevel }}
+            Lv.{{ totalLevel }}
           </div>
         </div>
       </div>
@@ -114,12 +114,13 @@ const TIER_CONFIG: Record<
   },
 }
 
-const tier = computed(() => getCharacterTier(props.character.totalLevel))
+const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
+const tier = computed(() => getCharacterTier(totalLevel.value))
 const tierConfig = computed(() => TIER_CONFIG[tier.value])
-const isMaxLevel = computed(() => props.character.totalLevel === 20)
+const isMaxLevel = computed(() => totalLevel.value === 20)
 
 const cardShadowStyle = computed(() => {
-  const opacity = props.character.totalLevel * 0.017 + 0.1
+  const opacity = totalLevel.value * 0.017 + 0.1
   return { '--card-shadow': `0 0 16px rgba(${tierConfig.value.shadowRgb}, ${opacity.toFixed(3)})` }
 })
 

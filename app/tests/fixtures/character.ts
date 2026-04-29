@@ -13,7 +13,6 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     race: 'human',
     alignment: 'trueNeutral',
     professions: [{ profession: 'fighter', level: 5 }],
-    totalLevel: 5,
     abilities: {
       strength: { basicScore: 15, bonusScore: 0 },
       dexterity: { basicScore: 14, bonusScore: 0 },

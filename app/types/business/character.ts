@@ -108,7 +108,6 @@ export interface CharacterProfile {
 
 export interface CharacterProfessions {
   professions: ProfessionEntry[]
-  totalLevel: number
 }
 
 export interface CharacterStats {
@@ -159,7 +158,6 @@ export type CharacterWritablePatch = Pick<
   | 'race'
   | 'alignment'
   | 'professions'
-  | 'totalLevel'
   | 'skills'
   | 'background'
   | 'isJackOfAllTrades'
