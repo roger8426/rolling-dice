@@ -6,13 +6,13 @@
     tabindex="0"
     :aria-expanded="isNavOpen"
     aria-haspopup="dialog"
-    aria-label="向上滑動以開啟導覽選單"
-    class="flex w-full cursor-pointer select-none flex-col items-center gap-1 border-t border-surface bg-panel-2 pb-1 pt-2 text-border transition-colors hover:text-border-strong focus-visible:outline-2 focus-visible:outline-ring"
+    class="relative flex w-full cursor-pointer select-none items-center justify-center gap-2 border-t border-surface bg-panel-2 px-4 py-2 text-content-muted transition-colors hover:bg-canvas-elevated hover:text-content focus-visible:outline-2 focus-visible:outline-ring"
     @click="toggleNav"
     @keydown.enter.prevent="toggleNav"
     @keydown.space.prevent="toggleNav"
   >
-    <Icon name="swipe-up" class="w-24 animate-bounce" />
+    <Icon name="swipe-up" class="w-12 absolute animate-bounce -top-4" />
+    <span class="text-xs font-medium tracking-wide sm:text-sm"> 滑動開啟 </span>
   </div>
 
   <!-- Scoped teleport target：讓 drawer 繼承此元素的 CSS custom property -->
