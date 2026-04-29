@@ -1,6 +1,7 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { DEFAULT_CURRENCY } from '~/constants/inventory'
 import { useCharacterFeaturesForm } from '~/composables/domain/useCharacterFeaturesForm'
+import { useCharacterSpellsForm } from '~/composables/domain/useCharacterSpellsForm'
 import { createDefaultArmorClass } from '~/helpers/character'
 import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
@@ -171,29 +172,7 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Spells ───────────────────────────────────────────────────────────
 
-  const { getSpell } = useSpells()
-
-  function toggleLearnedSpell(id: string): void {
-    const index = formState.learnedSpells.indexOf(id)
-    if (index === -1) {
-      formState.learnedSpells.push(id)
-      return
-    }
-    formState.learnedSpells.splice(index, 1)
-    const preparedIndex = formState.preparedSpells.indexOf(id)
-    if (preparedIndex !== -1) formState.preparedSpells.splice(preparedIndex, 1)
-  }
-
-  function togglePreparedSpell(id: string): void {
-    if (getSpell(id)?.level === 0) return
-    if (!formState.learnedSpells.includes(id)) return
-    const index = formState.preparedSpells.indexOf(id)
-    if (index === -1) {
-      formState.preparedSpells.push(id)
-    } else {
-      formState.preparedSpells.splice(index, 1)
-    }
-  }
+  const spells = useCharacterSpellsForm(formState)
 
   // ─── Features ─────────────────────────────────────────────────────────
 
@@ -247,10 +226,7 @@ export function useCharacterUpdate(id: string) {
       updateAttack,
     },
 
-    spells: {
-      toggleLearnedSpell,
-      togglePreparedSpell,
-    },
+    spells,
 
     features,
 
