@@ -111,7 +111,6 @@ export function useCharacterUpdate(id: string) {
   const derived = useCharacterDerivedStats(formState)
   const stats = useCharacterStatsForm(formState)
   const attacks = useCharacterAttacksForm(formState)
-  const features = useCharacterFeaturesForm(formState)
 
   // ─── Submit guard ─────────────────────────────────────────────────────
 
@@ -155,7 +154,6 @@ export function useCharacterUpdate(id: string) {
     derived,
     stats,
     attacks,
-    features,
     submit,
   }
 }

@@ -60,12 +60,7 @@
           <template #label>
             <span class="text-content">專長與特性</span>
           </template>
-          <BusinessCharacterFormFeaturesTab
-            :features="formState.features"
-            @add="addFeature"
-            @remove="removeFeature"
-            @update="updateFeature"
-          />
+          <BusinessCharacterFormFeaturesTab v-model:form-state="formState" />
         </Tab>
 
         <Tab value="combat">
@@ -132,7 +127,6 @@ const {
   derived,
   stats,
   attacks,
-  features,
   submit,
 } = useCharacterUpdate(id)
 
@@ -160,6 +154,4 @@ const {
   updateSavingThrowExtras,
 } = stats
 const { addAttack, removeAttack, updateAttack } = attacks
-
-const { addFeature, removeFeature, updateFeature } = features
 </script>
