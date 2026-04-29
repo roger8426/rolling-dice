@@ -21,7 +21,6 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
       wisdom: { basicScore: 10, bonusScore: 0 },
       charisma: { basicScore: 8, bonusScore: 0 },
     },
-    savingThrowProficiencies: ['strength', 'constitution'],
     savingThrowExtras: [],
     skills: { athletics: 'proficient' },
     background: '士兵',

@@ -119,11 +119,10 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.passivePerceptionBonus).toBeNull()
   })
 
-  it('新增後 savingThrowExtras 應為空陣列，savingThrowProficiencies 僅含主職業 baseline', () => {
+  it('新增後 savingThrowExtras 應為空陣列', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
     expect(created!.savingThrowExtras).toEqual([])
-    expect(created!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
   })
 
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
@@ -232,13 +231,6 @@ describe('useCharacterStore — updateCharacter', () => {
     ])
   })
 
-  it('更新後 savingThrowProficiencies 應根據主職業重新計算', () => {
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
-    const store = useCharacterStore()
-    const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom'])
-  })
-
   it('更新後 abilities 應保留 basicScore 與 bonusScore', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
@@ -321,7 +313,7 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.height).toBeNull()
   })
 
-  it('savingThrowExtras 應與 baseline union 後寫入 savingThrowProficiencies', () => {
+  it('savingThrowExtras 中非 baseline 的項目應完整保留', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
@@ -329,12 +321,6 @@ describe('useCharacterStore — updateCharacter', () => {
       savingThrowExtras: ['constitution', 'charisma'],
     })
     expect(updated!.savingThrowExtras).toEqual(['constitution', 'charisma'])
-    expect(updated!.savingThrowProficiencies).toEqual([
-      'intelligence',
-      'wisdom',
-      'constitution',
-      'charisma',
-    ])
   })
 
   it('savingThrowExtras 與 baseline 重疊的項目應被去除，避免主職業切換後殘留', () => {
@@ -345,7 +331,6 @@ describe('useCharacterStore — updateCharacter', () => {
       savingThrowExtras: ['intelligence', 'charisma'],
     })
     expect(updated!.savingThrowExtras).toEqual(['charisma'])
-    expect(updated!.savingThrowProficiencies).toEqual(['intelligence', 'wisdom', 'charisma'])
   })
 })
 

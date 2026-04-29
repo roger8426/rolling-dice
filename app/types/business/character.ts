@@ -113,7 +113,6 @@ export interface CharacterProfessions {
 export interface CharacterStats {
   abilities: CharacterAbilityScores
   skills: SkillProficiencies
-  savingThrowProficiencies: AbilityKey[]
   /** 使用者額外勾選的豁免熟練（不含主職業 baseline） */
   savingThrowExtras: AbilityKey[]
   /** 是否全能高手（1/2 熟練） */

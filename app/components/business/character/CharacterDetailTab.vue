@@ -152,7 +152,7 @@
               >
                 <span
                   class="text-xs text-content-muted"
-                  :class="{ 'text-primary': character.savingThrowProficiencies.includes(key) }"
+                  :class="{ 'text-primary': savingThrowProficiencies.includes(key) }"
                 >
                   {{ ABILITY_NAMES[key] }}
                 </span>
@@ -314,6 +314,11 @@ const classHpRows = computed(() =>
 
 const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
 
+const savingThrowProficiencies = computed<AbilityKey[]>(() => [
+  ...calculateSavingThrowProficiencies(props.character.professions),
+  ...props.character.savingThrowExtras,
+])
+
 const toughBonus = computed(() => (props.character.isTough ? totalLevel.value * 2 : 0))
 
 const totalHp = computed(
@@ -326,7 +331,7 @@ const savingThrowBonuses = computed(() => {
   const result = {} as Record<AbilityKey, number>
   for (const key of ABILITY_KEYS) {
     const mod = getAbilityModifier(getTotalScore(props.character.abilities[key]))
-    const proficient = props.character.savingThrowProficiencies.includes(key)
+    const proficient = savingThrowProficiencies.value.includes(key)
     result[key] = getSavingThrowBonus(mod, proficient, proficiencyBonus.value)
   }
   return result
