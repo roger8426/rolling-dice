@@ -1,9 +1,10 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { DEFAULT_CURRENCY } from '~/constants/inventory'
+import { useCharacterAttacksForm } from '~/composables/domain/useCharacterAttacksForm'
 import { useCharacterFeaturesForm } from '~/composables/domain/useCharacterFeaturesForm'
 import { useCharacterSpellsForm } from '~/composables/domain/useCharacterSpellsForm'
 import { createDefaultArmorClass } from '~/helpers/character'
-import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
+import type { Character, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'features' | 'backpack'
@@ -156,19 +157,9 @@ export function useCharacterUpdate(id: string) {
     formState.savingThrowExtras = value
   }
 
-  function addAttack(entry: AttackDraft): void {
-    formState.attacks.push({ id: crypto.randomUUID(), ...entry })
-  }
+  // ─── Attacks ──────────────────────────────────────────────────────────
 
-  function removeAttack(id: string): void {
-    const index = formState.attacks.findIndex((a) => a.id === id)
-    if (index !== -1) formState.attacks.splice(index, 1)
-  }
-
-  function updateAttack(id: string, data: AttackDraft): void {
-    const index = formState.attacks.findIndex((a) => a.id === id)
-    if (index !== -1) formState.attacks[index] = { id, ...data }
-  }
+  const attacks = useCharacterAttacksForm(formState)
 
   // ─── Spells ───────────────────────────────────────────────────────────
 
@@ -221,10 +212,9 @@ export function useCharacterUpdate(id: string) {
       updateInitiativeBonus,
       updatePassivePerceptionBonus,
       updateSavingThrowExtras,
-      addAttack,
-      removeAttack,
-      updateAttack,
     },
+
+    attacks,
 
     spells,
 

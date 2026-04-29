@@ -136,6 +136,7 @@ const {
   derived,
   abilities,
   combat,
+  attacks,
   spells,
   features,
   submit,
@@ -166,10 +167,8 @@ const {
   updateInitiativeBonus,
   updatePassivePerceptionBonus,
   updateSavingThrowExtras,
-  addAttack,
-  removeAttack,
-  updateAttack,
 } = combat
+const { addAttack, removeAttack, updateAttack } = attacks
 
 const { toggleLearnedSpell, togglePreparedSpell } = spells
 

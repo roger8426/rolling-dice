@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAttackDraft, createMockCharacter } from '~/tests/fixtures/character'
+import { createMockCharacter } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 
 const mockNavigateTo = vi.fn()
@@ -209,69 +209,6 @@ describe('useCharacterUpdate — 護甲設定', () => {
     const { formState, combat } = await getComposable('update-001')
     combat.updateShieldValue(2)
     expect(formState.armorClass.shieldValue).toBe(2)
-  })
-})
-
-// ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
-
-const defaultEntry = () => createAttackDraft()
-
-describe('useCharacterUpdate — 自訂攻擊', () => {
-  it('addAttack 應新增一筆攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    expect(formState.attacks).toHaveLength(1)
-    expect(formState.attacks[0]).toMatchObject({
-      name: '',
-      abilityKey: null,
-      damageDice: [],
-      extraHitBonus: null,
-    })
-    expect(formState.attacks[0]!.id).toBeTypeOf('string')
-  })
-
-  it('每次 addAttack 產生的 id 應不重複', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    combat.addAttack(defaultEntry())
-    const [a, b] = formState.attacks
-    expect(a!.id).not.toBe(b!.id)
-  })
-
-  it('removeAttack 應移除指定 id 的攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    combat.addAttack(defaultEntry())
-    const targetId = formState.attacks[0]!.id
-    combat.removeAttack(targetId)
-    expect(formState.attacks).toHaveLength(1)
-    expect(formState.attacks[0]!.id).not.toBe(targetId)
-  })
-
-  it('removeAttack 找不到對應 id 時不應拋錯', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    expect(() => combat.removeAttack('non-existent')).not.toThrow()
-    expect(formState.attacks).toHaveLength(1)
-  })
-
-  it('updateAttack 應以新資料取代整筆攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    const id = formState.attacks[0]!.id
-    combat.updateAttack(id, {
-      name: '長劍',
-      abilityKey: 'strength',
-      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
-      extraHitBonus: 2,
-    })
-    expect(formState.attacks[0]).toMatchObject({
-      id,
-      name: '長劍',
-      abilityKey: 'strength',
-      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
-      extraHitBonus: 2,
-    })
   })
 })
 
