@@ -1,12 +1,8 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { DEFAULT_CURRENCY } from '~/constants/inventory'
+import { useCharacterFeaturesForm } from '~/composables/domain/useCharacterFeaturesForm'
 import { createDefaultArmorClass } from '~/helpers/character'
-import type {
-  AttackDraft,
-  Character,
-  CharacterUpdateFormState,
-  FeatureDraft,
-} from '~/types/business/character'
+import type { AttackDraft, Character, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'features' | 'backpack'
@@ -201,21 +197,7 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Features ─────────────────────────────────────────────────────────
 
-  function addFeature(draft: FeatureDraft): void {
-    formState.features.push({ id: crypto.randomUUID(), ...draft, usage: { ...draft.usage } })
-  }
-
-  function removeFeature(id: string): void {
-    const index = formState.features.findIndex((f) => f.id === id)
-    if (index !== -1) formState.features.splice(index, 1)
-  }
-
-  function updateFeature(id: string, draft: FeatureDraft): void {
-    const index = formState.features.findIndex((f) => f.id === id)
-    if (index !== -1) {
-      formState.features[index] = { id, ...draft, usage: { ...draft.usage } }
-    }
-  }
+  const features = useCharacterFeaturesForm(formState)
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
@@ -270,11 +252,7 @@ export function useCharacterUpdate(id: string) {
       togglePreparedSpell,
     },
 
-    features: {
-      addFeature,
-      removeFeature,
-      updateFeature,
-    },
+    features,
 
     submit,
   }
