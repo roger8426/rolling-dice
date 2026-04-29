@@ -146,10 +146,10 @@ describe('useCharacterUpdate — 職業管理', () => {
   })
 
   it('totalLevel 應正確計算所有職業等級總和', async () => {
-    const { formState, core } = await getComposable('update-001')
+    const { formState, core, derived } = await getComposable('update-001')
     core.addProfession()
     formState.professions[1]!.level = 3
-    expect(core.totalLevel.value).toBe(8)
+    expect(derived.totalLevel.value).toBe(8)
   })
 })
 

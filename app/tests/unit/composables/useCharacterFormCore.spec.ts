@@ -29,17 +29,6 @@ function createFormState(overrides: Partial<CharacterFormStateBase> = {}): Chara
 }
 
 describe('useCharacterFormCore — professions', () => {
-  it('totalLevel 應為所有職業等級之和', () => {
-    const formState = createFormState({
-      professions: [
-        { profession: 'fighter', level: 5 },
-        { profession: 'wizard', level: 3 },
-      ],
-    })
-    const core = useCharacterFormCore(formState)
-    expect(core.totalLevel.value).toBe(8)
-  })
-
   it('addProfession 應追加 level:1 的空職業條目', () => {
     const formState = createFormState()
     const core = useCharacterFormCore(formState)

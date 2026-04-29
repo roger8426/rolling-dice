@@ -15,7 +15,7 @@
             :model-value="formState.age !== null ? String(formState.age) : ''"
             size="sm"
             outline
-            @update:model-value="$emit('update:age', parseIntegerInput($event))"
+            @update:model-value="formState.age = parseIntegerInput($event)"
           />
         </div>
         <div>
@@ -27,7 +27,7 @@
             :model-value="formState.height ?? ''"
             size="sm"
             outline
-            @update:model-value="$emit('update:height', $event)"
+            @update:model-value="formState.height = $event || null"
           />
         </div>
         <div>
@@ -39,7 +39,7 @@
             :model-value="formState.weight ?? ''"
             size="sm"
             outline
-            @update:model-value="$emit('update:weight', $event)"
+            @update:model-value="formState.weight = $event || null"
           />
         </div>
       </div>
@@ -56,7 +56,7 @@
             :rows="2"
             :maxlength="APPEARANCE_MAX_LENGTH"
             show-count
-            @update:model-value="$emit('update:appearance', $event)"
+            @update:model-value="formState.appearance = $event || null"
           />
         </div>
       </div>
@@ -73,7 +73,7 @@
             :rows="10"
             :maxlength="STORY_MAX_LENGTH"
             show-count
-            @update:model-value="$emit('update:story', $event)"
+            @update:model-value="formState.story = $event || null"
           />
         </div>
       </div>
@@ -93,15 +93,5 @@ import { TextArea } from '@ui'
 import { APPEARANCE_MAX_LENGTH, STORY_MAX_LENGTH } from '~/constants/character'
 import type { CharacterFormStateBase } from '~/types/business/character'
 
-defineProps<{
-  formState: CharacterFormStateBase
-}>()
-
-defineEmits<{
-  'update:age': [value: number | null]
-  'update:height': [value: string]
-  'update:weight': [value: string]
-  'update:appearance': [value: string]
-  'update:story': [value: string]
-}>()
+const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 </script>

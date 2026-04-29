@@ -1,5 +1,6 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE, UNASSIGNED_ABILITY_SCORE } from '~/constants/dnd'
 import { createDicePool, tryCalculateSpentPoints } from '~/helpers/ability'
+import { calculateTotalLevel } from '~/helpers/character'
 import type { AbilityMethod, AbilityScores, CharacterFormState } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -44,6 +45,8 @@ export function useCharacterBuild() {
   const formState = reactive<CharacterFormState>(createDefaultFormState())
 
   const core = useCharacterFormCore(formState)
+
+  const totalLevel = computed(() => calculateTotalLevel(formState.professions))
 
   // ─── Dice Roll ────────────────────────────────────────────────────────
 
@@ -133,6 +136,7 @@ export function useCharacterBuild() {
   return {
     activeTab,
     formState,
+    totalLevel,
     core,
     canSubmit,
 

@@ -114,7 +114,7 @@ const TIER_CONFIG: Record<
   },
 }
 
-const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
+const totalLevel = computed(() => calculateTotalLevel(props.character.professions))
 const tier = computed(() => getCharacterTier(totalLevel.value))
 const tierConfig = computed(() => TIER_CONFIG[tier.value])
 const isMaxLevel = computed(() => totalLevel.value === 20)

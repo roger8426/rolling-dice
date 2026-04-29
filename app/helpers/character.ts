@@ -21,6 +21,11 @@ export function getCharacterTier(level: number): CharacterTier {
   return 'common'
 }
 
+/** 計算總職業等級（兼職時為各職業等級之和） */
+export function calculateTotalLevel(professions: ReadonlyArray<{ level: number }>): number {
+  return professions.reduce((sum, p) => sum + p.level, 0)
+}
+
 /**
  * 計算熟練加值：floor((totalLevel - 1) / 4) + 2
  * 1–4 級 → +2、5–8 級 → +3、9–12 級 → +4、13–16 級 → +5、17–20 級 → +6
@@ -140,7 +145,7 @@ export function calculateTotalHp(input: {
     const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
     return sum + hp + input.conModifier * entry.level
   }, 0)
-  const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
+  const totalLevel = calculateTotalLevel(input.professions)
   const toughBonus = input.isTough ? totalLevel * 2 : 0
   return classHp + toughBonus + input.customHpBonus
 }

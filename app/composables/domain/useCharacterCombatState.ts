@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { PROFESSION_CONFIG } from '~/constants/dnd'
 import { getCombatStateStorageKey } from '~/constants/storage'
+import { calculateTotalLevel } from '~/helpers/character'
 import type { ProfessionEntry } from '~/types/business/character'
 import type { AbilityKey, ProfessionKey } from '~/types/business/dnd'
 
@@ -79,7 +80,7 @@ function recoverHitDice(
   used: Partial<Record<ProfessionKey, number>>,
   professions: readonly ProfessionEntry[],
 ): Partial<Record<ProfessionKey, number>> {
-  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
+  const totalLevel = calculateTotalLevel(professions)
   if (totalLevel === 0) return {}
 
   const sorted = [...professions].sort(

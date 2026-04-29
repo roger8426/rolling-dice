@@ -68,6 +68,17 @@ describe('useCharacterDerivedStats', () => {
     expect(totalAbilityScores.value.constitution).toBe(14)
   })
 
+  it('totalLevel 應為所有職業等級之和', () => {
+    const formState = createFormState({
+      professions: [
+        { profession: 'fighter', level: 5 },
+        { profession: 'wizard', level: 3 },
+      ],
+    })
+    const { totalLevel } = useCharacterDerivedStats(formState)
+    expect(totalLevel.value).toBe(8)
+  })
+
   it('proficiencyBonus 應依 totalLevel 計算', () => {
     // fighter lv 3 → PB +2
     const formState = createFormState()

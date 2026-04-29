@@ -5,7 +5,6 @@ import type { ProficiencyLevel, ProfessionKey, SkillKey } from '~/types/business
 import { applySkillProficiency } from '~/helpers/skill'
 
 export interface CharacterFormCore {
-  totalLevel: ComputedRef<number>
   addProfession: () => void
   removeProfession: (index: number) => void
   updateProfession: (index: number, key: ProfessionKey) => void
@@ -16,14 +15,11 @@ export interface CharacterFormCore {
 }
 
 /**
- * 角色表單共用核心邏輯：professions / skills 增刪改、totalLevel 計算、
- * submit guard（isSubmitting + canSubmit）。
+ * 角色表單共用核心邏輯：professions / skills 增刪改、submit guard（isSubmitting + canSubmit）。
  */
 export function useCharacterFormCore<T extends CharacterFormStateBase>(
   formState: T,
 ): CharacterFormCore {
-  const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
-
   function addProfession(): void {
     formState.professions.push({ profession: null, level: 1 })
   }
@@ -55,7 +51,6 @@ export function useCharacterFormCore<T extends CharacterFormStateBase>(
   )
 
   return {
-    totalLevel,
     addProfession,
     removeProfession,
     updateProfession,

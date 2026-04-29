@@ -312,7 +312,7 @@ const classHpRows = computed(() =>
   }),
 )
 
-const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
+const totalLevel = computed(() => calculateTotalLevel(props.character.professions))
 
 const savingThrowProficiencies = computed<AbilityKey[]>(() => [
   ...calculateSavingThrowProficiencies(props.character.professions),

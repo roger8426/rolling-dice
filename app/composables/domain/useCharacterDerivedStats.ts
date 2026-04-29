@@ -13,6 +13,7 @@ import {
   calculateTotalAbilityScores,
   calculateTotalHp,
   calculateTotalInitiative,
+  calculateTotalLevel,
   calculateTotalPassivePerception,
   calculateTotalSpeed,
   getProficiencyBonus,
@@ -41,7 +42,7 @@ export function useCharacterDerivedStats(
 ): CharacterDerivedStats {
   const totalAbilityScores = computed(() => calculateTotalAbilityScores(formState.abilities))
 
-  const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
+  const totalLevel = computed(() => calculateTotalLevel(formState.professions))
   const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
   const validProfessions = computed<ProfessionEntry[]>(() =>
@@ -108,9 +109,7 @@ export function useCharacterDerivedStatsFromCharacter(
 ): CharacterDerivedStats {
   const totalAbilityScores = computed(() => calculateTotalAbilityScores(character.value.abilities))
 
-  const totalLevel = computed(() =>
-    character.value.professions.reduce((sum, p) => sum + p.level, 0),
-  )
+  const totalLevel = computed(() => calculateTotalLevel(character.value.professions))
   const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
   const savingThrowProficiencies = computed<AbilityKey[]>(() => [

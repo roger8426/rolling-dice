@@ -5,20 +5,20 @@
       :form-state="formState"
       :total-level="totalLevel"
       :lock-primary-profession="lockPrimaryProfession"
-      @update:name="emit('update:name', $event)"
-      @update:gender="emit('update:gender', $event)"
-      @update:race="emit('update:race', $event)"
-      @update:background="emit('update:background', $event)"
-      @update:alignment="emit('update:alignment', $event)"
-      @update:faith="emit('update:faith', $event)"
-      @update:languages="emit('update:languages', $event)"
-      @update:tools="emit('update:tools', $event)"
-      @update:weapon-proficiencies="emit('update:weaponProficiencies', $event)"
-      @update:armor-proficiencies="emit('update:armorProficiencies', $event)"
-      @add="emit('add')"
-      @remove="emit('remove', $event)"
-      @update:profession="(i, k) => emit('update:profession', i, k)"
-      @update:level="(i, l) => emit('update:level', i, l)"
+      @update:name="formState.name = $event"
+      @update:gender="formState.gender = $event"
+      @update:race="formState.race = $event"
+      @update:background="formState.background = $event"
+      @update:alignment="formState.alignment = $event"
+      @update:faith="formState.faith = $event"
+      @update:languages="formState.languages = $event"
+      @update:tools="formState.tools = $event"
+      @update:weapon-proficiencies="formState.weaponProficiencies = $event"
+      @update:armor-proficiencies="formState.armorProficiencies = $event"
+      @add="addProfession"
+      @remove="removeProfession"
+      @update:profession="updateProfession"
+      @update:level="updateProfessionLevel"
     />
 
     <BusinessCharacterFormSkillProficiencyGrid
@@ -27,8 +27,8 @@
       :is-jack-of-all-trades="formState.isJackOfAllTrades"
       :ability-scores="abilityScores"
       :proficiency-bonus="proficiencyBonus"
-      @update:skill="(s, l) => emit('update:skill', s, l)"
-      @update:jack-of-all-trades="emit('update:jackOfAllTrades', $event)"
+      @update:skill="setSkillProficiency"
+      @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
     />
 
     <div class="w-full md:w-1/3">
@@ -39,18 +39,12 @@
 
 <script setup lang="ts">
 import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
-import type {
-  AlignmentKey,
-  GenderKey,
-  ProfessionKey,
-  ProficiencyLevel,
-  RaceKey,
-  SkillKey,
-} from '~/types/business/dnd'
+import type { ProficiencyLevel, ProfessionKey, SkillKey } from '~/types/business/dnd'
+
+const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 
 const props = withDefaults(
   defineProps<{
-    formState: CharacterFormStateBase
     totalLevel: number
     abilityScores: AbilityScores
     lockPrimaryProfession?: boolean
@@ -60,22 +54,24 @@ const props = withDefaults(
 
 const proficiencyBonus = computed(() => getProficiencyBonus(props.totalLevel))
 
-const emit = defineEmits<{
-  'update:name': [value: string]
-  'update:gender': [value: GenderKey | null]
-  'update:race': [value: RaceKey | null]
-  'update:background': [value: string]
-  'update:alignment': [value: AlignmentKey | null]
-  'update:faith': [value: string]
-  'update:languages': [value: string]
-  'update:tools': [value: string]
-  'update:weaponProficiencies': [value: string]
-  'update:armorProficiencies': [value: string]
-  add: []
-  remove: [index: number]
-  'update:profession': [index: number, key: ProfessionKey]
-  'update:level': [index: number, level: number]
-  'update:skill': [skill: SkillKey, level: ProficiencyLevel]
-  'update:jackOfAllTrades': [value: boolean]
-}>()
+function addProfession(): void {
+  formState.value.professions.push({ profession: null, level: 1 })
+}
+
+function removeProfession(index: number): void {
+  if (formState.value.professions.length <= 1) return
+  formState.value.professions.splice(index, 1)
+}
+
+function updateProfession(index: number, key: ProfessionKey): void {
+  formState.value.professions[index]!.profession = key
+}
+
+function updateProfessionLevel(index: number, level: number): void {
+  formState.value.professions[index]!.level = Math.max(1, Math.min(20, Math.trunc(level) || 1))
+}
+
+function setSkillProficiency(skill: SkillKey, level: ProficiencyLevel): void {
+  formState.value.skills = applySkillProficiency(formState.value.skills, skill, level)
+}
 </script>
