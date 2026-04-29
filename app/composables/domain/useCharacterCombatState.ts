@@ -291,8 +291,14 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
 
   // ─── Persist ──────────────────────────────────────────────────────────
 
+  let hasNotifiedFailure = false
   const persist = debounce((snapshot: CombatState) => {
-    setLocalStorage(storageKey, snapshot)
+    if (setLocalStorage(storageKey, snapshot)) {
+      hasNotifiedFailure = false
+    } else if (!hasNotifiedFailure) {
+      hasNotifiedFailure = true
+      useToast().error('更新失敗，重整後資料可能遺失')
+    }
   }, PERSIST_DEBOUNCE_MS)
 
   watch(
