@@ -413,8 +413,8 @@ describe('calculateTotalHp', () => {
 })
 
 describe('calculateTotalSpeed', () => {
-  it('speedBonus 為 null 時，回傳基礎 30', () => {
-    expect(calculateTotalSpeed(null)).toBe(30)
+  it('speedBonus 為 0 時，回傳基礎 30', () => {
+    expect(calculateTotalSpeed(0)).toBe(30)
   })
 
   it('speedBonus 為正數時，加上基礎 30', () => {
@@ -427,8 +427,8 @@ describe('calculateTotalSpeed', () => {
 })
 
 describe('calculateTotalInitiative', () => {
-  it('bonus 為 null 時，僅回傳 dexModifier', () => {
-    expect(calculateTotalInitiative(3, null)).toBe(3)
+  it('bonus 為 0 時，僅回傳 dexModifier', () => {
+    expect(calculateTotalInitiative(3, 0)).toBe(3)
   })
 
   it('bonus 為正數時，與 dexModifier 相加', () => {
@@ -487,8 +487,8 @@ describe('calculatePerceptionSkillBonus', () => {
 })
 
 describe('calculateTotalPassivePerception', () => {
-  it('extraBonus 為 null 時，等同 getPassivePerception(perceptionBonus)', () => {
-    expect(calculateTotalPassivePerception(5, null)).toBe(15)
+  it('extraBonus 為 0 時，等同 getPassivePerception(perceptionBonus)', () => {
+    expect(calculateTotalPassivePerception(5, 0)).toBe(15)
   })
 
   it('extraBonus 為正數時，疊加於 10 + perceptionBonus 之上', () => {

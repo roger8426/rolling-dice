@@ -46,9 +46,9 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     weaponProficiencies: character.weaponProficiencies,
     armorProficiencies: character.armorProficiencies,
     armorClass: { ...character.armorClass },
-    speedBonus: character.speedBonus,
-    initiativeBonus: character.initiativeBonus,
-    passivePerceptionBonus: character.passivePerceptionBonus,
+    speedBonus: character.speedBonus ?? 0,
+    initiativeBonus: character.initiativeBonus ?? 0,
+    passivePerceptionBonus: character.passivePerceptionBonus ?? 0,
     customHpBonus: character.customHpBonus,
     attacks: character.attacks.map((a) => ({
       ...a,
@@ -89,9 +89,9 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     weaponProficiencies: null,
     armorProficiencies: null,
     armorClass: createDefaultArmorClass(),
-    speedBonus: null,
-    initiativeBonus: null,
-    passivePerceptionBonus: null,
+    speedBonus: 0,
+    initiativeBonus: 0,
+    passivePerceptionBonus: 0,
     customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
@@ -143,15 +143,15 @@ export function useCharacterUpdate(id: string) {
     formState.armorClass.shieldValue = value
   }
 
-  function updateSpeedBonus(value: number | null): void {
+  function updateSpeedBonus(value: number): void {
     formState.speedBonus = value
   }
 
-  function updateInitiativeBonus(value: number | null): void {
+  function updateInitiativeBonus(value: number): void {
     formState.initiativeBonus = value
   }
 
-  function updatePassivePerceptionBonus(value: number | null): void {
+  function updatePassivePerceptionBonus(value: number): void {
     formState.passivePerceptionBonus = value
   }
 

@@ -283,11 +283,11 @@ describe('useCharacterUpdate — 其他屬性', () => {
     expect(formState.speedBonus).toBe(10)
   })
 
-  it('updateSpeedBonus 可設為 null（清空）', async () => {
+  it('updateSpeedBonus 可設為 0（清空）', async () => {
     const { formState, combat } = await getComposable('update-001')
     combat.updateSpeedBonus(10)
-    combat.updateSpeedBonus(null)
-    expect(formState.speedBonus).toBeNull()
+    combat.updateSpeedBonus(0)
+    expect(formState.speedBonus).toBe(0)
   })
 
   it('updateInitiativeBonus 應更新 initiativeBonus', async () => {
@@ -296,11 +296,11 @@ describe('useCharacterUpdate — 其他屬性', () => {
     expect(formState.initiativeBonus).toBe(3)
   })
 
-  it('updateInitiativeBonus 可設為 null（清空）', async () => {
+  it('updateInitiativeBonus 可設為 0（清空）', async () => {
     const { formState, combat } = await getComposable('update-001')
     combat.updateInitiativeBonus(3)
-    combat.updateInitiativeBonus(null)
-    expect(formState.initiativeBonus).toBeNull()
+    combat.updateInitiativeBonus(0)
+    expect(formState.initiativeBonus).toBe(0)
   })
 
   it('updatePassivePerceptionBonus 應更新 passivePerceptionBonus', async () => {
@@ -309,11 +309,11 @@ describe('useCharacterUpdate — 其他屬性', () => {
     expect(formState.passivePerceptionBonus).toBe(2)
   })
 
-  it('updatePassivePerceptionBonus 可設為 null（清空）', async () => {
+  it('updatePassivePerceptionBonus 可設為 0（清空）', async () => {
     const { formState, combat } = await getComposable('update-001')
     combat.updatePassivePerceptionBonus(2)
-    combat.updatePassivePerceptionBonus(null)
-    expect(formState.passivePerceptionBonus).toBeNull()
+    combat.updatePassivePerceptionBonus(0)
+    expect(formState.passivePerceptionBonus).toBe(0)
   })
 })
 

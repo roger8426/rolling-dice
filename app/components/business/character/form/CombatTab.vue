@@ -69,9 +69,9 @@ defineProps<{
   totalHp: number
   isTough: boolean
   proficiencyBonus: number
-  speedBonus: number | null
-  initiativeBonus: number | null
-  passivePerceptionBonus: number | null
+  speedBonus: number
+  initiativeBonus: number
+  passivePerceptionBonus: number
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
@@ -86,9 +86,9 @@ const emit = defineEmits<{
   'update:shieldValue': [value: number]
   'update:customHpBonus': [value: number]
   'update:isTough': [value: boolean]
-  'update:speedBonus': [value: number | null]
-  'update:initiativeBonus': [value: number | null]
-  'update:passivePerceptionBonus': [value: number | null]
+  'update:speedBonus': [value: number]
+  'update:initiativeBonus': [value: number]
+  'update:passivePerceptionBonus': [value: number]
   'update:savingThrowExtras': [value: AbilityKey[]]
   addAttack: [entry: AttackDraft]
   removeAttack: [id: string]

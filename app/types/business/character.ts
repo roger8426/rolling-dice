@@ -123,11 +123,11 @@ export interface CharacterStats {
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
   customHpBonus: number
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */
-  speedBonus: number | null
+  speedBonus: number
   /** 額外先攻加值 */
-  initiativeBonus: number | null
+  initiativeBonus: number
   /** 額外被動察覺加值 */
-  passivePerceptionBonus: number | null
+  passivePerceptionBonus: number
 }
 
 export interface CharacterCapabilities {
@@ -319,11 +319,11 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   /** 護甲等級設定 */
   armorClass: ArmorClassConfig
   /** 額外移動速度加值，移動速度 = 30 + speedBonus */
-  speedBonus: number | null
+  speedBonus: number
   /** 額外先攻加值 */
-  initiativeBonus: number | null
+  initiativeBonus: number
   /** 額外被動察覺加值 */
-  passivePerceptionBonus: number | null
+  passivePerceptionBonus: number
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
   customHpBonus: number
   /** 自訂攻擊列表 */

@@ -47,13 +47,13 @@
           <CommonAppInput
             id="speed-bonus"
             :radius="0"
-            :model-value="speedBonus != null ? String(speedBonus) : ''"
+            :model-value="speedBonus ? String(speedBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:speedBonus', parseIntegerInput($event))"
+            @update:model-value="emit('update:speedBonus', parseIntegerInput($event, 0))"
           />
         </div>
       </div>
@@ -72,13 +72,13 @@
           <CommonAppInput
             id="initiative-bonus"
             :radius="0"
-            :model-value="initiativeBonus != null ? String(initiativeBonus) : ''"
+            :model-value="initiativeBonus ? String(initiativeBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:initiativeBonus', parseIntegerInput($event))"
+            @update:model-value="emit('update:initiativeBonus', parseIntegerInput($event, 0))"
           />
         </div>
       </div>
@@ -96,13 +96,15 @@
           <CommonAppInput
             id="passive-perception-bonus"
             :radius="0"
-            :model-value="passivePerceptionBonus != null ? String(passivePerceptionBonus) : ''"
+            :model-value="passivePerceptionBonus ? String(passivePerceptionBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:passivePerceptionBonus', parseIntegerInput($event))"
+            @update:model-value="
+              emit('update:passivePerceptionBonus', parseIntegerInput($event, 0))
+            "
           />
         </div>
       </div>
@@ -117,9 +119,9 @@ const props = defineProps<{
   customHpBonus: number
   totalHp: number
   isTough: boolean
-  speedBonus: number | null
-  initiativeBonus: number | null
-  passivePerceptionBonus: number | null
+  speedBonus: number
+  initiativeBonus: number
+  passivePerceptionBonus: number
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
@@ -128,9 +130,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:customHpBonus': [value: number]
   'update:isTough': [value: boolean]
-  'update:speedBonus': [value: number | null]
-  'update:initiativeBonus': [value: number | null]
-  'update:passivePerceptionBonus': [value: number | null]
+  'update:speedBonus': [value: number]
+  'update:initiativeBonus': [value: number]
+  'update:passivePerceptionBonus': [value: number]
 }>()
 
 const initiativeTextColor = computed(() => {
