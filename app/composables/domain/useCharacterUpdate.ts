@@ -110,23 +110,13 @@ export function useCharacterUpdate(id: string) {
     character.value ? characterToFormState(character.value) : createEmptyUpdateFormState(),
   )
 
+  // ─── Sub-composables（對齊 CharacterStats / CharacterCapabilities sections） ──
+
   const core = useCharacterFormCore(formState)
   const derived = useCharacterDerivedStats(formState)
-
-  // ─── Stats ────────────────────────────────────────────────────────────
-
   const stats = useCharacterStatsForm(formState)
-
-  // ─── Attacks ──────────────────────────────────────────────────────────
-
   const attacks = useCharacterAttacksForm(formState)
-
-  // ─── Spells ───────────────────────────────────────────────────────────
-
   const spells = useCharacterSpellsForm(formState)
-
-  // ─── Features ─────────────────────────────────────────────────────────
-
   const features = useCharacterFeaturesForm(formState)
 
   // ─── Submit ───────────────────────────────────────────────────────────
@@ -157,15 +147,10 @@ export function useCharacterUpdate(id: string) {
     formState,
     core,
     derived,
-
     stats,
-
     attacks,
-
     spells,
-
     features,
-
     submit,
   }
 }
