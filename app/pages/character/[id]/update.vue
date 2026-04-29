@@ -43,7 +43,7 @@
             <template #ability-panel>
               <BusinessCharacterFormAbilityScoreUpdatePanel
                 :abilities="formState.abilities"
-                @update:bonus-score="updateBonusScore"
+                @update:bonus-score="(key, score) => (formState.abilities[key].bonusScore = score)"
               />
             </template>
           </BusinessCharacterFormBasicTab>
@@ -68,34 +68,14 @@
             <span class="text-content">戰鬥模組</span>
           </template>
           <BusinessCharacterFormCombatTab
-            :armor-class="formState.armorClass"
-            :attacks="formState.attacks"
+            v-model:form-state="formState"
             :ability-scores="totalAbilityScores"
-            :custom-hp-bonus="formState.customHpBonus"
             :total-hp="totalHp"
-            :is-tough="formState.isTough"
-            :proficiency-bonus="proficiencyBonus"
-            :speed-bonus="formState.speedBonus"
-            :initiative-bonus="formState.initiativeBonus"
-            :passive-perception-bonus="formState.passivePerceptionBonus"
             :total-speed="totalSpeed"
             :total-initiative="totalInitiative"
             :total-passive-perception="totalPassivePerception"
+            :proficiency-bonus="proficiencyBonus"
             :professions="validProfessions"
-            :saving-throw-extras="formState.savingThrowExtras"
-            @update:armor-type="updateArmorType"
-            @update:armor-value="updateArmorValue"
-            @update:armor-ability-key="updateArmorAbilityKey"
-            @update:shield-value="updateShieldValue"
-            @update:custom-hp-bonus="updateCustomHpBonus"
-            @update:is-tough="formState.isTough = $event"
-            @update:speed-bonus="updateSpeedBonus"
-            @update:initiative-bonus="updateInitiativeBonus"
-            @update:passive-perception-bonus="updatePassivePerceptionBonus"
-            @update:saving-throw-extras="updateSavingThrowExtras"
-            @add-attack="addAttack"
-            @remove-attack="removeAttack"
-            @update:attack="updateAttack"
           />
         </Tab>
 
@@ -118,17 +98,8 @@ const id = getRouteParam(route.params.id)
 
 useHead({ title: '編輯角色卡' })
 
-const {
-  activeTab,
-  character,
-  formState,
-  isSubmitting,
-  canSubmit,
-  derived,
-  stats,
-  attacks,
-  submit,
-} = useCharacterUpdate(id)
+const { activeTab, character, formState, isSubmitting, canSubmit, derived, submit } =
+  useCharacterUpdate(id)
 
 const {
   totalLevel,
@@ -140,18 +111,4 @@ const {
   totalSpeed,
   totalPassivePerception,
 } = derived
-
-const {
-  updateBonusScore,
-  updateCustomHpBonus,
-  updateArmorType,
-  updateArmorValue,
-  updateArmorAbilityKey,
-  updateShieldValue,
-  updateSpeedBonus,
-  updateInitiativeBonus,
-  updatePassivePerceptionBonus,
-  updateSavingThrowExtras,
-} = stats
-const { addAttack, removeAttack, updateAttack } = attacks
 </script>

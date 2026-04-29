@@ -4,7 +4,7 @@
 
     <ul class="space-y-2">
       <li
-        v-for="attack in attacks"
+        v-for="attack in formState.attacks"
         :key="attack.id"
         class="flex items-center justify-between rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
@@ -32,7 +32,7 @@
             type="button"
             :aria-label="`刪除 ${attack.name || '此攻擊'}`"
             class="flex size-8 items-center justify-center rounded-md text-content-muted transition-colors duration-150 hover:text-danger-hover"
-            @click="emit('remove', attack.id)"
+            @click="removeAttack(attack.id)"
           >
             <Icon name="trash" :size="16" />
           </button>
@@ -209,6 +209,7 @@ import type {
   AbilityScores,
   AttackDraft,
   AttackEntry,
+  CharacterUpdateFormState,
   DamageDieEntry,
 } from '~/types/business/character'
 import type { AbilityKey, DamageDieType, DamageTypeKey } from '~/types/business/dnd'
@@ -219,17 +220,14 @@ import {
   DAMAGE_TYPE_LABELS,
 } from '~/constants/dnd'
 
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+
 const props = defineProps<{
-  attacks: AttackEntry[]
   abilityScores: AbilityScores
   proficiencyBonus: number
 }>()
 
-const emit = defineEmits<{
-  add: [entry: AttackDraft]
-  remove: [id: string]
-  'update:attack': [id: string, data: AttackDraft]
-}>()
+const { addAttack, removeAttack, updateAttack } = useCharacterAttacksForm(formState.value)
 
 const abilityOptions: SelectOption[] = [
   { value: '', label: '—' },
@@ -299,14 +297,14 @@ function openEdit(attack: AttackEntry) {
 }
 
 function saveAttack() {
-  const entry = {
+  const entry: AttackDraft = {
     ...draft.value,
     damageDice: draft.value.damageDice.map((e) => ({ ...e })),
   }
   if (editingId.value) {
-    emit('update:attack', editingId.value, entry)
+    updateAttack(editingId.value, entry)
   } else {
-    emit('add', entry)
+    addAttack(entry)
   }
   modalOpen.value = false
 }

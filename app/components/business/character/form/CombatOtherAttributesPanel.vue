@@ -10,11 +10,11 @@
           <div class="flex items-center gap-1.5">
             <span class="text-[10px] text-content-muted">健壯</span>
             <Toggle
-              :model-value="isTough"
+              :model-value="formState.isTough"
               size="sm"
               aria-label="是否持有健壯專長"
               color="var(--color-success)"
-              @update:model-value="emit('update:isTough', $event)"
+              @update:model-value="formState.isTough = $event"
             />
           </div>
         </div>
@@ -26,13 +26,13 @@
           <CommonAppInput
             id="custom-hp-bonus"
             :radius="0"
-            :model-value="String(customHpBonus)"
+            :model-value="String(formState.customHpBonus)"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:customHpBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.customHpBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -47,13 +47,13 @@
           <CommonAppInput
             id="speed-bonus"
             :radius="0"
-            :model-value="speedBonus ? String(speedBonus) : ''"
+            :model-value="formState.speedBonus ? String(formState.speedBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:speedBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.speedBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -72,13 +72,13 @@
           <CommonAppInput
             id="initiative-bonus"
             :radius="0"
-            :model-value="initiativeBonus ? String(initiativeBonus) : ''"
+            :model-value="formState.initiativeBonus ? String(formState.initiativeBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:initiativeBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.initiativeBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -96,15 +96,15 @@
           <CommonAppInput
             id="passive-perception-bonus"
             :radius="0"
-            :model-value="passivePerceptionBonus ? String(passivePerceptionBonus) : ''"
+            :model-value="
+              formState.passivePerceptionBonus ? String(formState.passivePerceptionBonus) : ''
+            "
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="
-              emit('update:passivePerceptionBonus', parseIntegerInput($event, 0))
-            "
+            @update:model-value="formState.passivePerceptionBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -115,24 +115,15 @@
 <script setup lang="ts">
 import { Toggle } from '@ui'
 
+import type { CharacterUpdateFormState } from '~/types/business/character'
+
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+
 const props = defineProps<{
-  customHpBonus: number
   totalHp: number
-  isTough: boolean
-  speedBonus: number
-  initiativeBonus: number
-  passivePerceptionBonus: number
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
-}>()
-
-const emit = defineEmits<{
-  'update:customHpBonus': [value: number]
-  'update:isTough': [value: boolean]
-  'update:speedBonus': [value: number]
-  'update:initiativeBonus': [value: number]
-  'update:passivePerceptionBonus': [value: number]
 }>()
 
 const initiativeTextColor = computed(() => {

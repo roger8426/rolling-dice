@@ -106,11 +106,7 @@ export function useCharacterUpdate(id: string) {
     character.value ? characterToFormState(character.value) : createEmptyUpdateFormState(),
   )
 
-  // ─── Sub-composables（對齊 CharacterStats / CharacterCapabilities sections） ──
-
   const derived = useCharacterDerivedStats(formState)
-  const stats = useCharacterStatsForm(formState)
-  const attacks = useCharacterAttacksForm(formState)
 
   // ─── Submit guard ─────────────────────────────────────────────────────
 
@@ -152,8 +148,6 @@ export function useCharacterUpdate(id: string) {
     isSubmitting,
     canSubmit,
     derived,
-    stats,
-    attacks,
     submit,
   }
 }
