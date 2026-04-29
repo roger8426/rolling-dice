@@ -102,6 +102,31 @@ Prompts 為任務導向範本，在 VS Code Copilot Chat 中透過 `@workspace /
 
 ---
 
+## 自動審查未觸發排查（Copilot Review / Actions）
+
+若你已開啟「自動審查」但更新 `dev` 分支後沒有任何回應，通常是觸發條件不符合。
+
+### 先確認事件來源
+
+1. **GitHub Copilot PR Review** 只會在 **Pull Request 事件**觸發，不會因為單純 `push` 到 `dev` 自動留言。
+2. 本專案目前的 `.github/workflows/ci.yml` 只會執行 CI（`push` / `pull_request`），沒有額外定義「自動留言審查」工作流程。
+
+### 常見原因
+
+- 只更新了分支（`push`），但沒有建立或更新 PR。
+- PR 目標分支 / 條件不符合你在倉庫設定中的自動審查規則。
+- GitHub App / Copilot 權限不足（例如 repo 權限、organization policy）。
+- 工作流程有跑，但被 branch protection、required checks 或佇列延遲影響。
+
+### 建議排查順序
+
+1. 建立一個從 `dev` 到目標分支的 PR，確認是否有觸發審查。
+2. 檢查 **Actions → CI** 是否有對應 `push` 或 `pull_request` 的執行紀錄。
+3. 在 Repository Settings 檢查 Copilot / GitHub App 權限與自動審查規則。
+4. 若需要「push 到 `dev` 就自動回饋」，需另外建立對應的 review bot workflow（例如 comment bot / reviewdog 類型流程）。
+
+---
+
 ## 核心約束
 
 以下為 agent 在任何情況下的預設行為限制，僅可由使用者明確授權後解除：
