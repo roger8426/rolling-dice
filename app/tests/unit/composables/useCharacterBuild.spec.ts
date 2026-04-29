@@ -17,9 +17,6 @@ async function getComposable() {
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
 
-  const { useCharacterFormCore } = await import('~/composables/domain/useCharacterFormCore')
-  vi.stubGlobal('useCharacterFormCore', useCharacterFormCore)
-
   vi.stubGlobal('useToast', () => ({ error: mockToastError }))
 
   const { useCharacterBuild } = await import('~/composables/domain/useCharacterBuild')
@@ -70,8 +67,8 @@ describe('useCharacterBuild — 初始狀態', () => {
   })
 
   it('canSubmit 初始值應為 false（表單尚未填寫）', async () => {
-    const { core } = await getComposable()
-    expect(core.canSubmit.value).toBe(false)
+    const { canSubmit } = await getComposable()
+    expect(canSubmit.value).toBe(false)
   })
 
   it('formState.isTough 初始值應為 false', async () => {
@@ -83,34 +80,10 @@ describe('useCharacterBuild — 初始狀態', () => {
 // ─── 職業管理 ──────────────────────────────────────────────────────────────────
 
 describe('useCharacterBuild — 職業管理', () => {
-  it('addProfession 應新增一筆等級為 1 的空職業', async () => {
-    const { formState, core } = await getComposable()
-    core.addProfession()
-    expect(formState.professions).toHaveLength(2)
-    expect(formState.professions[1]!.level).toBe(1)
-  })
-
-  it('removeProfession 應移除指定索引的職業', async () => {
-    const { formState, core } = await getComposable()
-    formState.professions[0]!.profession = 'fighter'
-    core.addProfession()
-    formState.professions[1]!.profession = 'wizard'
-    core.removeProfession(0)
-    expect(formState.professions).toHaveLength(1)
-    expect(formState.professions[0]!.profession).toBe('wizard')
-  })
-
-  it('removeProfession 在只剩一筆職業時不應移除', async () => {
-    const { formState, core } = await getComposable()
-    core.removeProfession(0)
-    expect(formState.professions).toHaveLength(1)
-  })
-
   it('totalLevel 應正確計算所有職業等級總和', async () => {
-    const { formState, core, totalLevel } = await getComposable()
+    const { formState, totalLevel } = await getComposable()
     formState.professions[0]!.level = 5
-    core.addProfession()
-    formState.professions[1]!.level = 3
+    formState.professions.push({ profession: null, level: 3 })
     expect(totalLevel.value).toBe(8)
   })
 })
@@ -212,29 +185,6 @@ describe('useCharacterBuild — pointBuyUsage', () => {
     const { abilities } = await getComposable()
     abilities.setAbilityMethod('diceRoll')
     expect(abilities.pointBuyUsage.value).toBeNull()
-  })
-})
-
-// ─── 技能熟練度 ──────────────────────────────────────────────────────────────
-
-describe('useCharacterBuild — 技能熟練度', () => {
-  it('setSkillProficiency 設定 proficient 後應存入 skills', async () => {
-    const { formState, core } = await getComposable()
-    core.setSkillProficiency('athletics', 'proficient')
-    expect(formState.skills.athletics).toBe('proficient')
-  })
-
-  it('setSkillProficiency 設定 expertise 後應更新 skills', async () => {
-    const { formState, core } = await getComposable()
-    core.setSkillProficiency('stealth', 'expertise')
-    expect(formState.skills.stealth).toBe('expertise')
-  })
-
-  it('setSkillProficiency 設定 none 後應從 skills 中移除該技能', async () => {
-    const { formState, core } = await getComposable()
-    core.setSkillProficiency('athletics', 'proficient')
-    core.setSkillProficiency('athletics', 'none')
-    expect(formState.skills.athletics).toBeUndefined()
   })
 })
 
@@ -350,14 +300,14 @@ describe('useCharacterBuild — submit', () => {
   })
 
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false（防重複點擊）', async () => {
-    const { formState, core, submit } = await getComposable()
+    const { formState, isSubmitting, canSubmit, submit } = await getComposable()
     formState.name = '防重複角色'
     formState.professions[0]!.profession = 'fighter'
 
-    expect(core.isSubmitting.value).toBe(false)
+    expect(isSubmitting.value).toBe(false)
     const pending = submit()
-    expect(core.isSubmitting.value).toBe(true)
-    expect(core.canSubmit.value).toBe(false)
+    expect(isSubmitting.value).toBe(true)
+    expect(canSubmit.value).toBe(false)
     await pending
   })
 
@@ -391,14 +341,14 @@ describe('useCharacterBuild — submit', () => {
     const store = useCharacterStore()
     vi.spyOn(store, 'addCharacter').mockReturnValue(null)
 
-    const { formState, core, submit } = await getComposable()
+    const { formState, isSubmitting, submit } = await getComposable()
     formState.name = '失敗角色'
     formState.professions[0]!.profession = 'fighter'
 
     await submit()
     expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
     expect(mockNavigateTo).not.toHaveBeenCalled()
-    expect(core.isSubmitting.value).toBe(false)
+    expect(isSubmitting.value).toBe(false)
   })
 
   it('store.addCharacter 拋出例外時應顯示錯誤 toast 且不導航', async () => {
@@ -409,13 +359,13 @@ describe('useCharacterBuild — submit', () => {
       throw new Error('unexpected')
     })
 
-    const { formState, core, submit } = await getComposable()
+    const { formState, isSubmitting, submit } = await getComposable()
     formState.name = '例外角色'
     formState.professions[0]!.profession = 'fighter'
 
     await submit()
     expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
     expect(mockNavigateTo).not.toHaveBeenCalled()
-    expect(core.isSubmitting.value).toBe(false)
+    expect(isSubmitting.value).toBe(false)
   })
 })

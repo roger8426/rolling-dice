@@ -69,8 +69,8 @@ import { Button, Tab, Tabs } from '@ui'
 
 useHead({ title: '建立角色卡' })
 
-const { activeTab, formState, totalLevel, core, abilities, canSubmit, submit } = useCharacterBuild()
-const { isSubmitting } = core
+const { activeTab, formState, totalLevel, isSubmitting, canSubmit, abilities, submit } =
+  useCharacterBuild()
 const {
   pointBuyUsage,
   setAbilityMethod,

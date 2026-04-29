@@ -44,8 +44,6 @@ export function useCharacterBuild() {
   const activeTab = ref<BuildTab>('basic')
   const formState = reactive<CharacterFormState>(createDefaultFormState())
 
-  const core = useCharacterFormCore(formState)
-
   const totalLevel = computed(() => calculateTotalLevel(formState.professions))
 
   // ─── Dice Roll ────────────────────────────────────────────────────────
@@ -100,7 +98,9 @@ export function useCharacterBuild() {
     formState.abilities[key] = score
   }
 
-  // ─── canSubmit（疊加擲骰指派完成度） ───────────────────────────────────
+  // ─── Submit guard ─────────────────────────────────────────────────────
+
+  const isSubmitting = ref(false)
 
   const isDiceAssignmentComplete = computed(
     () =>
@@ -109,7 +109,13 @@ export function useCharacterBuild() {
         formState.dicePool.every((slot) => slot.assignedTo !== null)),
   )
 
-  const canSubmit = computed(() => core.canSubmit.value && isDiceAssignmentComplete.value)
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim() !== '' &&
+      formState.professions.some((p) => p.profession !== null) &&
+      isDiceAssignmentComplete.value,
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
@@ -117,19 +123,19 @@ export function useCharacterBuild() {
 
   async function submit(): Promise<void> {
     if (!canSubmit.value) return
-    core.isSubmitting.value = true
+    isSubmitting.value = true
     try {
       const created = store.addCharacter(formState)
       if (!created) {
         useToast().error('儲存失敗，請稍後再試')
-        core.isSubmitting.value = false
+        isSubmitting.value = false
         return
       }
       await navigateTo('/character')
     } catch (error) {
       logger.error('submit failed:', error)
       useToast().error('儲存失敗，請稍後再試')
-      core.isSubmitting.value = false
+      isSubmitting.value = false
     }
   }
 
@@ -137,7 +143,7 @@ export function useCharacterBuild() {
     activeTab,
     formState,
     totalLevel,
-    core,
+    isSubmitting,
     canSubmit,
 
     abilities: {

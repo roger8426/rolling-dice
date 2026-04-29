@@ -128,10 +128,19 @@ const id = getRouteParam(route.params.id)
 
 useHead({ title: '編輯角色卡' })
 
-const { activeTab, character, formState, core, derived, stats, attacks, spells, features, submit } =
-  useCharacterUpdate(id)
-
-const { isSubmitting, canSubmit } = core
+const {
+  activeTab,
+  character,
+  formState,
+  isSubmitting,
+  canSubmit,
+  derived,
+  stats,
+  attacks,
+  spells,
+  features,
+  submit,
+} = useCharacterUpdate(id)
 
 const {
   totalLevel,

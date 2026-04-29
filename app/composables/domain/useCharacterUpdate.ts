@@ -108,32 +108,42 @@ export function useCharacterUpdate(id: string) {
 
   // ─── Sub-composables（對齊 CharacterStats / CharacterCapabilities sections） ──
 
-  const core = useCharacterFormCore(formState)
   const derived = useCharacterDerivedStats(formState)
   const stats = useCharacterStatsForm(formState)
   const attacks = useCharacterAttacksForm(formState)
   const spells = useCharacterSpellsForm(formState)
   const features = useCharacterFeaturesForm(formState)
 
+  // ─── Submit guard ─────────────────────────────────────────────────────
+
+  const isSubmitting = ref(false)
+
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim() !== '' &&
+      formState.professions.some((p) => p.profession !== null),
+  )
+
   // ─── Submit ───────────────────────────────────────────────────────────
 
   const logger = createLogger('[CharacterUpdate]')
 
   async function submit(): Promise<void> {
-    if (!core.canSubmit.value) return
-    core.isSubmitting.value = true
+    if (!canSubmit.value) return
+    isSubmitting.value = true
     try {
       const updated = store.updateCharacter(id, formState)
       if (!updated) {
         useToast().error('儲存失敗，請稍後再試')
-        core.isSubmitting.value = false
+        isSubmitting.value = false
         return
       }
       await navigateTo(`/character/${id}`)
     } catch (error) {
       logger.error('submit failed:', error)
       useToast().error('儲存失敗，請稍後再試')
-      core.isSubmitting.value = false
+      isSubmitting.value = false
     }
   }
 
@@ -141,7 +151,8 @@ export function useCharacterUpdate(id: string) {
     activeTab,
     character,
     formState,
-    core,
+    isSubmitting,
+    canSubmit,
     derived,
     stats,
     attacks,
