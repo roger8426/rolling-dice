@@ -7,16 +7,13 @@
     </div>
     <div v-else class="flex flex-col gap-6 md:flex-row md:items-start">
       <BusinessCharacterFormSpellBookPanel
+        v-model:form-state="formState"
         class="min-w-0 md:flex-2"
-        :learned-spells="formState.learnedSpells"
-        @toggle-learned="toggleLearnedSpell"
       />
 
       <BusinessCharacterFormPreparedSpellPanel
+        v-model:form-state="formState"
         class="min-w-0 md:sticky md:top-4 md:flex-1"
-        :learned-spells="formState.learnedSpells"
-        :prepared-spells="formState.preparedSpells"
-        @toggle-prepared="togglePreparedSpell"
       />
     </div>
   </div>
@@ -27,7 +24,6 @@ import { Button } from '@ui'
 import type { CharacterUpdateFormState } from '~/types/business/character'
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
-const { toggleLearnedSpell, togglePreparedSpell } = useCharacterSpellsForm(formState.value)
 
 const { pending, error, refresh } = useSpells()
 </script>

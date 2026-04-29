@@ -41,10 +41,7 @@
             :lock-primary-profession="true"
           >
             <template #ability-panel>
-              <BusinessCharacterFormAbilityScoreUpdatePanel
-                :abilities="formState.abilities"
-                @update:bonus-score="(key, score) => (formState.abilities[key].bonusScore = score)"
-              />
+              <BusinessCharacterFormAbilityScoreUpdatePanel v-model:form-state="formState" />
             </template>
           </BusinessCharacterFormBasicTab>
         </Tab>

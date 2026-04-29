@@ -38,7 +38,7 @@
               size="sm"
               color="var(--color-primary)"
               :aria-label="`準備 ${spell.name}`"
-              @update:model-value="emit('togglePrepared', spell.id)"
+              @update:model-value="togglePreparedSpell(spell.id)"
             />
             <span class="text-sm font-semibold text-content">{{ spell.name }}</span>
           </li>
@@ -50,16 +50,11 @@
 
 <script setup lang="ts">
 import { Checkbox } from '@ui'
+import type { CharacterUpdateFormState } from '~/types/business/character'
 import type { Spell } from '~/types/business/spell'
 
-const props = defineProps<{
-  learnedSpells: string[]
-  preparedSpells: string[]
-}>()
-
-const emit = defineEmits<{
-  togglePrepared: [id: string]
-}>()
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+const { togglePreparedSpell } = useCharacterSpellsForm(formState.value)
 
 const { getSpell } = useSpells()
 
@@ -68,7 +63,7 @@ const headingId = useId()
 const learnedSpellDetails = computed(() => {
   const found: Spell[] = []
   const missing: string[] = []
-  for (const id of props.learnedSpells) {
+  for (const id of formState.value.learnedSpells) {
     const spell = getSpell(id)
     if (spell) found.push(spell)
     else missing.push(id)
@@ -86,10 +81,10 @@ const preparableNames = computed(
 const preparableCount = computed(() => preparableNames.value.size)
 
 const preparedCount = computed(
-  () => props.preparedSpells.filter((id) => preparableNames.value.has(id)).length,
+  () => formState.value.preparedSpells.filter((id) => preparableNames.value.has(id)).length,
 )
 
 function isPrepared(id: string): boolean {
-  return props.preparedSpells.includes(id)
+  return formState.value.preparedSpells.includes(id)
 }
 </script>

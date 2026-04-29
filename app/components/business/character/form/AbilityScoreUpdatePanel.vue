@@ -21,13 +21,13 @@
       >
         <label :for="`ability-${key}`" class="w-20 text-xs text-content truncate">
           {{ ABILITY_NAMES[key] }}（{{
-            formatModifier(getAbilityModifier(getTotalScore(abilities[key])))
+            formatModifier(getAbilityModifier(getTotalScore(formState.abilities[key])))
           }}）
         </label>
 
         <!-- basicScore (read-only) -->
         <span class="w-12 text-center font-mono text-sm text-content-muted">
-          {{ abilities[key].basicScore }}
+          {{ formState.abilities[key].basicScore }}
         </span>
 
         <span class="w-2 text-content-muted text-xs">+</span>
@@ -37,19 +37,19 @@
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key].bonusScore <= 0"
+            :disabled="formState.abilities[key].bonusScore <= 0"
             aria-label="減少額外加值"
             @click="adjustBonus(key, -1)"
           >
             <Icon name="minus" :size="16" />
           </button>
           <span class="w-4 text-center font-mono text-sm font-bold">
-            {{ abilities[key].bonusScore }}
+            {{ formState.abilities[key].bonusScore }}
           </span>
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="getTotalScore(abilities[key]) >= ABILITY_HARD_MAX"
+            :disabled="getTotalScore(formState.abilities[key]) >= ABILITY_HARD_MAX"
             aria-label="增加額外加值"
             @click="adjustBonus(key, 1)"
           >
@@ -60,10 +60,12 @@
         <span
           class="w-12 text-sm text-center"
           :class="
-            getTotalScore(abilities[key]) > 20 ? 'text-danger font-bold' : 'text-content-muted'
+            getTotalScore(formState.abilities[key]) > 20
+              ? 'text-danger font-bold'
+              : 'text-content-muted'
           "
         >
-          {{ getTotalScore(abilities[key]) }}
+          {{ getTotalScore(formState.abilities[key]) }}
         </span>
       </div>
     </div>
@@ -73,22 +75,16 @@
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { ABILITY_HARD_MAX, ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
-import type { CharacterAbilityScores } from '~/types/business/character'
+import type { CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
-const props = defineProps<{
-  abilities: CharacterAbilityScores
-}>()
-
-const emit = defineEmits<{
-  'update:bonusScore': [key: AbilityKey, score: number]
-}>()
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 function adjustBonus(key: AbilityKey, delta: number): void {
-  const entry = props.abilities[key]
+  const entry = formState.value.abilities[key]
   const nextBonus = Math.max(0, entry.bonusScore + delta)
   const nextTotal = entry.basicScore + nextBonus
   if (nextBonus === entry.bonusScore || nextTotal > ABILITY_HARD_MAX) return
-  emit('update:bonusScore', key, nextBonus)
+  entry.bonusScore = nextBonus
 }
 </script>

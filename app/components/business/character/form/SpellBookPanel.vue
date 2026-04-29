@@ -3,7 +3,8 @@
     <header class="mb-4 flex items-center justify-between">
       <h2 :id="headingId" class="font-display text-lg font-bold text-content">法術資料庫</h2>
       <span class="text-xs text-content-muted">
-        已掌握 <span class="font-bold text-content">{{ learnedSpells.length }}</span> 個法術
+        已掌握
+        <span class="font-bold text-content">{{ formState.learnedSpells.length }}</span> 個法術
       </span>
     </header>
 
@@ -107,7 +108,7 @@
                   color="var(--color-primary)"
                   :aria-label="`掌握 ${spell.name}`"
                   @click.stop
-                  @update:model-value="emit('toggleLearned', spell.id)"
+                  @update:model-value="toggleLearnedSpell(spell.id)"
                 />
                 <div class="min-w-0 flex-1 text-left">
                   <div class="flex items-center gap-2">
@@ -176,17 +177,13 @@ import {
   toSpellLevelFilter,
   type SpellLevelFilter,
 } from '~/constants/spell-options'
+import type { CharacterUpdateFormState } from '~/types/business/character'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
 type SchoolFilter = SpellSchool | ''
 
-const props = defineProps<{
-  learnedSpells: string[]
-}>()
-
-const emit = defineEmits<{
-  toggleLearned: [id: string]
-}>()
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+const { toggleLearnedSpell } = useCharacterSpellsForm(formState.value)
 
 const { spells } = useSpells()
 
@@ -265,7 +262,7 @@ const filteredSpells = computed<Spell[]>(() => {
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
 function isLearned(id: string): boolean {
-  return props.learnedSpells.includes(id)
+  return formState.value.learnedSpells.includes(id)
 }
 </script>
 
