@@ -1,15 +1,12 @@
 import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
-import type { Spell, SpellDto, SpellSchool } from '~/types/business/spell'
+import type { Spell, SpellDto } from '~/types/business/spell'
 
-const CN_TO_SCHOOL: Record<string, SpellSchool> = Object.fromEntries(
-  Object.entries(SPELL_SCHOOL_LABELS).map(([key, label]) => [label, key as SpellSchool]),
-)
+const VALID_SCHOOLS = new Set(Object.keys(SPELL_SCHOOL_LABELS))
 
-/** 將原始法術資料正規化為 Spell；若學派未知則回傳 null，呼叫端負責收集。 */
-export function normalizeSpell(raw: SpellDto): Spell | null {
-  const school = CN_TO_SCHOOL[raw.school]
-  if (!school) return null
-  return { ...raw, school }
+/** 驗證法術資料的學派是否合法；學派未知則回傳 null，呼叫端負責收集。 */
+export function validateSpell(raw: SpellDto): Spell | null {
+  if (!VALID_SCHOOLS.has(raw.school)) return null
+  return raw
 }
 
 /** 將法術環數轉為中文顯示（0 為戲法） */

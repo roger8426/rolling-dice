@@ -29,16 +29,16 @@
         <ul class="space-y-1">
           <li
             v-for="spell in group.spells"
-            :key="spell.name"
+            :key="spell.id"
             class="flex items-center gap-3 rounded-md border border-border-soft bg-surface px-3 py-2"
           >
             <Checkbox
               v-if="group.level !== 0"
-              :model-value="isPrepared(spell.name)"
+              :model-value="isPrepared(spell.id)"
               size="sm"
               color="var(--color-primary)"
               :aria-label="`準備 ${spell.name}`"
-              @update:model-value="emit('togglePrepared', spell.name)"
+              @update:model-value="emit('togglePrepared', spell.id)"
             />
             <span class="text-sm font-semibold text-content">{{ spell.name }}</span>
           </li>
@@ -58,7 +58,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  togglePrepared: [name: string]
+  togglePrepared: [id: string]
 }>()
 
 const { getSpell } = useSpells()
@@ -68,10 +68,10 @@ const headingId = useId()
 const learnedSpellDetails = computed(() => {
   const found: Spell[] = []
   const missing: string[] = []
-  for (const name of props.learnedSpells) {
-    const spell = getSpell(name)
+  for (const id of props.learnedSpells) {
+    const spell = getSpell(id)
     if (spell) found.push(spell)
-    else missing.push(name)
+    else missing.push(id)
   }
   return { found, missing }
 })
@@ -80,16 +80,16 @@ const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.valu
 const missingNames = computed(() => learnedSpellDetails.value.missing)
 
 const preparableNames = computed(
-  () => new Set(learnedSpellDetails.value.found.filter((s) => s.level > 0).map((s) => s.name)),
+  () => new Set(learnedSpellDetails.value.found.filter((s) => s.level > 0).map((s) => s.id)),
 )
 
 const preparableCount = computed(() => preparableNames.value.size)
 
 const preparedCount = computed(
-  () => props.preparedSpells.filter((name) => preparableNames.value.has(name)).length,
+  () => props.preparedSpells.filter((id) => preparableNames.value.has(id)).length,
 )
 
-function isPrepared(name: string): boolean {
-  return props.preparedSpells.includes(name)
+function isPrepared(id: string): boolean {
+  return props.preparedSpells.includes(id)
 }
 </script>

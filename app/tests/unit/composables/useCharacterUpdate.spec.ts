@@ -319,39 +319,42 @@ describe('useCharacterUpdate — 其他屬性', () => {
 
 // ─── Spells ────────────────────────────────────────────────────────────────
 
+const FIREBALL_ID = 'cccccccc-0000-0000-0000-000000000001'
+const UNKNOWN_ID = 'cccccccc-0000-0000-0000-000000000099'
+
 describe('useCharacterUpdate — 法術', () => {
   it('toggleLearnedSpell 可新增與移除掌握的法術', async () => {
     const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).toContain('火球術')
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).not.toContain('火球術')
+    spells.toggleLearnedSpell(FIREBALL_ID)
+    expect(formState.learnedSpells).toContain(FIREBALL_ID)
+    spells.toggleLearnedSpell(FIREBALL_ID)
+    expect(formState.learnedSpells).not.toContain(FIREBALL_ID)
   })
 
   it('取消掌握某法術時，應同步從 preparedSpells 移除', async () => {
     const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).toContain('火球術')
+    spells.toggleLearnedSpell(FIREBALL_ID)
+    spells.togglePreparedSpell(FIREBALL_ID)
+    expect(formState.preparedSpells).toContain(FIREBALL_ID)
 
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).not.toContain('火球術')
-    expect(formState.preparedSpells).not.toContain('火球術')
+    spells.toggleLearnedSpell(FIREBALL_ID)
+    expect(formState.learnedSpells).not.toContain(FIREBALL_ID)
+    expect(formState.preparedSpells).not.toContain(FIREBALL_ID)
   })
 
-  it('togglePreparedSpell 只允許 learnedSpells 內的名稱', async () => {
+  it('togglePreparedSpell 只允許 learnedSpells 內的 id', async () => {
     const { formState, spells } = await getComposable('update-001')
-    spells.togglePreparedSpell('未掌握的法術')
+    spells.togglePreparedSpell(UNKNOWN_ID)
     expect(formState.preparedSpells).toHaveLength(0)
   })
 
   it('togglePreparedSpell 可在已掌握的法術上切換準備狀態', async () => {
     const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).toContain('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).not.toContain('火球術')
+    spells.toggleLearnedSpell(FIREBALL_ID)
+    spells.togglePreparedSpell(FIREBALL_ID)
+    expect(formState.preparedSpells).toContain(FIREBALL_ID)
+    spells.togglePreparedSpell(FIREBALL_ID)
+    expect(formState.preparedSpells).not.toContain(FIREBALL_ID)
   })
 })
 

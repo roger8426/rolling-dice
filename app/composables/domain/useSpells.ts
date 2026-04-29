@@ -1,4 +1,4 @@
-import { normalizeSpell } from '~/helpers/spell'
+import { validateSpell } from '~/helpers/spell'
 import type { Spell, SpellDto } from '~/types/business/spell'
 
 export interface SkippedSpell {
@@ -17,9 +17,9 @@ export function useSpells() {
     const accepted: Spell[] = []
     const skipped: SkippedSpell[] = []
     for (const r of raw) {
-      const normalized = normalizeSpell(r)
-      if (normalized) {
-        accepted.push(normalized)
+      const validated = validateSpell(r)
+      if (validated) {
+        accepted.push(validated)
       } else {
         skipped.push({ name: r.name, school: r.school })
       }
@@ -33,10 +33,10 @@ export function useSpells() {
   const spells = computed<Spell[]>(() => data.value?.spells ?? [])
   const skippedSpells = computed<SkippedSpell[]>(() => data.value?.skipped ?? [])
 
-  const spellMap = computed(() => new Map(spells.value.map((s) => [s.name, s])))
+  const spellMap = computed(() => new Map(spells.value.map((s) => [s.id, s])))
 
-  function getSpell(name: string): Spell | undefined {
-    return spellMap.value.get(name)
+  function getSpell(id: string): Spell | undefined {
+    return spellMap.value.get(id)
   }
 
   return { spells, skippedSpells, spellMap, getSpell, pending, error, refresh }

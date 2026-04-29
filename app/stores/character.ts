@@ -97,7 +97,7 @@ export const useCharacterStore = defineStore('character', () => {
 
     const learnedSpells = [...formState.learnedSpells]
     const learnedSet = new Set(learnedSpells)
-    const preparedSpells = formState.preparedSpells.filter((name) => learnedSet.has(name))
+    const preparedSpells = formState.preparedSpells.filter((id) => learnedSet.has(id))
 
     const updated: Character = {
       ...previous,

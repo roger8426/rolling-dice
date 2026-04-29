@@ -97,17 +97,17 @@
           <span class="text-xs text-content-muted">{{ group.spells.length }} 個</span>
         </div>
         <Accordion multiple class="spell-accordion">
-          <AccordionItem v-for="spell in group.spells" :key="spell.name" :value="spell.name">
+          <AccordionItem v-for="spell in group.spells" :key="spell.id" :value="spell.id">
             <template #title>
               <div class="flex flex-1 items-center gap-3">
                 <Checkbox
                   class="shrink-0"
-                  :model-value="isLearned(spell.name)"
+                  :model-value="isLearned(spell.id)"
                   size="sm"
                   color="var(--color-primary)"
                   :aria-label="`掌握 ${spell.name}`"
                   @click.stop
-                  @update:model-value="emit('toggleLearned', spell.name)"
+                  @update:model-value="emit('toggleLearned', spell.id)"
                 />
                 <div class="min-w-0 flex-1 text-left">
                   <div class="flex items-center gap-2">
@@ -185,7 +185,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggleLearned: [name: string]
+  toggleLearned: [id: string]
 }>()
 
 const { spells } = useSpells()
@@ -264,8 +264,8 @@ const filteredSpells = computed<Spell[]>(() => {
 
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
-function isLearned(name: string): boolean {
-  return props.learnedSpells.includes(name)
+function isLearned(id: string): boolean {
+  return props.learnedSpells.includes(id)
 }
 </script>
 

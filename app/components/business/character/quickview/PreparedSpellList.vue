@@ -31,7 +31,7 @@
         <ul class="grid grid-cols-2 gap-1">
           <li
             v-for="spell in group.spells"
-            :key="spell.name"
+            :key="spell.id"
             class="rounded-md border border-border-soft bg-surface px-3 py-1.5 text-sm text-content"
           >
             {{ spell.name }}
@@ -54,10 +54,10 @@ const { getSpell, pending } = useSpells()
 const resolvedSpells = computed(() => {
   const found: Spell[] = []
   const missing: string[] = []
-  for (const name of props.preparedSpells) {
-    const spell = getSpell(name)
+  for (const id of props.preparedSpells) {
+    const spell = getSpell(id)
     if (spell) found.push(spell)
-    else missing.push(name)
+    else missing.push(id)
   }
   return { found, missing }
 })
