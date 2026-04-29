@@ -3,7 +3,7 @@
     <p v-if="pending" class="py-12 text-center text-content-muted">法術資料載入中…</p>
     <div v-else-if="error" class="flex flex-col items-center gap-3 py-12 text-center">
       <p class="text-danger">法術資料載入失敗</p>
-      <Button size="sm" :radius="4" @click="refresh()">重試</Button>
+      <Button size="sm" bg-color="var(--color-warning)" :radius="4" @click="refresh()">重試</Button>
     </div>
     <div v-else class="flex flex-col gap-6 md:flex-row md:items-start">
       <BusinessCharacterFormSpellBookPanel
