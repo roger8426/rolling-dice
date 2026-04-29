@@ -108,12 +108,7 @@
           <template #label>
             <span class="text-content">法術書</span>
           </template>
-          <BusinessCharacterFormSpellsTab
-            :learned-spells="formState.learnedSpells"
-            :prepared-spells="formState.preparedSpells"
-            @toggle-learned="toggleLearnedSpell"
-            @toggle-prepared="togglePreparedSpell"
-          />
+          <BusinessCharacterFormSpellsTab v-model:form-state="formState" />
         </Tab>
       </Tabs>
     </template>
@@ -137,7 +132,6 @@ const {
   derived,
   stats,
   attacks,
-  spells,
   features,
   submit,
 } = useCharacterUpdate(id)
@@ -166,8 +160,6 @@ const {
   updateSavingThrowExtras,
 } = stats
 const { addAttack, removeAttack, updateAttack } = attacks
-
-const { toggleLearnedSpell, togglePreparedSpell } = spells
 
 const { addFeature, removeFeature, updateFeature } = features
 </script>
