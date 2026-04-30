@@ -1,15 +1,15 @@
 <template>
-  <div class="flex-1 self-start space-y-1 px-2">
+  <div class="flex-1 self-start space-y-4 px-2">
     <div class="flex items-center justify-between">
-      <p class="text-xs text-content">技能熟練度</p>
+      <h2 class="font-display text-lg font-bold text-content">技能熟練</h2>
       <label class="flex items-center gap-1.5">
         <span class="text-xs text-content-soft">全能高手</span>
         <Toggle
-          :model-value="isJackOfAllTrades"
+          :model-value="formState.isJackOfAllTrades"
           size="sm"
           color="var(--color-success)"
           aria-label="全能高手"
-          @update:model-value="emit('update:jackOfAllTrades', $event)"
+          @update:model-value="formState.isJackOfAllTrades = $event"
         />
       </label>
     </div>
@@ -25,10 +25,16 @@
         </span>
         <CommonAppSelect
           class="min-w-18 flex-1"
-          :model-value="skills[item.key] ?? 'none'"
+          :model-value="formState.skills[item.key] ?? 'none'"
           :options="PROFICIENCY_OPTIONS"
           size="sm"
-          @update:model-value="emit('update:skill', item.key, $event as ProficiencyLevel)"
+          @update:model-value="
+            formState.skills = applySkillProficiency(
+              formState.skills,
+              item.key,
+              $event as ProficiencyLevel,
+            )
+          "
         />
       </div>
     </div>
@@ -38,27 +44,22 @@
 <script setup lang="ts">
 import { Toggle } from '@ui'
 import { PROFICIENCY_OPTIONS, SKILL_NAMES, SKILL_TO_ABILITY_MAP } from '~/constants/dnd'
-import type { AbilityScores, SkillProficiencies } from '~/types/business/character'
+import type { TotalAbilityScores, CharacterFormStateBase } from '~/types/business/character'
 import type { ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
+const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
+
 const props = defineProps<{
-  skills: SkillProficiencies
-  isJackOfAllTrades: boolean
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 
-const emit = defineEmits<{
-  'update:skill': [skill: SkillKey, level: ProficiencyLevel]
-  'update:jackOfAllTrades': [value: boolean]
-}>()
-
 const skillList = computed(() => {
-  const jackBonus = props.isJackOfAllTrades ? Math.floor(props.proficiencyBonus / 2) : 0
+  const jackBonus = formState.value.isJackOfAllTrades ? Math.floor(props.proficiencyBonus / 2) : 0
   return (Object.entries(SKILL_NAMES) as [SkillKey, string][]).map(([key, name]) => {
     const abilityKey = SKILL_TO_ABILITY_MAP[key]
     const mod = getAbilityModifier(props.abilityScores[abilityKey])
-    const proficiency: ProficiencyLevel = props.skills[key] ?? 'none'
+    const proficiency: ProficiencyLevel = formState.value.skills[key] ?? 'none'
     const base = getSkillBonus(mod, proficiency, props.proficiencyBonus)
     const bonus = proficiency === 'none' ? base + jackBonus : base
     return { key, name, bonusText: formatModifier(bonus) }

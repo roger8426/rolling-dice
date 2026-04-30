@@ -3,14 +3,14 @@
     <h3 id="quickview-saves-label" class="mb-2 font-display text-sm font-bold text-content">
       屬性 / 豁免
     </h3>
-    <ul class="grid flex-1 auto-rows-fr grid-flow-col grid-cols-2 grid-rows-3 gap-2">
+    <ul class="grid flex-1 auto-rows-fr grid-flow-col grid-rows-6 sm:grid-rows-3 gap-2">
       <li
         v-for="row in rows"
         :key="row.key"
         class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
         <div
-          class="flex flex-col sm:flex-row items-center gap-1 text-sm"
+          class="flex flex-wrap items-center gap-1 text-sm"
           :class="row.proficient ? 'text-primary' : 'text-content'"
           :aria-label="row.proficient ? `${row.name}（熟練）` : row.name"
         >
@@ -22,7 +22,7 @@
             </span>
           </div>
         </div>
-        <div class="flex items-center gap-0.5">
+        <div class="flex items-center">
           <button
             type="button"
             :aria-label="`${row.name} 豁免 -1`"
@@ -55,11 +55,11 @@
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
-import type { AbilityScores } from '~/types/business/character'
+import type { TotalAbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
   proficiencies: AbilityKey[]
   adjustments: Partial<Record<AbilityKey, number>>

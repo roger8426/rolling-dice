@@ -1,6 +1,3 @@
-/** 法術 UUID（SRD 靜態寫死 / 自定義由 DB 生成） */
-export type SpellId = string
-
 /** 法術學派（以英文 camelCase 為 key，中文僅為顯示 label） */
 export type SpellSchool =
   | 'abjuration'
@@ -12,11 +9,12 @@ export type SpellSchool =
   | 'necromancy'
   | 'transmutation'
 
-/** 來自 public/json/spells.json (v1) 的原始法術資料；school 以中文字串儲存。 */
+/** 來自 public/json/spells.json 的原始法術資料。 */
 export interface SpellDto {
+  id: string
   name: string
   level: number
-  school: string
+  school: SpellSchool
   castingTime: string
   range: string
   verbal: boolean
@@ -29,6 +27,4 @@ export interface SpellDto {
 }
 
 /** 正規化後的法術資料，供 UI 使用。 */
-export interface Spell extends Omit<SpellDto, 'school'> {
-  school: SpellSchool
-}
+export type Spell = SpellDto

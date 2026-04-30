@@ -51,8 +51,15 @@ export const useCharacterStore = defineStore('character', () => {
     const patch = formStateToCharacterPatch(formState)
 
     const abilities = Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, { basicScore: formState.abilities[key], bonusScore: 0 }]),
-    ) as Record<AbilityKey, { basicScore: number; bonusScore: number }>
+      ABILITY_KEYS.map((key) => [
+        key,
+        {
+          origin: formState.abilities[key].origin,
+          race: formState.abilities[key].race,
+          bonusScore: 0,
+        },
+      ]),
+    ) as Record<AbilityKey, { origin: number; race: number; bonusScore: number }>
 
     const character: Character = {
       id: crypto.randomUUID(),
@@ -64,7 +71,9 @@ export const useCharacterStore = defineStore('character', () => {
       customHpBonus: 0,
       speedBonus: 0,
       initiativeBonus: 0,
+      initiativeAbilityKey: null,
       passivePerceptionBonus: 0,
+      passiveInsightBonus: 0,
       armorClass: createDefaultArmorClass(),
       attacks: [],
       learnedSpells: [],
@@ -80,9 +89,16 @@ export const useCharacterStore = defineStore('character', () => {
     return cloneCharacter(character)
   }
 
-  function removeCharacter(id: string): void {
-    characters.value = characters.value.filter((c) => c.id !== id)
-    saveToStorage(characters.value)
+  function removeCharacter(id: string): boolean {
+    const index = characters.value.findIndex((c) => c.id === id)
+    if (index === -1) return false
+    const previous = characters.value[index]!
+    characters.value.splice(index, 1)
+    if (!saveToStorage(characters.value)) {
+      characters.value.splice(index, 0, previous)
+      return false
+    }
+    return true
   }
 
   function updateCharacter(id: string, formState: CharacterUpdateFormState): Character | null {
@@ -97,7 +113,7 @@ export const useCharacterStore = defineStore('character', () => {
 
     const learnedSpells = [...formState.learnedSpells]
     const learnedSet = new Set(learnedSpells)
-    const preparedSpells = formState.preparedSpells.filter((name) => learnedSet.has(name))
+    const preparedSpells = formState.preparedSpells.filter((id) => learnedSet.has(id))
 
     const updated: Character = {
       ...previous,
@@ -107,7 +123,9 @@ export const useCharacterStore = defineStore('character', () => {
       customHpBonus: formState.customHpBonus,
       speedBonus: formState.speedBonus,
       initiativeBonus: formState.initiativeBonus,
+      initiativeAbilityKey: formState.initiativeAbilityKey,
       passivePerceptionBonus: formState.passivePerceptionBonus,
+      passiveInsightBonus: formState.passiveInsightBonus,
       armorClass: JSON.parse(JSON.stringify(formState.armorClass)),
       attacks: JSON.parse(JSON.stringify(formState.attacks)),
       learnedSpells,

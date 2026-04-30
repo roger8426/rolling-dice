@@ -1,5 +1,6 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE, UNASSIGNED_ABILITY_SCORE } from '~/constants/dnd'
 import { createDicePool, tryCalculateSpentPoints } from '~/helpers/ability'
+import { calculateTotalLevel } from '~/helpers/character'
 import type { AbilityMethod, AbilityScores, CharacterFormState } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -7,8 +8,15 @@ export type BuildTab = 'basic' | 'profile'
 
 function createDefaultAbilities(): AbilityScores {
   return Object.fromEntries(
-    ABILITY_KEYS.map((key) => [key, POINT_BUY_DEFAULT_SCORE]),
+    ABILITY_KEYS.map((key) => [key, { origin: POINT_BUY_DEFAULT_SCORE, race: 0 }]),
   ) as AbilityScores
+}
+
+/** 只重置 origin（race 保留），用於重置按鈕 / 切換模式時不洗掉種族加值 */
+function resetOrigins(abilities: AbilityScores): void {
+  for (const key of ABILITY_KEYS) {
+    abilities[key].origin = POINT_BUY_DEFAULT_SCORE
+  }
 }
 
 function createDefaultFormState(): CharacterFormState {
@@ -43,17 +51,17 @@ export function useCharacterBuild() {
   const activeTab = ref<BuildTab>('basic')
   const formState = reactive<CharacterFormState>(createDefaultFormState())
 
-  const core = useCharacterFormCore(formState)
+  const totalLevel = computed(() => calculateTotalLevel(formState.professions))
 
   // ─── Dice Roll ────────────────────────────────────────────────────────
 
   function rollAllAbilities(): void {
     formState.dicePool = createDicePool()
-    formState.abilities = createDefaultAbilities()
+    resetOrigins(formState.abilities)
   }
 
   function resetAbilities(): void {
-    formState.abilities = createDefaultAbilities()
+    resetOrigins(formState.abilities)
     formState.dicePool = []
   }
 
@@ -62,14 +70,14 @@ export function useCharacterBuild() {
     if (previous) previous.assignedTo = null
 
     if (slotId === null) {
-      formState.abilities[key] = UNASSIGNED_ABILITY_SCORE
+      formState.abilities[key].origin = UNASSIGNED_ABILITY_SCORE
       return
     }
 
     const target = formState.dicePool.find((slot) => slot.id === slotId)
     if (!target) return
     target.assignedTo = key
-    formState.abilities[key] = target.value
+    formState.abilities[key].origin = target.value
   }
 
   // ─── Ability Method Switching ─────────────────────────────────────────
@@ -81,7 +89,7 @@ export function useCharacterBuild() {
     if (method === 'diceRoll') {
       rollAllAbilities()
     } else {
-      formState.abilities = createDefaultAbilities()
+      resetOrigins(formState.abilities)
       formState.dicePool = []
     }
   }
@@ -90,14 +98,19 @@ export function useCharacterBuild() {
 
   const pointBuyUsage = computed<number | null>(() => {
     if (formState.abilityMethod !== 'custom') return null
-    return tryCalculateSpentPoints(formState.abilities)
+    const origins = Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, formState.abilities[key].origin]),
+    ) as Record<AbilityKey, number>
+    return tryCalculateSpentPoints(origins)
   })
 
   function updateAbilityScore(key: AbilityKey, score: number): void {
-    formState.abilities[key] = score
+    formState.abilities[key].origin = score
   }
 
-  // ─── canSubmit（疊加擲骰指派完成度） ───────────────────────────────────
+  // ─── Submit guard ─────────────────────────────────────────────────────
+
+  const isSubmitting = ref(false)
 
   const isDiceAssignmentComplete = computed(
     () =>
@@ -106,7 +119,13 @@ export function useCharacterBuild() {
         formState.dicePool.every((slot) => slot.assignedTo !== null)),
   )
 
-  const canSubmit = computed(() => core.canSubmit.value && isDiceAssignmentComplete.value)
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim().length > 0 &&
+      formState.professions.every((p) => p.profession !== null) &&
+      isDiceAssignmentComplete.value,
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
@@ -114,26 +133,27 @@ export function useCharacterBuild() {
 
   async function submit(): Promise<void> {
     if (!canSubmit.value) return
-    core.isSubmitting.value = true
+    isSubmitting.value = true
     try {
       const created = store.addCharacter(formState)
       if (!created) {
         useToast().error('儲存失敗，請稍後再試')
-        core.isSubmitting.value = false
+        isSubmitting.value = false
         return
       }
       await navigateTo('/character')
     } catch (error) {
       logger.error('submit failed:', error)
       useToast().error('儲存失敗，請稍後再試')
-      core.isSubmitting.value = false
+      isSubmitting.value = false
     }
   }
 
   return {
     activeTab,
     formState,
-    core,
+    totalLevel,
+    isSubmitting,
     canSubmit,
 
     abilities: {

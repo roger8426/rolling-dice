@@ -1,10 +1,10 @@
 import { DAMAGE_TYPE_LABELS } from '~/constants/dnd'
-import type { AbilityScores, AttackDraft, DamageDieEntry } from '~/types/business/character'
+import type { TotalAbilityScores, AttackDraft, DamageDieEntry } from '~/types/business/character'
 
 /** 計算攻擊命中加值：屬性調整值 + 熟練加值 + 額外命中 */
 export function getAttackHit(
   attack: AttackDraft,
-  abilityScores: AbilityScores,
+  abilityScores: TotalAbilityScores,
   proficiencyBonus: number,
 ): number {
   const abilityMod = attack.abilityKey ? getAbilityModifier(abilityScores[attack.abilityKey]) : 0

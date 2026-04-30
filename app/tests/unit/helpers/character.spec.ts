@@ -1,21 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import {
-  calculatePerceptionSkillBonus,
+  calculatePassiveScore,
   calculateSavingThrowProficiencies,
   calculateTotalAbilityScores,
   calculateTotalHp,
   calculateTotalInitiative,
-  calculateTotalPassivePerception,
   calculateTotalSpeed,
   createDefaultArmorClass,
   formStateToCharacterPatch,
   getBaseArmorClass,
   getCharacterTier,
-  getPassivePerception,
   getTotalArmorClass,
 } from '~/helpers/character'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   ArmorClassConfig,
   CharacterAbilityScores,
   CharacterFormStateBase,
@@ -98,7 +96,7 @@ describe('getBaseArmorClass', () => {
 })
 
 describe('getTotalArmorClass', () => {
-  const baseScores: AbilityScores = {
+  const baseScores: TotalAbilityScores = {
     strength: 10,
     dexterity: 16, // modifier +3
     constitution: 14,
@@ -177,20 +175,6 @@ describe('createDefaultArmorClass', () => {
     const b = createDefaultArmorClass()
     a.value = 20
     expect(b.value).toBe(10)
-  })
-})
-
-describe('getPassivePerception', () => {
-  it('感知加值為正數時，被動感知 = 10 + bonus', () => {
-    expect(getPassivePerception(5)).toBe(15)
-  })
-
-  it('感知加值為 0 時，被動感知 = 10', () => {
-    expect(getPassivePerception(0)).toBe(10)
-  })
-
-  it('感知加值為負數時，被動感知 < 10', () => {
-    expect(getPassivePerception(-1)).toBe(9)
   })
 })
 
@@ -333,12 +317,12 @@ describe('formStateToCharacterPatch', () => {
 describe('calculateTotalAbilityScores', () => {
   it('每項屬性應加總 basicScore + bonusScore', () => {
     const abilities: CharacterAbilityScores = {
-      strength: { basicScore: 15, bonusScore: 2 },
-      dexterity: { basicScore: 14, bonusScore: 0 },
-      constitution: { basicScore: 13, bonusScore: 1 },
-      intelligence: { basicScore: 12, bonusScore: 0 },
-      wisdom: { basicScore: 10, bonusScore: 0 },
-      charisma: { basicScore: 8, bonusScore: 0 },
+      strength: { origin: 15, race: 0, bonusScore: 2 },
+      dexterity: { origin: 14, race: 0, bonusScore: 0 },
+      constitution: { origin: 13, race: 0, bonusScore: 1 },
+      intelligence: { origin: 12, race: 0, bonusScore: 0 },
+      wisdom: { origin: 10, race: 0, bonusScore: 0 },
+      charisma: { origin: 8, race: 0, bonusScore: 0 },
     }
     expect(calculateTotalAbilityScores(abilities)).toEqual({
       strength: 17,
@@ -427,71 +411,95 @@ describe('calculateTotalSpeed', () => {
 })
 
 describe('calculateTotalInitiative', () => {
-  it('bonus 為 0 時，僅回傳 dexModifier', () => {
-    expect(calculateTotalInitiative(3, 0)).toBe(3)
+  it('bonus 與 extraAbilityModifier 為 0 時，僅回傳 dexModifier', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 0, initiativeBonus: 0 }),
+    ).toBe(3)
   })
 
   it('bonus 為正數時，與 dexModifier 相加', () => {
-    expect(calculateTotalInitiative(3, 2)).toBe(5)
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 0, initiativeBonus: 2 }),
+    ).toBe(5)
   })
 
   it('dexModifier 為負數、bonus 為正數時可抵消', () => {
-    expect(calculateTotalInitiative(-1, 1)).toBe(0)
+    expect(
+      calculateTotalInitiative({ dexModifier: -1, extraAbilityModifier: 0, initiativeBonus: 1 }),
+    ).toBe(0)
+  })
+
+  it('extraAbilityModifier 不為 0 時，疊加於 dexModifier 之上', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 2, initiativeBonus: 0 }),
+    ).toBe(5)
+  })
+
+  it('三者同時非零時皆累加', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 2, initiativeBonus: 1 }),
+    ).toBe(6)
   })
 })
 
-describe('calculatePerceptionSkillBonus', () => {
-  it('未熟練 + 非全能高手，回傳 wisdomModifier', () => {
+describe('calculatePassiveScore', () => {
+  it('未熟練 + 非全能高手，回傳 10 + abilityModifier + extraBonus', () => {
     expect(
-      calculatePerceptionSkillBonus({
-        wisdomModifier: 2,
-        perceptionLevel: 'none',
+      calculatePassiveScore({
+        abilityModifier: 2,
+        skillLevel: 'none',
         proficiencyBonus: 3,
         isJackOfAllTrades: false,
+        extraBonus: 0,
       }),
-    ).toBe(2)
+    ).toBe(12)
   })
 
   it('未熟練 + 全能高手，加 floor(proficiencyBonus / 2)', () => {
     expect(
-      calculatePerceptionSkillBonus({
-        wisdomModifier: 2,
-        perceptionLevel: 'none',
+      calculatePassiveScore({
+        abilityModifier: 2,
+        skillLevel: 'none',
         proficiencyBonus: 3,
         isJackOfAllTrades: true,
+        extraBonus: 0,
       }),
-    ).toBe(2 + 1)
+    ).toBe(10 + 2 + 1)
   })
 
   it('熟練時，加 proficiencyBonus（全能高手不影響）', () => {
     expect(
-      calculatePerceptionSkillBonus({
-        wisdomModifier: 2,
-        perceptionLevel: 'proficient',
+      calculatePassiveScore({
+        abilityModifier: 2,
+        skillLevel: 'proficient',
         proficiencyBonus: 3,
         isJackOfAllTrades: true,
+        extraBonus: 0,
       }),
-    ).toBe(2 + 3)
+    ).toBe(10 + 2 + 3)
   })
 
   it('專精時，加 proficiencyBonus × 2', () => {
     expect(
-      calculatePerceptionSkillBonus({
-        wisdomModifier: 2,
-        perceptionLevel: 'expertise',
+      calculatePassiveScore({
+        abilityModifier: 2,
+        skillLevel: 'expertise',
         proficiencyBonus: 3,
         isJackOfAllTrades: false,
+        extraBonus: 0,
       }),
-    ).toBe(2 + 6)
-  })
-})
-
-describe('calculateTotalPassivePerception', () => {
-  it('extraBonus 為 0 時，等同 getPassivePerception(perceptionBonus)', () => {
-    expect(calculateTotalPassivePerception(5, 0)).toBe(15)
+    ).toBe(10 + 2 + 6)
   })
 
-  it('extraBonus 為正數時，疊加於 10 + perceptionBonus 之上', () => {
-    expect(calculateTotalPassivePerception(5, 3)).toBe(18)
+  it('extraBonus 為正數時，疊加於 10 + skillBonus 之上', () => {
+    expect(
+      calculatePassiveScore({
+        abilityModifier: 2,
+        skillLevel: 'proficient',
+        proficiencyBonus: 3,
+        isJackOfAllTrades: false,
+        extraBonus: 4,
+      }),
+    ).toBe(10 + 2 + 3 + 4)
   })
 })

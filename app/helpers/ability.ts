@@ -9,10 +9,10 @@ import type { AbilityKey } from '~/types/business/dnd'
 import type { AbilityScoreEntry, DiceSlot } from '~/types/business/character'
 
 /**
- * 計算屬性總分（基礎分數 + 獎勵加值）
+ * 計算屬性總分（origin + 種族加值 + 後天 bonus）
  */
 export function getTotalScore(entry: AbilityScoreEntry): number {
-  return entry.basicScore + entry.bonusScore
+  return entry.origin + entry.race + entry.bonusScore
 }
 
 /**

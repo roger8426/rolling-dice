@@ -63,12 +63,12 @@
 <script setup lang="ts">
 import { Button, Modal } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES, PROFESSION_CONFIG } from '~/constants/dnd'
-import type { AbilityScores, FormProfessionEntry } from '~/types/business/character'
+import type { TotalAbilityScores, FormProfessionEntry } from '~/types/business/character'
 
 const props = defineProps<{
   modelValue: boolean
   professions: FormProfessionEntry[]
-  abilities: AbilityScores
+  abilities: TotalAbilityScores
 }>()
 
 const emit = defineEmits<{

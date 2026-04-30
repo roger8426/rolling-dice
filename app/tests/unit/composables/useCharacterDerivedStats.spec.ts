@@ -14,12 +14,12 @@ function createFormState(
     alignment: 'trueNeutral',
     professions: [{ profession: 'fighter', level: 3 }],
     abilities: {
-      strength: { basicScore: 15, bonusScore: 0 },
-      dexterity: { basicScore: 14, bonusScore: 0 }, // +2
-      constitution: { basicScore: 14, bonusScore: 0 }, // +2
-      intelligence: { basicScore: 10, bonusScore: 0 },
-      wisdom: { basicScore: 12, bonusScore: 0 }, // +1
-      charisma: { basicScore: 10, bonusScore: 0 },
+      strength: { origin: 15, race: 0, bonusScore: 0 },
+      dexterity: { origin: 14, race: 0, bonusScore: 0 }, // +2
+      constitution: { origin: 14, race: 0, bonusScore: 0 }, // +2
+      intelligence: { origin: 10, race: 0, bonusScore: 0 },
+      wisdom: { origin: 12, race: 0, bonusScore: 0 }, // +1
+      charisma: { origin: 10, race: 0, bonusScore: 0 },
     },
     savingThrowExtras: [],
     skills: {},
@@ -39,7 +39,9 @@ function createFormState(
     armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
     speedBonus: 0,
     initiativeBonus: 0,
+    initiativeAbilityKey: null,
     passivePerceptionBonus: 0,
+    passiveInsightBonus: 0,
     customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
@@ -55,17 +57,28 @@ describe('useCharacterDerivedStats', () => {
   it('totalAbilityScores 應加總 basicScore + bonusScore', () => {
     const formState = createFormState({
       abilities: {
-        strength: { basicScore: 15, bonusScore: 2 },
-        dexterity: { basicScore: 14, bonusScore: 0 },
-        constitution: { basicScore: 13, bonusScore: 1 },
-        intelligence: { basicScore: 12, bonusScore: 0 },
-        wisdom: { basicScore: 10, bonusScore: 0 },
-        charisma: { basicScore: 8, bonusScore: 0 },
+        strength: { origin: 15, race: 0, bonusScore: 2 },
+        dexterity: { origin: 14, race: 0, bonusScore: 0 },
+        constitution: { origin: 13, race: 0, bonusScore: 1 },
+        intelligence: { origin: 12, race: 0, bonusScore: 0 },
+        wisdom: { origin: 10, race: 0, bonusScore: 0 },
+        charisma: { origin: 8, race: 0, bonusScore: 0 },
       },
     })
     const { totalAbilityScores } = useCharacterDerivedStats(formState)
     expect(totalAbilityScores.value.strength).toBe(17)
     expect(totalAbilityScores.value.constitution).toBe(14)
+  })
+
+  it('totalLevel 應為所有職業等級之和', () => {
+    const formState = createFormState({
+      professions: [
+        { profession: 'fighter', level: 5 },
+        { profession: 'wizard', level: 3 },
+      ],
+    })
+    const { totalLevel } = useCharacterDerivedStats(formState)
+    expect(totalLevel.value).toBe(8)
   })
 
   it('proficiencyBonus 應依 totalLevel 計算', () => {

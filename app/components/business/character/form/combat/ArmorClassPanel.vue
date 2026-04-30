@@ -6,12 +6,12 @@
         <label for="armor-type" class="mb-1 block text-xs text-content">著甲類型</label>
         <CommonAppSelect
           id="armor-type"
-          :model-value="armorClass.type"
+          :model-value="formState.armorClass.type"
           :options="armorTypeOptions"
           size="sm"
           placeholder="選擇護甲"
           class="w-18"
-          @update:model-value="emit('update:armorType', ($event || null) as ArmorType | null)"
+          @update:model-value="formState.armorClass.type = ($event || null) as ArmorType | null"
         />
       </div>
 
@@ -21,12 +21,14 @@
           id="armor-value"
           class="w-12"
           :radius="0"
-          :model-value="armorClass.value != null ? String(armorClass.value) : ''"
+          :model-value="
+            formState.armorClass.value != null ? String(formState.armorClass.value) : ''
+          "
           type="number"
           size="sm"
           outline
           :placeholder="String(UNARMORED_AC_BASE)"
-          @update:model-value="emit('update:armorValue', parseIntegerInput($event))"
+          @update:model-value="formState.armorClass.value = parseIntegerInput($event)"
         />
       </div>
 
@@ -45,13 +47,13 @@
         <label for="armor-ability" class="mb-1 block text-xs text-content">無甲防禦</label>
         <CommonAppSelect
           id="armor-ability"
-          :model-value="armorClass.abilityKey ?? ''"
+          :model-value="formState.armorClass.abilityKey ?? ''"
           :options="abilityOptions"
           size="sm"
           placeholder="無"
           class="min-w-18"
           @update:model-value="
-            emit('update:armorAbilityKey', ($event || null) as AbilityKey | null)
+            formState.armorClass.abilityKey = ($event || null) as AbilityKey | null
           "
         />
       </div>
@@ -62,12 +64,12 @@
           id="shield-value"
           class="w-12"
           :radius="0"
-          :model-value="String(armorClass.shieldValue)"
+          :model-value="String(formState.armorClass.shieldValue)"
           type="number"
           size="sm"
           outline
           placeholder="0"
-          @update:model-value="emit('update:shieldValue', parseIntegerInput($event, 0))"
+          @update:model-value="formState.armorClass.shieldValue = parseIntegerInput($event, 0)"
         />
       </div>
     </div>
@@ -86,20 +88,14 @@
 
 <script setup lang="ts">
 import type { SelectOption } from '@ui'
-import type { AbilityScores, ArmorClassConfig } from '~/types/business/character'
+import type { TotalAbilityScores, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 import { ABILITY_NAMES, ARMOR_TYPE_NAMES, UNARMORED_AC_BASE } from '~/constants/dnd'
 
-const props = defineProps<{
-  armorClass: ArmorClassConfig
-  abilityScores: AbilityScores
-}>()
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
-const emit = defineEmits<{
-  'update:armorType': [value: ArmorType | null]
-  'update:armorValue': [value: number | null]
-  'update:armorAbilityKey': [value: AbilityKey | null]
-  'update:shieldValue': [value: number]
+const props = defineProps<{
+  abilityScores: TotalAbilityScores
 }>()
 
 const armorTypeOptions: SelectOption[] = Object.entries(ARMOR_TYPE_NAMES).map(([value, label]) => ({
@@ -112,11 +108,11 @@ const abilityOptions: SelectOption[] = [
   ...Object.entries(ABILITY_NAMES).map(([value, label]) => ({ value, label })),
 ]
 
-const totalAC = computed(() => getTotalArmorClass(props.armorClass, props.abilityScores))
+const totalAC = computed(() => getTotalArmorClass(formState.value.armorClass, props.abilityScores))
 
 const effectiveDexModifier = computed(() => {
   const dexMod = getAbilityModifier(props.abilityScores.dexterity)
-  const type = props.armorClass.type
+  const type = formState.value.armorClass.type
   if (type === 'heavy') return 0
   if (type === 'medium') return Math.min(dexMod, 2)
   return dexMod

@@ -3,17 +3,19 @@
     <section aria-labelledby="section-features">
       <ul class="space-y-2">
         <li
-          v-for="feature in features"
+          v-for="feature in formState.features"
           :key="feature.id"
           class="flex items-start justify-between gap-3 rounded-lg border border-border-soft bg-surface px-3 py-2"
         >
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <p class="text-sm font-semibold text-content">{{ feature.name }}</p>
-              <Badge size="sm" bg-color="var(--color-info)">
-                <span class="text-info-soft">
-                  {{ FEATURE_SOURCE_LABELS[feature.source] }}
-                </span>
+              <Badge
+                size="sm"
+                :bg-color="FEATURE_SOURCE_BADGE_STYLES[feature.source].bgColor"
+                :text-color="FEATURE_SOURCE_BADGE_STYLES[feature.source].textColor"
+              >
+                {{ FEATURE_SOURCE_LABELS[feature.source] }}
               </Badge>
               <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-3)">
                 {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }} / {{ feature.usage.max }} 次
@@ -39,7 +41,7 @@
               type="button"
               :aria-label="`刪除 ${feature.name || '此特性'}`"
               class="flex size-8 items-center justify-center rounded-md text-content-muted transition-colors duration-150 hover:text-danger-hover"
-              @click="emit('remove', feature.id)"
+              @click="removeFeature(feature.id)"
             >
               <Icon name="trash" :size="16" />
             </button>
@@ -189,9 +191,14 @@
 <script setup lang="ts">
 import { Badge, Button, Checkbox, Icon, Modal, TextArea } from '@ui'
 import type { SelectOption } from '@ui'
-import { FEATURE_RECOVERY_LABELS, FEATURE_SOURCE_LABELS } from '~/constants/features'
+import {
+  FEATURE_RECOVERY_LABELS,
+  FEATURE_SOURCE_BADGE_STYLES,
+  FEATURE_SOURCE_LABELS,
+} from '~/constants/features'
 import type {
   CharacterFeature,
+  CharacterUpdateFormState,
   FeatureDraft,
   FeatureSource,
   FeatureUsageRecovery,
@@ -207,15 +214,8 @@ const recoveryOptions: Array<{ value: FeatureUsageRecovery; label: string }> = (
   Object.entries(FEATURE_RECOVERY_LABELS) as [FeatureUsageRecovery, string][]
 ).map(([value, label]) => ({ value, label }))
 
-defineProps<{
-  features: CharacterFeature[]
-}>()
-
-const emit = defineEmits<{
-  add: [draft: FeatureDraft]
-  remove: [id: string]
-  update: [id: string, draft: FeatureDraft]
-}>()
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+const { addFeature, removeFeature, updateFeature } = useCharacterFeaturesForm(formState.value)
 
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
@@ -279,9 +279,9 @@ function save(): void {
     usage: { ...draft.value.usage },
   }
   if (editingId.value) {
-    emit('update', editingId.value, payload)
+    updateFeature(editingId.value, payload)
   } else {
-    emit('add', payload)
+    addFeature(payload)
   }
   modalOpen.value = false
 }

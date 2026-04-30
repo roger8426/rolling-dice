@@ -1,11 +1,11 @@
 import type {
-  AbilityScores,
   ArmorClassConfig,
   CharacterAbilityScores,
   CharacterFormStateBase,
   CharacterTier,
   CharacterWritablePatch,
   ProfessionEntry,
+  TotalAbilityScores,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
 import { ABILITY_KEYS, PROFESSION_CONFIG, UNARMORED_AC_BASE } from '~/constants/dnd'
@@ -19,6 +19,11 @@ export function getCharacterTier(level: number): CharacterTier {
   if (level >= 11) return 'master'
   if (level >= 5) return 'elite'
   return 'common'
+}
+
+/** 計算總職業等級（兼職時為各職業等級之和） */
+export function calculateTotalLevel(professions: ReadonlyArray<{ level: number }>): number {
+  return professions.reduce((sum, p) => sum + p.level, 0)
 }
 
 /**
@@ -89,7 +94,10 @@ export function getBaseArmorClass(
  * 由護甲設定與屬性分數計算最終 AC：
  * base（依護甲類型處理 DEX）+ 額外屬性加值 + 盾牌加值。
  */
-export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: AbilityScores): number {
+export function getTotalArmorClass(
+  config: ArmorClassConfig,
+  abilityScores: TotalAbilityScores,
+): number {
   const baseValue = config.value ?? UNARMORED_AC_BASE
   const dexModifier = getAbilityModifier(abilityScores.dexterity)
   let ac = getBaseArmorClass(baseValue, dexModifier, config.type)
@@ -110,19 +118,30 @@ export function createDefaultArmorClass(): ArmorClassConfig {
 }
 
 /**
- * 計算被動感知：10 + 感知（Perception）技能加值
+ * 計算被動屬性檢定值：10 + 技能加值（含全能高手半熟練規則）+ 額外加值。
+ * 適用於被動察覺、被動洞察等同型計算。
  */
-export function getPassivePerception(perceptionBonus: number): number {
-  return 10 + perceptionBonus
+export function calculatePassiveScore(input: {
+  abilityModifier: number
+  skillLevel: ProficiencyLevel
+  proficiencyBonus: number
+  isJackOfAllTrades: boolean
+  extraBonus: number
+}): number {
+  const skillBonus =
+    input.skillLevel === 'none' && input.isJackOfAllTrades
+      ? input.abilityModifier + Math.floor(input.proficiencyBonus / 2)
+      : getSkillBonus(input.abilityModifier, input.skillLevel, input.proficiencyBonus)
+  return 10 + skillBonus + input.extraBonus
 }
 
 /**
- * 由完整屬性單元（basicScore + bonusScore）計算六項屬性的總分字典。
+ * 由完整屬性單元（origin + race + bonusScore）計算六項屬性的總分字典。
  */
-export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): AbilityScores {
+export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): TotalAbilityScores {
   return Object.fromEntries(
     ABILITY_KEYS.map((key) => [key, getTotalScore(abilities[key])]),
-  ) as AbilityScores
+  ) as TotalAbilityScores
 }
 
 /**
@@ -140,7 +159,7 @@ export function calculateTotalHp(input: {
     const hp = getClassHitPoints(config.hitDie, entry.level, index === 0)
     return sum + hp + input.conModifier * entry.level
   }, 0)
-  const totalLevel = input.professions.reduce((sum, p) => sum + p.level, 0)
+  const totalLevel = calculateTotalLevel(input.professions)
   const toughBonus = input.isTough ? totalLevel * 2 : 0
   return classHp + toughBonus + input.customHpBonus
 }
@@ -153,37 +172,14 @@ export function calculateTotalSpeed(speedBonus: number): number {
 }
 
 /**
- * 計算總先攻加值：DEX 調整值 + 額外加值。
+ * 計算總先攻加值：DEX 調整值 + 額外屬性調整值（initiativeAbilityKey 對應）+ 額外加值。
  */
-export function calculateTotalInitiative(dexModifier: number, initiativeBonus: number): number {
-  return dexModifier + initiativeBonus
-}
-
-/**
- * 計算感知（Perception）技能加值，含全能高手半熟練規則：
- * - 若 perception 未熟練且具備 isJackOfAllTrades，加 floor(proficiencyBonus / 2)
- * - 其餘依 proficiencyLevel 走標準 getSkillBonus
- */
-export function calculatePerceptionSkillBonus(input: {
-  wisdomModifier: number
-  perceptionLevel: ProficiencyLevel
-  proficiencyBonus: number
-  isJackOfAllTrades: boolean
+export function calculateTotalInitiative(input: {
+  dexModifier: number
+  extraAbilityModifier: number
+  initiativeBonus: number
 }): number {
-  if (input.perceptionLevel === 'none' && input.isJackOfAllTrades) {
-    return input.wisdomModifier + Math.floor(input.proficiencyBonus / 2)
-  }
-  return getSkillBonus(input.wisdomModifier, input.perceptionLevel, input.proficiencyBonus)
-}
-
-/**
- * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值。
- */
-export function calculateTotalPassivePerception(
-  perceptionBonus: number,
-  extraBonus: number,
-): number {
-  return getPassivePerception(perceptionBonus) + extraBonus
+  return input.dexModifier + input.extraAbilityModifier + input.initiativeBonus
 }
 
 /**

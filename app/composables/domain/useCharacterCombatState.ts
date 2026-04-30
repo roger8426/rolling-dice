@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { PROFESSION_CONFIG } from '~/constants/dnd'
 import { getCombatStateStorageKey } from '~/constants/storage'
+import { calculateTotalLevel } from '~/helpers/character'
 import type { ProfessionEntry } from '~/types/business/character'
 import type { AbilityKey, ProfessionKey } from '~/types/business/dnd'
 
@@ -79,7 +80,7 @@ function recoverHitDice(
   used: Partial<Record<ProfessionKey, number>>,
   professions: readonly ProfessionEntry[],
 ): Partial<Record<ProfessionKey, number>> {
-  const totalLevel = professions.reduce((sum, p) => sum + p.level, 0)
+  const totalLevel = calculateTotalLevel(professions)
   if (totalLevel === 0) return {}
 
   const sorted = [...professions].sort(
@@ -290,8 +291,14 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
 
   // ─── Persist ──────────────────────────────────────────────────────────
 
+  let hasNotifiedFailure = false
   const persist = debounce((snapshot: CombatState) => {
-    setLocalStorage(storageKey, snapshot)
+    if (setLocalStorage(storageKey, snapshot)) {
+      hasNotifiedFailure = false
+    } else if (!hasNotifiedFailure) {
+      hasNotifiedFailure = true
+      useToast().error('更新失敗，重整後資料可能遺失')
+    }
   }, PERSIST_DEBOUNCE_MS)
 
   watch(

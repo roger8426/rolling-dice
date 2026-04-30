@@ -1,11 +1,17 @@
 <template>
   <div class="space-y-4 bg-canvas-elevated p-4">
-    <h2 class="font-display text-lg font-bold text-content">資產</h2>
-    <!-- Currency -->
-    <BusinessCharacterFormInventoryCurrencyPanel
-      :currency="currency"
-      @update:currency="$emit('update-currency', $event)"
-    />
+    <!-- Currency + Attunement (parallel) -->
+    <div class="grid gap-4 md:grid-cols-2">
+      <BusinessCharacterFormInventoryCurrencyPanel
+        :currency="currency"
+        @update:currency="$emit('update-currency', $event)"
+      />
+      <BusinessCharacterFormInventoryAttunementPanel
+        :all-items="allItems"
+        :attuned-items="attunedItems"
+        @update="(slotIndex, itemId) => $emit('update-attunement', slotIndex, itemId)"
+      />
+    </div>
 
     <!-- Bag lists -->
     <div class="grid gap-4 md:grid-cols-2">
@@ -51,9 +57,10 @@ import type {
   InventoryItemDraft,
 } from '~/types/business/character'
 
-defineProps<{
+const props = defineProps<{
   backpackItems: InventoryItem[]
   dimensionalBagItems: InventoryItem[]
+  attunedItems: InventoryItem[]
   currency: CharacterCurrency
   backpackLoad: number
   maxCarryWeight: number
@@ -66,5 +73,8 @@ defineEmits<{
   'update-item': [id: string, draft: InventoryItemDraft]
   'move-item': [id: string]
   'update-currency': [value: CharacterCurrency]
+  'update-attunement': [slotIndex: number, itemId: string | null]
 }>()
+
+const allItems = computed(() => [...props.backpackItems, ...props.dimensionalBagItems])
 </script>

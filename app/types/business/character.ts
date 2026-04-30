@@ -34,19 +34,28 @@ export interface FormProfessionEntry {
 
 // ─── Abilities ────────────────────────────────────────────────────────────────
 
-/** 表單用六項屬性分數（純數字），以 AbilityKey 為鍵 */
-export type AbilityScores = Record<AbilityKey, number>
+/** 建立流程一個屬性的輸入結構：原始分數 + 種族加值 */
+export interface AbilityScoreInput {
+  /** 玩家自己分配 / 擲骰得到的純基礎值 */
+  origin: number
+  /** 種族加值（建立時填入） */
+  race: number
+}
 
-/** 角色屬性值儲存單元：基礎分數與獎勵加值 */
-export interface AbilityScoreEntry {
-  /** 建立角色時的初始屬性分數 */
-  basicScore: number
+/** 持久化於 Character 的屬性結構：origin + race + 後天 bonusScore */
+export interface AbilityScoreEntry extends AbilityScoreInput {
   /** 升級或冒險途中獲得的屬性提升 */
   bonusScore: number
 }
 
+/** 建立流程表單型別（六屬性） */
+export type AbilityScores = Record<AbilityKey, AbilityScoreInput>
+
 /** 角色六項屬性完整資料，以 AbilityKey 為鍵 */
 export type CharacterAbilityScores = Record<AbilityKey, AbilityScoreEntry>
+
+/** 計算後總值（讓只關心 modifier 的消費端使用） */
+export type TotalAbilityScores = Record<AbilityKey, number>
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 
@@ -72,10 +81,12 @@ export interface InventoryItem {
   weight: number
   type: ItemType
   location: InventoryLocation
+  /** 是否被同調（最多 3 件物品可同時為 true） */
+  isAttuned: boolean
 }
 
-/** 物品草稿（尚未具備 id） */
-export type InventoryItemDraft = Omit<InventoryItem, 'id'>
+/** 物品草稿（尚未具備 id；同調狀態由 composable 管理，不入草稿） */
+export type InventoryItemDraft = Omit<InventoryItem, 'id' | 'isAttuned'>
 
 /** 角色持有金錢 */
 export interface CharacterCurrency {
@@ -126,15 +137,19 @@ export interface CharacterStats {
   speedBonus: number
   /** 額外先攻加值 */
   initiativeBonus: number
+  /** 額外加值到先攻的屬性（null = 不加） */
+  initiativeAbilityKey: AbilityKey | null
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
+  /** 額外被動洞察加值 */
+  passiveInsightBonus: number
 }
 
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
-  /** 已掌握的法術名稱列表 */
+  /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
-  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
+  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
   features: CharacterFeature[]
 }
@@ -322,15 +337,19 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   speedBonus: number
   /** 額外先攻加值 */
   initiativeBonus: number
+  /** 額外加值到先攻的屬性（null = 不加） */
+  initiativeAbilityKey: AbilityKey | null
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
+  /** 額外被動洞察加值 */
+  passiveInsightBonus: number
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
   customHpBonus: number
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
-  /** 已掌握的法術名稱列表 */
+  /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
-  /** 今日已準備的法術名稱列表，必為 learnedSpells 的子集 */
+  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
   /** 角色特性列表 */
   features: CharacterFeature[]

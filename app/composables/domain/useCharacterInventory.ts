@@ -1,4 +1,5 @@
-import { DEFAULT_CURRENCY } from '~/constants/inventory'
+import { ATTUNEMENT_SLOT_COUNT, DEFAULT_CURRENCY } from '~/constants/inventory'
+import { getTotalScore } from '~/helpers/ability'
 import { calculateBackpackLoad, calculateMaxCarryWeight } from '~/helpers/inventory'
 import type {
   CharacterCurrency,
@@ -16,6 +17,20 @@ export function useCharacterInventory(characterId: string) {
     ...(character.value?.currency ?? { ...DEFAULT_CURRENCY }),
   })
 
+  const backpackItems = computed(() => items.value.filter((i) => i.location === 'backpack'))
+  const dimensionalBagItems = computed(() =>
+    items.value.filter((i) => i.location === 'dimensionalBag'),
+  )
+  const attunedItems = computed<InventoryItem[]>(() =>
+    items.value.filter((i) => i.isAttuned).slice(0, ATTUNEMENT_SLOT_COUNT),
+  )
+  const backpackLoad = computed(() => calculateBackpackLoad(backpackItems.value, currency.value))
+  const maxCarryWeight = computed(() => {
+    const str = character.value?.abilities.strength
+    return str ? calculateMaxCarryWeight(getTotalScore(str)) : 0
+  })
+  const isOverEncumbered = computed(() => backpackLoad.value > maxCarryWeight.value)
+
   function persist(): void {
     if (!store.updateInventory(characterId, items.value, currency.value)) {
       useToast().error('儲存失敗，請稍後再試')
@@ -23,7 +38,7 @@ export function useCharacterInventory(characterId: string) {
   }
 
   function addItem(draft: InventoryItemDraft): void {
-    items.value.push({ id: crypto.randomUUID(), ...draft })
+    items.value.push({ id: crypto.randomUUID(), ...draft, isAttuned: false })
     persist()
   }
 
@@ -38,7 +53,7 @@ export function useCharacterInventory(characterId: string) {
   function updateItem(itemId: string, draft: InventoryItemDraft): void {
     const index = items.value.findIndex((i) => i.id === itemId)
     if (index !== -1) {
-      items.value[index] = { id: itemId, ...draft }
+      items.value[index] = { id: itemId, ...draft, isAttuned: items.value[index]!.isAttuned }
       persist()
     }
   }
@@ -55,22 +70,28 @@ export function useCharacterInventory(characterId: string) {
     persist()
   }
 
-  const backpackItems = computed(() => items.value.filter((i) => i.location === 'backpack'))
-  const dimensionalBagItems = computed(() =>
-    items.value.filter((i) => i.location === 'dimensionalBag'),
-  )
-  const backpackLoad = computed(() => calculateBackpackLoad(backpackItems.value, currency.value))
-  const maxCarryWeight = computed(() => {
-    const str = character.value?.abilities.strength
-    return str ? calculateMaxCarryWeight(str.basicScore + str.bonusScore) : 0
-  })
-  const isOverEncumbered = computed(() => backpackLoad.value > maxCarryWeight.value)
+  /** 設定第 slotIndex 個 slot 的同調物品；newItemId 為 null 時清空 slot。 */
+  function setAttunement(slotIndex: number, newItemId: string | null): void {
+    if (slotIndex < 0 || slotIndex >= ATTUNEMENT_SLOT_COUNT) return
+    const current = attunedItems.value[slotIndex] ?? null
+    if (current?.id === newItemId) return
+    if (current) {
+      const oldIdx = items.value.findIndex((i) => i.id === current.id)
+      if (oldIdx !== -1) items.value[oldIdx] = { ...items.value[oldIdx]!, isAttuned: false }
+    }
+    if (newItemId) {
+      const newIdx = items.value.findIndex((i) => i.id === newItemId)
+      if (newIdx !== -1) items.value[newIdx] = { ...items.value[newIdx]!, isAttuned: true }
+    }
+    persist()
+  }
 
   return {
     items,
     currency,
     backpackItems,
     dimensionalBagItems,
+    attunedItems,
     backpackLoad,
     maxCarryWeight,
     isOverEncumbered,
@@ -79,5 +100,6 @@ export function useCharacterInventory(characterId: string) {
     updateItem,
     moveItem,
     updateCurrency,
+    setAttunement,
   }
 }

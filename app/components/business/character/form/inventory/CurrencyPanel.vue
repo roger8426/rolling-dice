@@ -1,23 +1,26 @@
 <template>
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <div v-for="coin in COIN_FIELDS" :key="coin.key">
-      <label :for="`currency-${coin.key}`" class="mb-1 block text-xs text-content-muted">
-        {{ coin.label }}
-      </label>
-      <CommonAppInput
-        :id="`currency-${coin.key}`"
-        type="number"
-        min="0"
-        step="1"
-        size="sm"
-        outline
-        :model-value="String(currency[coin.key])"
-        class="w-full"
-        @update:model-value="onUpdate(coin.key, $event)"
-      />
+  <div class="space-y-2">
+    <h2 class="font-display text-lg font-bold text-content">資產</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div v-for="coin in COIN_FIELDS" :key="coin.key">
+        <label :for="`currency-${coin.key}`" class="mb-1 block text-xs text-content-muted">
+          {{ coin.label }}
+        </label>
+        <CommonAppInput
+          :id="`currency-${coin.key}`"
+          type="number"
+          min="0"
+          step="1"
+          size="sm"
+          outline
+          :model-value="String(currency[coin.key])"
+          class="w-full"
+          @update:model-value="onUpdate(coin.key, $event)"
+        />
+      </div>
     </div>
+    <p class="text-xs text-content-muted">硬幣重量：{{ coinWeight }} 磅</p>
   </div>
-  <p class="mt-2 text-xs text-content-muted">硬幣重量：{{ coinWeight }} 磅</p>
 </template>
 
 <script setup lang="ts">

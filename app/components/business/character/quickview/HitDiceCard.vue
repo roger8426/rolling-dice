@@ -15,7 +15,7 @@
       <li
         v-for="entry in professions"
         :key="entry.profession"
-        class="flex items-center justify-between gap-3 rounded-lg border border-border-soft bg-surface px-3 py-2"
+        class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
         <div class="flex min-w-0 flex-wrap items-center gap-1.5">
           <span class="text-sm font-semibold text-content">
@@ -26,7 +26,7 @@
           </Badge>
         </div>
 
-        <div class="flex shrink-0 items-center gap-1">
+        <div class="flex shrink-0 items-center">
           <span
             role="button"
             :tabindex="canDecrement(entry) ? 0 : -1"

@@ -14,12 +14,12 @@ const MOCK_FORM_STATE = createMockFormState({
   alignment: 'chaoticGood',
   professions: [{ profession: 'wizard', level: 3 }],
   abilities: {
-    strength: 8,
-    dexterity: 14,
-    constitution: 12,
-    intelligence: 15,
-    wisdom: 13,
-    charisma: 10,
+    strength: { origin: 8, race: 0 },
+    dexterity: { origin: 14, race: 0 },
+    constitution: { origin: 12, race: 0 },
+    intelligence: { origin: 15, race: 0 },
+    wisdom: { origin: 13, race: 0 },
+    charisma: { origin: 10, race: 0 },
   },
   skills: { arcana: 'proficient' },
   background: '學者',
@@ -111,12 +111,14 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.isTough).toBe(false)
   })
 
-  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 0', () => {
+  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus / passiveInsightBonus 應初始化為 0、initiativeAbilityKey 為 null', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
     expect(created!.speedBonus).toBe(0)
     expect(created!.initiativeBonus).toBe(0)
     expect(created!.passivePerceptionBonus).toBe(0)
+    expect(created!.passiveInsightBonus).toBe(0)
+    expect(created!.initiativeAbilityKey).toBeNull()
   })
 
   it('新增後 savingThrowExtras 應為空陣列', () => {
@@ -139,10 +141,11 @@ describe('useCharacterStore — addCharacter', () => {
 })
 
 describe('useCharacterStore — removeCharacter', () => {
-  it('刪除後該角色不應出現在 characters 中', () => {
+  it('刪除成功時應回傳 true，且該角色不應出現在 characters 中', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
-    store.removeCharacter('test-001')
+    const result = store.removeCharacter('test-001')
+    expect(result).toBe(true)
     expect(store.getById('test-001')).toBeUndefined()
   })
 
@@ -154,11 +157,25 @@ describe('useCharacterStore — removeCharacter', () => {
     expect(stored.some((c: Character) => c.id === 'test-001')).toBe(false)
   })
 
-  it('刪除不存在的 id 時 characters 長度應保持不變', () => {
+  it('刪除不存在的 id 時應回傳 false 且 characters 長度保持不變', () => {
     const store = useCharacterStore()
     const before = store.characters.length
-    store.removeCharacter('non-existent-id')
+    const result = store.removeCharacter('non-existent-id')
+    expect(result).toBe(false)
     expect(store.characters).toHaveLength(before)
+  })
+
+  it('寫入 localStorage 失敗時應回傳 false 且角色仍保留在原位置', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const before = [...store.characters]
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const result = store.removeCharacter('test-001')
+    expect(result).toBe(false)
+    expect(store.characters).toEqual(before)
   })
 })
 
@@ -173,12 +190,12 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
     { profession: 'cleric', level: 3 },
   ],
   abilities: {
-    strength: { basicScore: 15, bonusScore: 2 },
-    dexterity: { basicScore: 14, bonusScore: 0 },
-    constitution: { basicScore: 13, bonusScore: 1 },
-    intelligence: { basicScore: 12, bonusScore: 0 },
-    wisdom: { basicScore: 10, bonusScore: 0 },
-    charisma: { basicScore: 8, bonusScore: 0 },
+    strength: { origin: 15, race: 0, bonusScore: 2 },
+    dexterity: { origin: 14, race: 0, bonusScore: 0 },
+    constitution: { origin: 13, race: 0, bonusScore: 1 },
+    intelligence: { origin: 12, race: 0, bonusScore: 0 },
+    wisdom: { origin: 10, race: 0, bonusScore: 0 },
+    charisma: { origin: 8, race: 0, bonusScore: 0 },
   },
   savingThrowExtras: [],
   skills: { arcana: 'proficient', religion: 'proficient' },
@@ -198,7 +215,9 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
   speedBonus: 0,
   initiativeBonus: 0,
+  initiativeAbilityKey: null,
   passivePerceptionBonus: 0,
+  passiveInsightBonus: 0,
   customHpBonus: 0,
   attacks: [],
   learnedSpells: [],
@@ -231,12 +250,12 @@ describe('useCharacterStore — updateCharacter', () => {
     ])
   })
 
-  it('更新後 abilities 應保留 basicScore 與 bonusScore', () => {
+  it('更新後 abilities 應保留 origin / race / bonusScore', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.abilities.strength).toEqual({ basicScore: 15, bonusScore: 2 })
-    expect(updated!.abilities.constitution).toEqual({ basicScore: 13, bonusScore: 1 })
+    expect(updated!.abilities.strength).toEqual({ origin: 15, race: 0, bonusScore: 2 })
+    expect(updated!.abilities.constitution).toEqual({ origin: 13, race: 0, bonusScore: 1 })
   })
 
   it('更新後應保留原始 id 與 createdAt', () => {
@@ -276,27 +295,33 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(store.getById('test-001')?.name).toBe('測試角色')
   })
 
-  it('更新後 speedBonus / initiativeBonus / passivePerceptionBonus 應從 formState 寫入', () => {
+  it('更新後 speedBonus / initiativeBonus / passive*Bonus / initiativeAbilityKey 應從 formState 寫入', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
       ...MOCK_UPDATE_FORM_STATE,
       speedBonus: 10,
       initiativeBonus: 3,
+      initiativeAbilityKey: 'wisdom',
       passivePerceptionBonus: 2,
+      passiveInsightBonus: 4,
     })
     expect(updated!.speedBonus).toBe(10)
     expect(updated!.initiativeBonus).toBe(3)
+    expect(updated!.initiativeAbilityKey).toBe('wisdom')
     expect(updated!.passivePerceptionBonus).toBe(2)
+    expect(updated!.passiveInsightBonus).toBe(4)
   })
 
-  it('formState 的 speedBonus 等為 0 時應寫入 0', () => {
+  it('formState 的 speedBonus 等為 0 時應寫入 0、initiativeAbilityKey 為 null', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.speedBonus).toBe(0)
     expect(updated!.initiativeBonus).toBe(0)
     expect(updated!.passivePerceptionBonus).toBe(0)
+    expect(updated!.passiveInsightBonus).toBe(0)
+    expect(updated!.initiativeAbilityKey).toBeNull()
   })
 
   it('空字串的 optional 欄位更新後應為 null', () => {

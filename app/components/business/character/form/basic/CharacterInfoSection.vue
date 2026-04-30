@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
+    <h2 class="font-display text-lg font-bold text-content">角色資訊</h2>
     <div class="flex items-end gap-2">
       <!-- 角色名稱 -->
       <div class="min-w-20 flex-1">
@@ -13,7 +14,7 @@
           :model-value="formState.name"
           size="sm"
           outline
-          @update:model-value="emit('update:name', $event)"
+          @update:model-value="formState.name = $event"
         />
       </div>
       <!-- 性別 -->
@@ -26,7 +27,7 @@
           :model-value="formState.gender || null"
           :options="genderOptions"
           size="sm"
-          @update:model-value="emit('update:gender', ($event as GenderKey) || null)"
+          @update:model-value="formState.gender = ($event as GenderKey) || null"
         />
       </div>
       <!-- 種族 -->
@@ -39,7 +40,7 @@
           :options="raceOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:race', ($event as RaceKey) || null)"
+          @update:model-value="formState.race = ($event as RaceKey) || null"
         />
       </div>
     </div>
@@ -54,7 +55,7 @@
           :model-value="formState.background ?? ''"
           size="sm"
           outline
-          @update:model-value="emit('update:background', $event)"
+          @update:model-value="formState.background = $event || null"
         />
       </div>
       <!-- 陣營 -->
@@ -67,7 +68,7 @@
           :options="alignmentOptions"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:alignment', ($event as AlignmentKey) || null)"
+          @update:model-value="formState.alignment = ($event as AlignmentKey) || null"
         />
       </div>
       <!-- 信仰 -->
@@ -79,7 +80,7 @@
           :model-value="formState.faith ?? ''"
           placeholder=""
           size="sm"
-          @update:model-value="emit('update:faith', $event)"
+          @update:model-value="formState.faith = $event || null"
         />
       </div>
     </div>
@@ -94,7 +95,7 @@
           :model-value="formState.languages ?? ''"
           size="sm"
           outline
-          @update:model-value="emit('update:languages', $event)"
+          @update:model-value="formState.languages = $event || null"
         />
       </div>
       <div class="min-w-0 flex-1">
@@ -106,7 +107,7 @@
           :model-value="formState.tools ?? ''"
           size="sm"
           outline
-          @update:model-value="emit('update:tools', $event)"
+          @update:model-value="formState.tools = $event || null"
         />
       </div>
     </div>
@@ -120,7 +121,7 @@
           :model-value="formState.weaponProficiencies ?? ''"
           size="sm"
           outline
-          @update:model-value="emit('update:weaponProficiencies', $event)"
+          @update:model-value="formState.weaponProficiencies = $event || null"
         />
       </div>
       <div class="min-w-0 flex-1">
@@ -132,7 +133,7 @@
           :model-value="formState.armorProficiencies ?? ''"
           size="sm"
           outline
-          @update:model-value="emit('update:armorProficiencies', $event)"
+          @update:model-value="formState.armorProficiencies = $event || null"
         />
       </div>
     </div>
@@ -175,7 +176,7 @@
           type="button"
           class="flex items-center justify-center border-content bg-danger shrink-0 size-8 rounded text-content transition-colors hover:bg-danger-hover"
           aria-label="移除此職業"
-          @click="emit('remove', index)"
+          @click="removeProfession(index)"
         >
           <Icon name="close" :size="20" />
         </button>
@@ -190,7 +191,7 @@
           text-color="var(--color-primary)"
           border-color="var(--color-primary)"
           :radius="8"
-          @click="emit('add')"
+          @click="addProfession"
         >
           + 新增職業
         </Button>
@@ -217,31 +218,15 @@ import {
 import type { CharacterFormStateBase } from '~/types/business/character'
 import type { AlignmentKey, GenderKey, ProfessionKey, RaceKey } from '~/types/business/dnd'
 
-const props = withDefaults(
+const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
+
+withDefaults(
   defineProps<{
-    formState: CharacterFormStateBase
     totalLevel: number
     lockPrimaryProfession?: boolean
   }>(),
   { lockPrimaryProfession: false },
 )
-
-const emit = defineEmits<{
-  'update:name': [value: string]
-  'update:gender': [value: GenderKey | null]
-  'update:race': [value: RaceKey | null]
-  'update:background': [value: string]
-  'update:alignment': [value: AlignmentKey | null]
-  'update:faith': [value: string]
-  'update:languages': [value: string]
-  'update:tools': [value: string]
-  'update:weaponProficiencies': [value: string]
-  'update:armorProficiencies': [value: string]
-  add: []
-  remove: [index: number]
-  'update:profession': [index: number, key: ProfessionKey]
-  'update:level': [index: number, level: number]
-}>()
 
 const genderOptions: SelectOption[] = Object.entries(GENDER_NAMES).map(([value, label]) => ({
   value,
@@ -264,23 +249,33 @@ const professionOptions: SelectOption[] = Object.entries(PROFESSION_CONFIG).map(
 
 const getProfessionOptions = (index: number): SelectOption[] => {
   return professionOptions.filter((option) => {
-    return props.formState.professions.every(
+    return formState.value.professions.every(
       (entry, i) => i === index || entry.profession !== option.value,
     )
   })
 }
 
 const isButtonDisabled = computed(() => {
-  const professionsOver = props.formState.professions.length >= PROFESSION_KEYS.length
-  const hasUnselected = props.formState.professions.some((entry) => !entry.profession)
+  const professionsOver = formState.value.professions.length >= PROFESSION_KEYS.length
+  const hasUnselected = formState.value.professions.some((entry) => !entry.profession)
   return professionsOver || hasUnselected
 })
 
+function addProfession(): void {
+  formState.value.professions.push({ profession: null, level: 1 })
+}
+
+function removeProfession(index: number): void {
+  if (formState.value.professions.length <= 1) return
+  formState.value.professions.splice(index, 1)
+}
+
 function updateProfessionKey(index: number, value: string): void {
-  emit('update:profession', index, value as ProfessionKey)
+  formState.value.professions[index]!.profession = value as ProfessionKey
 }
 
 function updateProfessionLevel(index: number, value: string): void {
-  emit('update:level', index, parseIntegerInput(value, 1))
+  const level = parseIntegerInput(value, 1)
+  formState.value.professions[index]!.level = Math.max(1, Math.min(20, level))
 }
 </script>

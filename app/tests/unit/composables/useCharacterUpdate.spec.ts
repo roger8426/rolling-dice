@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAttackDraft, createMockCharacter } from '~/tests/fixtures/character'
+import { createMockCharacter } from '~/tests/fixtures/character'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
 
 const mockNavigateTo = vi.fn()
@@ -8,12 +8,12 @@ const mockNavigateTo = vi.fn()
 const MOCK_CHARACTER = createMockCharacter({
   id: 'update-001',
   abilities: {
-    strength: { basicScore: 15, bonusScore: 2 },
-    dexterity: { basicScore: 14, bonusScore: 0 },
-    constitution: { basicScore: 13, bonusScore: 1 },
-    intelligence: { basicScore: 12, bonusScore: 0 },
-    wisdom: { basicScore: 10, bonusScore: 0 },
-    charisma: { basicScore: 8, bonusScore: 0 },
+    strength: { origin: 15, race: 0, bonusScore: 2 },
+    dexterity: { origin: 14, race: 0, bonusScore: 0 },
+    constitution: { origin: 13, race: 0, bonusScore: 1 },
+    intelligence: { origin: 12, race: 0, bonusScore: 0 },
+    wisdom: { origin: 10, race: 0, bonusScore: 0 },
+    charisma: { origin: 8, race: 0, bonusScore: 0 },
   },
   isTough: true,
   faith: '坦帕斯',
@@ -33,9 +33,6 @@ const mockToastError = vi.fn()
 async function getComposable(characterId: string) {
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
-
-  const { useCharacterFormCore } = await import('~/composables/domain/useCharacterFormCore')
-  vi.stubGlobal('useCharacterFormCore', useCharacterFormCore)
 
   const { useCharacterDerivedStats } = await import('~/composables/domain/useCharacterDerivedStats')
   vi.stubGlobal('useCharacterDerivedStats', useCharacterDerivedStats)
@@ -73,8 +70,8 @@ describe('useCharacterUpdate — 初始狀態', () => {
 
   it('應正確映射 abilities（保留 basicScore 與 bonusScore）', async () => {
     const { formState } = await getComposable('update-001')
-    expect(formState.abilities.strength).toEqual({ basicScore: 15, bonusScore: 2 })
-    expect(formState.abilities.constitution).toEqual({ basicScore: 13, bonusScore: 1 })
+    expect(formState.abilities.strength).toEqual({ origin: 15, race: 0, bonusScore: 2 })
+    expect(formState.abilities.constitution).toEqual({ origin: 13, race: 0, bonusScore: 1 })
   })
 
   it('應正確映射 optional 欄位', async () => {
@@ -114,360 +111,10 @@ describe('useCharacterUpdate — 初始狀態', () => {
 // ─── 職業管理 ──────────────────────────────────────────────────────────────────
 
 describe('useCharacterUpdate — 職業管理', () => {
-  it('addProfession 應新增一筆等級為 1 的空職業', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.addProfession()
-    expect(formState.professions).toHaveLength(2)
-    expect(formState.professions[1]!.level).toBe(1)
-  })
-
-  it('removeProfession 應移除指定索引的職業', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.addProfession()
-    formState.professions[1]!.profession = 'wizard'
-    core.removeProfession(0)
-    expect(formState.professions).toHaveLength(1)
-    expect(formState.professions[0]!.profession).toBe('wizard')
-  })
-
-  it('removeProfession 在只剩一筆職業時不應移除', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.removeProfession(0)
-    expect(formState.professions).toHaveLength(1)
-  })
-
   it('totalLevel 應正確計算所有職業等級總和', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.addProfession()
-    formState.professions[1]!.level = 3
-    expect(core.totalLevel.value).toBe(8)
-  })
-})
-
-// ─── 屬性更新 ──────────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 屬性更新', () => {
-  it('updateBonusScore 應只修改 bonusScore，不影響 basicScore', async () => {
-    const { formState, abilities } = await getComposable('update-001')
-    abilities.updateBonusScore('strength', 4)
-    expect(formState.abilities.strength.bonusScore).toBe(4)
-    expect(formState.abilities.strength.basicScore).toBe(15)
-  })
-
-  it('updateBonusScore 應能設為 0', async () => {
-    const { formState, abilities } = await getComposable('update-001')
-    abilities.updateBonusScore('strength', 0)
-    expect(formState.abilities.strength.bonusScore).toBe(0)
-  })
-})
-
-// ─── 技能熟練度 ──────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 技能熟練度', () => {
-  it('setSkillProficiency 設定 proficient 後應存入 skills', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.setSkillProficiency('arcana', 'proficient')
-    expect(formState.skills.arcana).toBe('proficient')
-  })
-
-  it('setSkillProficiency 設定 none 後應從 skills 中移除該技能', async () => {
-    const { formState, core } = await getComposable('update-001')
-    core.setSkillProficiency('athletics', 'none')
-    expect(formState.skills.athletics).toBeUndefined()
-  })
-})
-
-// ─── Combat — 護甲設定 ───────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 護甲設定', () => {
-  it('updateArmorType 應更新護甲類型', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorType('heavy')
-    expect(formState.armorClass.type).toBe('heavy')
-  })
-
-  it('updateArmorValue 應更新護甲基礎值', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorValue(16)
-    expect(formState.armorClass.value).toBe(16)
-  })
-
-  it('updateArmorValue 可設為 null（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorValue(null)
-    expect(formState.armorClass.value).toBeNull()
-  })
-
-  it('updateArmorAbilityKey 應更新額外屬性鍵', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateArmorAbilityKey('wisdom')
-    expect(formState.armorClass.abilityKey).toBe('wisdom')
-  })
-
-  it('updateShieldValue 應更新盾牌加值', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateShieldValue(2)
-    expect(formState.armorClass.shieldValue).toBe(2)
-  })
-})
-
-// ─── Combat — 自訂攻擊 ───────────────────────────────────────────────────────
-
-const defaultEntry = () => createAttackDraft()
-
-describe('useCharacterUpdate — 自訂攻擊', () => {
-  it('addAttack 應新增一筆攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    expect(formState.attacks).toHaveLength(1)
-    expect(formState.attacks[0]).toMatchObject({
-      name: '',
-      abilityKey: null,
-      damageDice: [],
-      extraHitBonus: null,
-    })
-    expect(formState.attacks[0]!.id).toBeTypeOf('string')
-  })
-
-  it('每次 addAttack 產生的 id 應不重複', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    combat.addAttack(defaultEntry())
-    const [a, b] = formState.attacks
-    expect(a!.id).not.toBe(b!.id)
-  })
-
-  it('removeAttack 應移除指定 id 的攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    combat.addAttack(defaultEntry())
-    const targetId = formState.attacks[0]!.id
-    combat.removeAttack(targetId)
-    expect(formState.attacks).toHaveLength(1)
-    expect(formState.attacks[0]!.id).not.toBe(targetId)
-  })
-
-  it('removeAttack 找不到對應 id 時不應拋錯', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    expect(() => combat.removeAttack('non-existent')).not.toThrow()
-    expect(formState.attacks).toHaveLength(1)
-  })
-
-  it('updateAttack 應以新資料取代整筆攻擊', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.addAttack(defaultEntry())
-    const id = formState.attacks[0]!.id
-    combat.updateAttack(id, {
-      name: '長劍',
-      abilityKey: 'strength',
-      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
-      extraHitBonus: 2,
-    })
-    expect(formState.attacks[0]).toMatchObject({
-      id,
-      name: '長劍',
-      abilityKey: 'strength',
-      damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
-      extraHitBonus: 2,
-    })
-  })
-})
-
-// ─── Combat — 其他屬性 ───────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 其他屬性', () => {
-  it('updateSpeedBonus 應更新 speedBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateSpeedBonus(10)
-    expect(formState.speedBonus).toBe(10)
-  })
-
-  it('updateSpeedBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateSpeedBonus(10)
-    combat.updateSpeedBonus(0)
-    expect(formState.speedBonus).toBe(0)
-  })
-
-  it('updateInitiativeBonus 應更新 initiativeBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateInitiativeBonus(3)
-    expect(formState.initiativeBonus).toBe(3)
-  })
-
-  it('updateInitiativeBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateInitiativeBonus(3)
-    combat.updateInitiativeBonus(0)
-    expect(formState.initiativeBonus).toBe(0)
-  })
-
-  it('updatePassivePerceptionBonus 應更新 passivePerceptionBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updatePassivePerceptionBonus(2)
-    expect(formState.passivePerceptionBonus).toBe(2)
-  })
-
-  it('updatePassivePerceptionBonus 可設為 0（清空）', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updatePassivePerceptionBonus(2)
-    combat.updatePassivePerceptionBonus(0)
-    expect(formState.passivePerceptionBonus).toBe(0)
-  })
-})
-
-// ─── Spells ────────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 法術', () => {
-  it('toggleLearnedSpell 可新增與移除掌握的法術', async () => {
-    const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).toContain('火球術')
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).not.toContain('火球術')
-  })
-
-  it('取消掌握某法術時，應同步從 preparedSpells 移除', async () => {
-    const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).toContain('火球術')
-
-    spells.toggleLearnedSpell('火球術')
-    expect(formState.learnedSpells).not.toContain('火球術')
-    expect(formState.preparedSpells).not.toContain('火球術')
-  })
-
-  it('togglePreparedSpell 只允許 learnedSpells 內的名稱', async () => {
-    const { formState, spells } = await getComposable('update-001')
-    spells.togglePreparedSpell('未掌握的法術')
-    expect(formState.preparedSpells).toHaveLength(0)
-  })
-
-  it('togglePreparedSpell 可在已掌握的法術上切換準備狀態', async () => {
-    const { formState, spells } = await getComposable('update-001')
-    spells.toggleLearnedSpell('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).toContain('火球術')
-    spells.togglePreparedSpell('火球術')
-    expect(formState.preparedSpells).not.toContain('火球術')
-  })
-})
-
-// ─── Features ──────────────────────────────────────────────────────────────
-
-const defaultFeatureDraft = (
-  overrides: Partial<import('~/types/business/character').FeatureDraft> = {},
-): import('~/types/business/character').FeatureDraft => ({
-  name: '勇氣光環',
-  description: null,
-  source: 'class',
-  usage: { hasUses: false },
-  ...overrides,
-})
-
-describe('useCharacterUpdate — 特性', () => {
-  it('addFeature 應推入帶 id 的條目', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    expect(formState.features).toHaveLength(1)
-    expect(formState.features[0]).toMatchObject({
-      name: '勇氣光環',
-      source: 'class',
-      usage: { hasUses: false },
-    })
-    expect(formState.features[0]!.id).toBeTypeOf('string')
-  })
-
-  it('多次 addFeature 應產生不重複的 id', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    features.addFeature(defaultFeatureDraft())
-    const [a, b] = formState.features
-    expect(a!.id).not.toBe(b!.id)
-  })
-
-  it('addFeature 應對 usage 做深拷貝（修改 draft 不影響已加入條目）', async () => {
-    const { formState, features } = await getComposable('update-001')
-    const draft = defaultFeatureDraft({
-      usage: { hasUses: true, max: 3, recovery: 'shortRest' },
-    })
-    features.addFeature(draft)
-    if (draft.usage.hasUses) draft.usage.max = 99
-    const stored = formState.features[0]!.usage
-    expect(stored.hasUses).toBe(true)
-    if (stored.hasUses) expect(stored.max).toBe(3)
-  })
-
-  it('removeFeature 應依 id 刪除', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    features.addFeature(defaultFeatureDraft({ name: '第二項' }))
-    const targetId = formState.features[0]!.id
-    features.removeFeature(targetId)
-    expect(formState.features).toHaveLength(1)
-    expect(formState.features[0]!.id).not.toBe(targetId)
-  })
-
-  it('removeFeature 找不到 id 時不應拋錯', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    expect(() => features.removeFeature('non-existent')).not.toThrow()
-    expect(formState.features).toHaveLength(1)
-  })
-
-  it('updateFeature 應依 id 替換並保留原 id', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    const id = formState.features[0]!.id
-    features.updateFeature(id, {
-      name: '新名稱',
-      description: '描述',
-      source: 'feat',
-      usage: { hasUses: true, max: 2, recovery: 'longRest' },
-    })
-    expect(formState.features[0]).toMatchObject({
-      id,
-      name: '新名稱',
-      description: '描述',
-      source: 'feat',
-      usage: { hasUses: true, max: 2, recovery: 'longRest' },
-    })
-  })
-
-  it('updateFeature 找不到 id 時不應拋錯且不應新增條目', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    expect(() =>
-      features.updateFeature('non-existent', defaultFeatureDraft({ name: '不存在' })),
-    ).not.toThrow()
-    expect(formState.features).toHaveLength(1)
-    expect(formState.features[0]!.name).toBe('勇氣光環')
-  })
-
-  it('updateFeature 應對 usage 做深拷貝', async () => {
-    const { formState, features } = await getComposable('update-001')
-    features.addFeature(defaultFeatureDraft())
-    const id = formState.features[0]!.id
-    const draft = defaultFeatureDraft({
-      usage: { hasUses: true, max: 5, recovery: 'manual' },
-    })
-    features.updateFeature(id, draft)
-    if (draft.usage.hasUses) draft.usage.max = 99
-    const stored = formState.features[0]!.usage
-    expect(stored.hasUses).toBe(true)
-    if (stored.hasUses) expect(stored.max).toBe(5)
-  })
-})
-
-// ─── 額外生命值 ────────────────────────────────────────────────────────────
-
-describe('useCharacterUpdate — 額外生命值', () => {
-  it('updateCustomHpBonus 應更新 customHpBonus', async () => {
-    const { formState, combat } = await getComposable('update-001')
-    combat.updateCustomHpBonus(12)
-    expect(formState.customHpBonus).toBe(12)
+    const { formState, derived } = await getComposable('update-001')
+    formState.professions.push({ profession: null, level: 3 })
+    expect(derived.totalLevel.value).toBe(8)
   })
 })
 
@@ -475,20 +122,20 @@ describe('useCharacterUpdate — 額外生命值', () => {
 
 describe('useCharacterUpdate — canSubmit', () => {
   it('角色名稱有值時 canSubmit 應為 true', async () => {
-    const { core } = await getComposable('update-001')
-    expect(core.canSubmit.value).toBe(true)
+    const { canSubmit } = await getComposable('update-001')
+    expect(canSubmit.value).toBe(true)
   })
 
   it('角色名稱為空字串時 canSubmit 應為 false', async () => {
-    const { formState, core } = await getComposable('update-001')
+    const { formState, canSubmit } = await getComposable('update-001')
     formState.name = ''
-    expect(core.canSubmit.value).toBe(false)
+    expect(canSubmit.value).toBe(false)
   })
 
   it('角色名稱為空白時 canSubmit 應為 false', async () => {
-    const { formState, core } = await getComposable('update-001')
+    const { formState, canSubmit } = await getComposable('update-001')
     formState.name = '   '
-    expect(core.canSubmit.value).toBe(false)
+    expect(canSubmit.value).toBe(false)
   })
 })
 
@@ -507,10 +154,10 @@ describe('useCharacterUpdate — submit', () => {
   })
 
   it('submit 後 isSubmitting 應為 true，canSubmit 應為 false', async () => {
-    const { core, submit } = await getComposable('update-001')
+    const { isSubmitting, canSubmit, submit } = await getComposable('update-001')
     const pending = submit()
-    expect(core.isSubmitting.value).toBe(true)
-    expect(core.canSubmit.value).toBe(false)
+    expect(isSubmitting.value).toBe(true)
+    expect(canSubmit.value).toBe(false)
     await pending
   })
 
@@ -542,11 +189,11 @@ describe('useCharacterUpdate — submit', () => {
     const store = useCharacterStore()
     vi.spyOn(store, 'updateCharacter').mockReturnValue(null)
 
-    const { core, submit } = await getComposable('update-001')
+    const { isSubmitting, submit } = await getComposable('update-001')
     await submit()
     expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
     expect(mockNavigateTo).not.toHaveBeenCalled()
-    expect(core.isSubmitting.value).toBe(false)
+    expect(isSubmitting.value).toBe(false)
   })
 
   it('store.updateCharacter 拋出例外時應顯示錯誤 toast 且不導航', async () => {
@@ -557,10 +204,10 @@ describe('useCharacterUpdate — submit', () => {
       throw new Error('unexpected')
     })
 
-    const { core, submit } = await getComposable('update-001')
+    const { isSubmitting, submit } = await getComposable('update-001')
     await submit()
     expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
     expect(mockNavigateTo).not.toHaveBeenCalled()
-    expect(core.isSubmitting.value).toBe(false)
+    expect(isSubmitting.value).toBe(false)
   })
 })

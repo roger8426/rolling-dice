@@ -6,11 +6,12 @@ import { getCombatStateStorageKey } from '~/constants/storage'
 const CHAR_ID = 'char-001'
 
 const mockToastSuccess = vi.fn()
+const mockToastError = vi.fn()
 
 beforeEach(() => {
   localStorage.clear()
   vi.useFakeTimers()
-  vi.stubGlobal('useToast', () => ({ success: mockToastSuccess }))
+  vi.stubGlobal('useToast', () => ({ success: mockToastSuccess, error: mockToastError }))
 })
 
 afterEach(() => {
@@ -461,5 +462,53 @@ describe('useCharacterCombatState — 持久化', () => {
     const storedB = JSON.parse(localStorage.getItem(getCombatStateStorageKey('b'))!)
     expect(storedA.hp.current).toBe(25)
     expect(storedB.hp.current).toBe(18)
+  })
+
+  it('localStorage 寫入失敗時應 toast 一次，後續連續失敗不再 toast', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const { damageHp } = useCharacterCombatState(CHAR_ID, ref(30))
+
+    damageHp(5)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+    expect(mockToastError).toHaveBeenCalledTimes(1)
+    expect(mockToastError).toHaveBeenCalledWith('更新失敗，重整後資料可能遺失')
+
+    damageHp(3)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+    damageHp(2)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+    expect(mockToastError).toHaveBeenCalledTimes(1)
+  })
+
+  it('失敗後恢復成功再失敗時應重新 toast', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const setItemSpy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    const { damageHp } = useCharacterCombatState(CHAR_ID, ref(30))
+
+    damageHp(5)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+    expect(mockToastError).toHaveBeenCalledTimes(1)
+
+    setItemSpy.mockRestore()
+    damageHp(3)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded')
+    })
+    damageHp(2)
+    await nextTick()
+    vi.advanceTimersByTime(300)
+    expect(mockToastError).toHaveBeenCalledTimes(2)
   })
 })

@@ -185,7 +185,7 @@
           <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
             其他屬性
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
@@ -195,8 +195,10 @@
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
-              <span class="text-xs text-content-muted">被動感知</span>
-              <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+              <span class="text-xs text-content-muted">先攻</span>
+              <span class="mt-1 text-2xl font-bold" :class="modifierTextColor(totalInitiative)">
+                {{ formatModifier(totalInitiative) }}
+              </span>
             </div>
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
@@ -206,6 +208,18 @@
                 >30
                 <span class="text-xs font-normal text-content-muted">呎</span>
               </span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">被動察覺</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">被動洞察</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ passiveInsight }}</span>
             </div>
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
@@ -224,7 +238,7 @@
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
           技能熟練度
         </h2>
-        <div class="grid grid-cols-2 grid-rows-9 grid-flow-col gap-x-6 gap-y-1">
+        <div class="grid grid-cols-2 grid-rows-9 grid-flow-col gap-x-6 gap-y-2">
           <div
             v-for="skill in skillList"
             :key="skill.key"
@@ -257,7 +271,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AbilityScores, Character } from '~/types/business/character'
+import type { TotalAbilityScores, Character } from '~/types/business/character'
 import type { AbilityKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 import {
   ABILITY_KEYS,
@@ -284,17 +298,42 @@ const totalAbilityScores = computed(
   () =>
     Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, getTotalScore(props.character.abilities[key])]),
-    ) as AbilityScores,
+    ) as TotalAbilityScores,
 )
 
 const baseAC = computed(() =>
   getTotalArmorClass(props.character.armorClass, totalAbilityScores.value),
 )
 
-const passivePerception = computed(() => {
-  const skill = skillList.value.find((s) => s.key === 'perception')
-  return getPassivePerception(skill?.bonus ?? 0)
-})
+const passivePerception = computed(() =>
+  calculatePassiveScore({
+    abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+    skillLevel: props.character.skills.perception ?? 'none',
+    proficiencyBonus: proficiencyBonus.value,
+    isJackOfAllTrades: props.character.isJackOfAllTrades,
+    extraBonus: props.character.passivePerceptionBonus,
+  }),
+)
+
+const passiveInsight = computed(() =>
+  calculatePassiveScore({
+    abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+    skillLevel: props.character.skills.insight ?? 'none',
+    proficiencyBonus: proficiencyBonus.value,
+    isJackOfAllTrades: props.character.isJackOfAllTrades,
+    extraBonus: props.character.passiveInsightBonus,
+  }),
+)
+
+const totalInitiative = computed(() =>
+  calculateTotalInitiative({
+    dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+    extraAbilityModifier: props.character.initiativeAbilityKey
+      ? getAbilityModifier(totalAbilityScores.value[props.character.initiativeAbilityKey])
+      : 0,
+    initiativeBonus: props.character.initiativeBonus,
+  }),
+)
 
 const classHpRows = computed(() =>
   props.character.professions.map((entry, index) => {
@@ -312,7 +351,7 @@ const classHpRows = computed(() =>
   }),
 )
 
-const totalLevel = computed(() => props.character.professions.reduce((sum, p) => sum + p.level, 0))
+const totalLevel = computed(() => calculateTotalLevel(props.character.professions))
 
 const savingThrowProficiencies = computed<AbilityKey[]>(() => [
   ...calculateSavingThrowProficiencies(props.character.professions),

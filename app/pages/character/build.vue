@@ -14,28 +14,12 @@
           <span class="text-content">基本資訊</span>
         </template>
         <BusinessCharacterFormBasicTab
-          :form-state="formState"
+          v-model:form-state="formState"
           :total-level="totalLevel"
-          :ability-scores="formState.abilities"
-          @update:name="formState.name = $event"
-          @update:gender="formState.gender = $event"
-          @update:race="formState.race = $event"
-          @update:alignment="formState.alignment = $event"
-          @update:faith="formState.faith = $event"
-          @update:languages="formState.languages = $event"
-          @update:tools="formState.tools = $event"
-          @update:weapon-proficiencies="formState.weaponProficiencies = $event"
-          @update:armor-proficiencies="formState.armorProficiencies = $event"
-          @add="addProfession"
-          @remove="removeProfession"
-          @update:profession="updateProfession"
-          @update:level="updateProfessionLevel"
-          @update:background="formState.background = $event"
-          @update:skill="setSkillProficiency"
-          @update:jack-of-all-trades="formState.isJackOfAllTrades = $event"
+          :ability-scores="totalAbilityScores"
         >
           <template #ability-panel>
-            <BusinessCharacterFormAbilityScorePanel
+            <BusinessCharacterFormBasicAbilityScorePanel
               :abilities="formState.abilities"
               :ability-method="formState.abilityMethod"
               :point-buy-usage="pointBuyUsage"
@@ -47,6 +31,9 @@
               @reset:abilities="resetAbilities"
             />
           </template>
+          <template #race-bonus-panel>
+            <BusinessCharacterFormBasicRaceAbilityBonusPanel v-model:form-state="formState" />
+          </template>
         </BusinessCharacterFormBasicTab>
       </Tab>
 
@@ -54,14 +41,7 @@
         <template #label>
           <span class="text-content">詳細設定</span>
         </template>
-        <BusinessCharacterFormProfileTab
-          :form-state="formState"
-          @update:age="formState.age = $event"
-          @update:height="formState.height = $event"
-          @update:weight="formState.weight = $event"
-          @update:appearance="formState.appearance = $event"
-          @update:story="formState.story = $event"
-        />
+        <BusinessCharacterFormProfileTab v-model:form-state="formState" />
       </Tab>
     </Tabs>
 
@@ -80,7 +60,7 @@
     <BusinessCharacterBuildConfirmModal
       v-model="isConfirmOpen"
       :professions="formState.professions"
-      :abilities="formState.abilities"
+      :abilities="totalAbilityScores"
       @cancel="isConfirmOpen = false"
       @confirm="confirmSubmit"
     />
@@ -89,19 +69,13 @@
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
+import { ABILITY_KEYS } from '~/constants/dnd'
+import type { TotalAbilityScores } from '~/types/business/character'
 
 useHead({ title: '建立角色卡' })
 
-const { activeTab, formState, core, abilities, canSubmit, submit } = useCharacterBuild()
-const {
-  totalLevel,
-  addProfession,
-  removeProfession,
-  updateProfession,
-  updateProfessionLevel,
-  setSkillProficiency,
-  isSubmitting,
-} = core
+const { activeTab, formState, totalLevel, isSubmitting, canSubmit, abilities, submit } =
+  useCharacterBuild()
 const {
   pointBuyUsage,
   setAbilityMethod,
@@ -110,6 +84,16 @@ const {
   updateAbilityScore,
   assignDiceToAbility,
 } = abilities
+
+const totalAbilityScores = computed<TotalAbilityScores>(
+  () =>
+    Object.fromEntries(
+      ABILITY_KEYS.map((key) => [
+        key,
+        formState.abilities[key].origin + formState.abilities[key].race,
+      ]),
+    ) as TotalAbilityScores,
+)
 
 const isConfirmOpen = ref(false)
 

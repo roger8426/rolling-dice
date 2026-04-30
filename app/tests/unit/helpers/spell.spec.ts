@@ -4,15 +4,16 @@ import {
   formatSpellComponents,
   formatSpellLevel,
   groupSpellsByLevel,
-  normalizeSpell,
+  validateSpell,
 } from '~/helpers/spell'
-import type { Spell, SpellDto } from '~/types/business/spell'
+import type { Spell, SpellDto, SpellSchool } from '~/types/business/spell'
 
 function makeDto(overrides: Partial<SpellDto> = {}): SpellDto {
   return {
+    id: 'test-spell-id-0000-0000-000000000001',
     name: '火焰箭',
     level: 1,
-    school: '塑能',
+    school: 'evocation',
     castingTime: '1 個動作',
     range: '90 英尺',
     verbal: true,
@@ -26,38 +27,38 @@ function makeDto(overrides: Partial<SpellDto> = {}): SpellDto {
   }
 }
 
-// ─── normalizeSpell ───────────────────────────────────────────────────────────
+// ─── validateSpell ───────────────────────────────────────────────────────────
 
-describe('normalizeSpell', () => {
-  it('已知學派（中文）轉換為對應 SpellSchool key', () => {
-    const result = normalizeSpell(makeDto({ school: '塑能' }))
+describe('validateSpell', () => {
+  it('已知學派通過驗證並原樣回傳', () => {
+    const result = validateSpell(makeDto({ school: 'evocation' }))
     expect(result).not.toBeNull()
     expect(result!.school).toBe('evocation')
   })
 
-  it('所有學派 label 皆可正確轉換', () => {
-    for (const [key, label] of Object.entries(SPELL_SCHOOL_LABELS)) {
-      const result = normalizeSpell(makeDto({ school: label }))
+  it('所有合法學派 key 皆通過驗證', () => {
+    for (const key of Object.keys(SPELL_SCHOOL_LABELS)) {
+      const result = validateSpell(makeDto({ school: key as SpellSchool }))
       expect(result).not.toBeNull()
       expect(result!.school).toBe(key)
     }
   })
 
-  it('未知學派回傳 null', () => {
-    const result = normalizeSpell(makeDto({ school: '未知學派' }))
+  it('未知學派（如舊資料中文名）回傳 null', () => {
+    const result = validateSpell(makeDto({ school: 'unknown' as SpellSchool }))
     expect(result).toBeNull()
   })
 
-  it('level 0（戲法）可正常轉換', () => {
-    const result = normalizeSpell(makeDto({ level: 0, school: '幻術' }))
+  it('level 0（戲法）可正常通過驗證', () => {
+    const result = validateSpell(makeDto({ level: 0, school: 'illusion' }))
     expect(result).not.toBeNull()
     expect(result!.level).toBe(0)
     expect(result!.school).toBe('illusion')
   })
 
   it('保留其他欄位不變', () => {
-    const dto = makeDto({ name: '測試法術', school: '防護' })
-    const result = normalizeSpell(dto)
+    const dto = makeDto({ name: '測試法術', school: 'abjuration' })
+    const result = validateSpell(dto)
     expect(result!.name).toBe('測試法術')
     expect(result!.castingTime).toBe(dto.castingTime)
   })
@@ -119,8 +120,10 @@ describe('formatSpellComponents', () => {
 
 // ─── groupSpellsByLevel ───────────────────────────────────────────────────────
 
+let _spellCounter = 0
 function makeSpell(name: string, level: number, school: Spell['school'] = 'evocation'): Spell {
   return {
+    id: `test-spell-id-${String(++_spellCounter).padStart(4, '0')}-000000000000`,
     name,
     level,
     school,

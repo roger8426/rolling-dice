@@ -22,7 +22,6 @@
             @update:model-value="(checked) => onToggle(row.key, checked)"
           />
           <span class="text-sm font-semibold text-content">{{ row.name }}</span>
-          <span v-if="row.locked" class="text-[10px] text-content-muted">（主職業）</span>
         </label>
         <span class="text-sm font-bold" :class="modifierTextColor(row.bonus)">
           {{ formatModifier(row.bonus) }}
@@ -36,22 +35,23 @@
 import { Checkbox } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
 import { calculateSavingThrowProficiencies } from '~/helpers/character'
-import type { AbilityScores, ProfessionEntry } from '~/types/business/character'
+import type {
+  TotalAbilityScores,
+  CharacterUpdateFormState,
+  ProfessionEntry,
+} from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
+
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 const props = defineProps<{
   professions: ProfessionEntry[]
-  extras: AbilityKey[]
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 
-const emit = defineEmits<{
-  'update:extras': [value: AbilityKey[]]
-}>()
-
 const lockedKeys = computed(() => new Set(calculateSavingThrowProficiencies(props.professions)))
-const extrasSet = computed(() => new Set(props.extras))
+const extrasSet = computed(() => new Set(formState.value.savingThrowExtras))
 
 const rows = computed(() =>
   ABILITY_KEYS.map((key) => {
@@ -65,10 +65,10 @@ const rows = computed(() =>
 
 function onToggle(key: AbilityKey, checked: boolean): void {
   if (lockedKeys.value.has(key)) return
-  const next = new Set(props.extras)
+  const next = new Set(formState.value.savingThrowExtras)
   if (checked) next.add(key)
   else next.delete(key)
-  emit('update:extras', Array.from(next))
+  formState.value.savingThrowExtras = Array.from(next)
 }
 
 function modifierTextColor(value: number): string {

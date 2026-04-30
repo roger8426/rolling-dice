@@ -200,7 +200,12 @@ const handleDeleteRequest = (character: Character) => {
 
 const handleDeleteConfirm = () => {
   if (deleteTarget.value) {
-    characterStore.removeCharacter(deleteTarget.value.id)
+    const name = deleteTarget.value.name
+    if (characterStore.removeCharacter(deleteTarget.value.id)) {
+      useToast().success(`已刪除「${name}」`)
+    } else {
+      useToast().error('刪除失敗，請稍後再試')
+    }
   }
   showDeleteModal.value = false
   deleteTarget.value = null
@@ -220,7 +225,7 @@ const sortKey = ref<SortKey>('default')
 
 const sortedCharacters = computed(() => {
   const list = [...characterStore.characters]
-  const getLevel = (c: Character) => c.professions.reduce((sum, p) => sum + p.level, 0)
+  const getLevel = (c: Character) => calculateTotalLevel(c.professions)
   const byCreated = (a: Character, b: Character) => a.createdAt.localeCompare(b.createdAt)
   if (sortKey.value === 'level-asc')
     return list.sort((a, b) => getLevel(a) - getLevel(b) || byCreated(a, b))

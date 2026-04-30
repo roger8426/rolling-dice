@@ -10,11 +10,11 @@
           <div class="flex items-center gap-1.5">
             <span class="text-[10px] text-content-muted">健壯</span>
             <Toggle
-              :model-value="isTough"
+              :model-value="formState.isTough"
               size="sm"
               aria-label="是否持有健壯專長"
               color="var(--color-success)"
-              @update:model-value="emit('update:isTough', $event)"
+              @update:model-value="formState.isTough = $event"
             />
           </div>
         </div>
@@ -26,13 +26,13 @@
           <CommonAppInput
             id="custom-hp-bonus"
             :radius="0"
-            :model-value="String(customHpBonus)"
+            :model-value="String(formState.customHpBonus)"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:customHpBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.customHpBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -47,38 +47,39 @@
           <CommonAppInput
             id="speed-bonus"
             :radius="0"
-            :model-value="speedBonus ? String(speedBonus) : ''"
+            :model-value="formState.speedBonus ? String(formState.speedBonus) : ''"
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:speedBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.speedBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
 
       <div class="flex flex-col rounded-lg border border-border-soft bg-surface p-3">
-        <span id="initiative-label" class="text-xs text-content-muted">先攻</span>
+        <span id="passive-insight-label" class="text-xs text-content-muted">被動洞察</span>
         <output
-          aria-labelledby="initiative-label"
-          class="mt-1 text-2xl font-bold"
-          :class="initiativeTextColor"
+          aria-labelledby="passive-insight-label"
+          class="mt-1 text-2xl font-bold text-content"
         >
-          {{ formatModifier(totalInitiative) }}
+          {{ totalPassiveInsight }}
         </output>
         <div class="mt-2">
-          <label for="initiative-bonus" class="block text-xs text-content">額外加值</label>
+          <label for="passive-insight-bonus" class="block text-xs text-content">額外加值</label>
           <CommonAppInput
-            id="initiative-bonus"
+            id="passive-insight-bonus"
             :radius="0"
-            :model-value="initiativeBonus ? String(initiativeBonus) : ''"
+            :model-value="
+              formState.passiveInsightBonus ? String(formState.passiveInsightBonus) : ''
+            "
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="emit('update:initiativeBonus', parseIntegerInput($event, 0))"
+            @update:model-value="formState.passiveInsightBonus = parseIntegerInput($event, 0)"
           />
         </div>
       </div>
@@ -96,16 +97,58 @@
           <CommonAppInput
             id="passive-perception-bonus"
             :radius="0"
-            :model-value="passivePerceptionBonus ? String(passivePerceptionBonus) : ''"
+            :model-value="
+              formState.passivePerceptionBonus ? String(formState.passivePerceptionBonus) : ''
+            "
             type="number"
             size="sm"
             outline
             placeholder="0"
             class="mt-1 w-full"
-            @update:model-value="
-              emit('update:passivePerceptionBonus', parseIntegerInput($event, 0))
-            "
+            @update:model-value="formState.passivePerceptionBonus = parseIntegerInput($event, 0)"
           />
+        </div>
+      </div>
+
+      <div class="col-span-2 flex flex-col rounded-lg border border-border-soft bg-surface p-3">
+        <span id="initiative-label" class="text-xs text-content-muted">先攻</span>
+        <output
+          aria-labelledby="initiative-label"
+          class="mt-1 text-2xl font-bold"
+          :class="initiativeTextColor"
+        >
+          {{ formatModifier(totalInitiative) }}
+        </output>
+        <div class="mt-2 grid grid-cols-2 gap-3">
+          <div>
+            <label for="initiative-ability" class="block text-xs text-content">屬性加值</label>
+            <CommonAppSelect
+              id="initiative-ability"
+              :radius="0"
+              :model-value="formState.initiativeAbilityKey ?? ''"
+              :options="abilityOptions"
+              size="sm"
+              placeholder="無"
+              class="mt-1 w-full"
+              @update:model-value="
+                formState.initiativeAbilityKey = ($event || null) as AbilityKey | null
+              "
+            />
+          </div>
+          <div>
+            <label for="initiative-bonus" class="block text-xs text-content">額外加值</label>
+            <CommonAppInput
+              id="initiative-bonus"
+              :radius="0"
+              :model-value="formState.initiativeBonus ? String(formState.initiativeBonus) : ''"
+              type="number"
+              size="sm"
+              outline
+              placeholder="0"
+              class="mt-1 w-full"
+              @update:model-value="formState.initiativeBonus = parseIntegerInput($event, 0)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -114,26 +157,28 @@
 
 <script setup lang="ts">
 import { Toggle } from '@ui'
+import type { SelectOption } from '@ui'
+
+import type { CharacterUpdateFormState } from '~/types/business/character'
+import type { AbilityKey } from '~/types/business/dnd'
+import { ABILITY_NAMES } from '~/constants/dnd'
+
+const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 const props = defineProps<{
-  customHpBonus: number
   totalHp: number
-  isTough: boolean
-  speedBonus: number
-  initiativeBonus: number
-  passivePerceptionBonus: number
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
+  totalPassiveInsight: number
 }>()
 
-const emit = defineEmits<{
-  'update:customHpBonus': [value: number]
-  'update:isTough': [value: boolean]
-  'update:speedBonus': [value: number]
-  'update:initiativeBonus': [value: number]
-  'update:passivePerceptionBonus': [value: number]
-}>()
+const abilityOptions: SelectOption[] = [
+  { value: '', label: '無' },
+  ...Object.entries(ABILITY_NAMES)
+    .filter(([key]) => key !== 'dexterity')
+    .map(([value, label]) => ({ value, label })),
+]
 
 const initiativeTextColor = computed(() => {
   const v = props.totalInitiative

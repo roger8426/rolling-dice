@@ -73,17 +73,24 @@
       <div
         class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
-        <span class="text-xs text-content-muted">先攻</span>
-        <span class="mt-1 text-2xl font-bold" :class="initiativeColor">
-          {{ formatModifier(initiative) }}
-        </span>
+        <span class="text-xs text-content-muted">被動察覺</span>
+        <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
       </div>
 
       <div
         class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
       >
-        <span class="text-xs text-content-muted">被動察覺</span>
-        <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+        <span class="text-xs text-content-muted">被動洞察</span>
+        <span class="mt-1 text-2xl font-bold text-content">{{ passiveInsight }}</span>
+      </div>
+
+      <div
+        class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+      >
+        <span class="text-xs text-content-muted">先攻</span>
+        <span class="mt-1 text-2xl font-bold" :class="initiativeColor">
+          {{ formatModifier(initiative) }}
+        </span>
       </div>
     </div>
   </section>
@@ -99,6 +106,7 @@ const props = defineProps<{
   speedAdjustment: number
   initiative: number
   passivePerception: number
+  passiveInsight: number
 }>()
 
 const emit = defineEmits<{

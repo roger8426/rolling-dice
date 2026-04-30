@@ -1,19 +1,19 @@
 import { computed } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   Character,
   CharacterUpdateFormState,
   ProfessionEntry,
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import {
-  calculatePerceptionSkillBonus,
+  calculatePassiveScore,
   calculateSavingThrowProficiencies,
   calculateTotalAbilityScores,
   calculateTotalHp,
   calculateTotalInitiative,
-  calculateTotalPassivePerception,
+  calculateTotalLevel,
   calculateTotalSpeed,
   getProficiencyBonus,
   getTotalArmorClass,
@@ -22,7 +22,7 @@ import { getAbilityModifier } from '~/helpers/ability'
 
 export interface CharacterDerivedStats {
   totalLevel: ComputedRef<number>
-  totalAbilityScores: ComputedRef<AbilityScores>
+  totalAbilityScores: ComputedRef<TotalAbilityScores>
   proficiencyBonus: ComputedRef<number>
   savingThrowProficiencies: ComputedRef<AbilityKey[]>
   validProfessions: ComputedRef<ProfessionEntry[]>
@@ -31,6 +31,7 @@ export interface CharacterDerivedStats {
   totalInitiative: ComputedRef<number>
   totalSpeed: ComputedRef<number>
   totalPassivePerception: ComputedRef<number>
+  totalPassiveInsight: ComputedRef<number>
 }
 
 /**
@@ -41,7 +42,7 @@ export function useCharacterDerivedStats(
 ): CharacterDerivedStats {
   const totalAbilityScores = computed(() => calculateTotalAbilityScores(formState.abilities))
 
-  const totalLevel = computed(() => formState.professions.reduce((sum, p) => sum + p.level, 0))
+  const totalLevel = computed(() => calculateTotalLevel(formState.professions))
   const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
   const validProfessions = computed<ProfessionEntry[]>(() =>
@@ -67,23 +68,36 @@ export function useCharacterDerivedStats(
   )
 
   const totalInitiative = computed(() =>
-    calculateTotalInitiative(
-      getAbilityModifier(totalAbilityScores.value.dexterity),
-      formState.initiativeBonus,
-    ),
+    calculateTotalInitiative({
+      dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+      extraAbilityModifier: formState.initiativeAbilityKey
+        ? getAbilityModifier(totalAbilityScores.value[formState.initiativeAbilityKey])
+        : 0,
+      initiativeBonus: formState.initiativeBonus,
+    }),
   )
 
   const totalSpeed = computed(() => calculateTotalSpeed(formState.speedBonus))
 
-  const totalPassivePerception = computed(() => {
-    const perceptionBonus = calculatePerceptionSkillBonus({
-      wisdomModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
-      perceptionLevel: formState.skills.perception ?? 'none',
+  const totalPassivePerception = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: formState.skills.perception ?? 'none',
       proficiencyBonus: proficiencyBonus.value,
       isJackOfAllTrades: formState.isJackOfAllTrades,
-    })
-    return calculateTotalPassivePerception(perceptionBonus, formState.passivePerceptionBonus)
-  })
+      extraBonus: formState.passivePerceptionBonus,
+    }),
+  )
+
+  const totalPassiveInsight = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: formState.skills.insight ?? 'none',
+      proficiencyBonus: proficiencyBonus.value,
+      isJackOfAllTrades: formState.isJackOfAllTrades,
+      extraBonus: formState.passiveInsightBonus,
+    }),
+  )
 
   return {
     totalLevel,
@@ -96,6 +110,7 @@ export function useCharacterDerivedStats(
     totalInitiative,
     totalSpeed,
     totalPassivePerception,
+    totalPassiveInsight,
   }
 }
 
@@ -108,9 +123,7 @@ export function useCharacterDerivedStatsFromCharacter(
 ): CharacterDerivedStats {
   const totalAbilityScores = computed(() => calculateTotalAbilityScores(character.value.abilities))
 
-  const totalLevel = computed(() =>
-    character.value.professions.reduce((sum, p) => sum + p.level, 0),
-  )
+  const totalLevel = computed(() => calculateTotalLevel(character.value.professions))
   const proficiencyBonus = computed(() => getProficiencyBonus(totalLevel.value))
 
   const savingThrowProficiencies = computed<AbilityKey[]>(() => [
@@ -134,23 +147,36 @@ export function useCharacterDerivedStatsFromCharacter(
   )
 
   const totalInitiative = computed(() =>
-    calculateTotalInitiative(
-      getAbilityModifier(totalAbilityScores.value.dexterity),
-      character.value.initiativeBonus,
-    ),
+    calculateTotalInitiative({
+      dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+      extraAbilityModifier: character.value.initiativeAbilityKey
+        ? getAbilityModifier(totalAbilityScores.value[character.value.initiativeAbilityKey])
+        : 0,
+      initiativeBonus: character.value.initiativeBonus,
+    }),
   )
 
   const totalSpeed = computed(() => calculateTotalSpeed(character.value.speedBonus))
 
-  const totalPassivePerception = computed(() => {
-    const perceptionBonus = calculatePerceptionSkillBonus({
-      wisdomModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
-      perceptionLevel: character.value.skills.perception ?? 'none',
+  const totalPassivePerception = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: character.value.skills.perception ?? 'none',
       proficiencyBonus: proficiencyBonus.value,
       isJackOfAllTrades: character.value.isJackOfAllTrades,
-    })
-    return calculateTotalPassivePerception(perceptionBonus, character.value.passivePerceptionBonus)
-  })
+      extraBonus: character.value.passivePerceptionBonus,
+    }),
+  )
+
+  const totalPassiveInsight = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: character.value.skills.insight ?? 'none',
+      proficiencyBonus: proficiencyBonus.value,
+      isJackOfAllTrades: character.value.isJackOfAllTrades,
+      extraBonus: character.value.passiveInsightBonus,
+    }),
+  )
 
   return {
     totalLevel,
@@ -163,5 +189,6 @@ export function useCharacterDerivedStatsFromCharacter(
     totalInitiative,
     totalSpeed,
     totalPassivePerception,
+    totalPassiveInsight,
   }
 }

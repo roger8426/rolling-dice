@@ -1,13 +1,7 @@
 import { ABILITY_KEYS, POINT_BUY_DEFAULT_SCORE } from '~/constants/dnd'
 import { DEFAULT_CURRENCY } from '~/constants/inventory'
 import { createDefaultArmorClass } from '~/helpers/character'
-import type {
-  AttackDraft,
-  Character,
-  CharacterUpdateFormState,
-  FeatureDraft,
-} from '~/types/business/character'
-import type { AbilityKey, ArmorType } from '~/types/business/dnd'
+import type { Character, CharacterUpdateFormState } from '~/types/business/character'
 
 export type UpdateTab = 'basic' | 'profile' | 'combat' | 'spells' | 'features' | 'backpack'
 
@@ -25,7 +19,8 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
       ABILITY_KEYS.map((key) => [
         key,
         {
-          basicScore: character.abilities[key].basicScore,
+          origin: character.abilities[key].origin,
+          race: character.abilities[key].race,
           bonusScore: character.abilities[key].bonusScore,
         },
       ]),
@@ -48,7 +43,9 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     armorClass: { ...character.armorClass },
     speedBonus: character.speedBonus ?? 0,
     initiativeBonus: character.initiativeBonus ?? 0,
+    initiativeAbilityKey: character.initiativeAbilityKey ?? null,
     passivePerceptionBonus: character.passivePerceptionBonus ?? 0,
+    passiveInsightBonus: character.passiveInsightBonus ?? 0,
     customHpBonus: character.customHpBonus,
     attacks: character.attacks.map((a) => ({
       ...a,
@@ -71,7 +68,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     alignment: null,
     professions: [{ profession: null, level: 1 }],
     abilities: Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, { basicScore: POINT_BUY_DEFAULT_SCORE, bonusScore: 0 }]),
+      ABILITY_KEYS.map((key) => [key, { origin: POINT_BUY_DEFAULT_SCORE, race: 0, bonusScore: 0 }]),
     ) as CharacterUpdateFormState['abilities'],
     savingThrowExtras: [],
     skills: {},
@@ -91,7 +88,9 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     armorClass: createDefaultArmorClass(),
     speedBonus: 0,
     initiativeBonus: 0,
+    initiativeAbilityKey: null,
     passivePerceptionBonus: 0,
+    passiveInsightBonus: 0,
     customHpBonus: 0,
     attacks: [],
     learnedSpells: [],
@@ -112,127 +111,38 @@ export function useCharacterUpdate(id: string) {
     character.value ? characterToFormState(character.value) : createEmptyUpdateFormState(),
   )
 
-  const core = useCharacterFormCore(formState)
   const derived = useCharacterDerivedStats(formState)
 
-  // ─── Abilities ────────────────────────────────────────────────────────
+  // ─── Submit guard ─────────────────────────────────────────────────────
 
-  function updateBonusScore(key: AbilityKey, score: number): void {
-    formState.abilities[key].bonusScore = score
-  }
+  const isSubmitting = ref(false)
 
-  // ─── Combat ───────────────────────────────────────────────────────────
-
-  function updateCustomHpBonus(value: number): void {
-    formState.customHpBonus = value
-  }
-
-  function updateArmorType(type: ArmorType | null): void {
-    formState.armorClass.type = type
-  }
-
-  function updateArmorValue(value: number | null): void {
-    formState.armorClass.value = value
-  }
-
-  function updateArmorAbilityKey(abilityKey: AbilityKey | null): void {
-    formState.armorClass.abilityKey = abilityKey
-  }
-
-  function updateShieldValue(value: number): void {
-    formState.armorClass.shieldValue = value
-  }
-
-  function updateSpeedBonus(value: number): void {
-    formState.speedBonus = value
-  }
-
-  function updateInitiativeBonus(value: number): void {
-    formState.initiativeBonus = value
-  }
-
-  function updatePassivePerceptionBonus(value: number): void {
-    formState.passivePerceptionBonus = value
-  }
-
-  function updateSavingThrowExtras(value: AbilityKey[]): void {
-    formState.savingThrowExtras = value
-  }
-
-  function addAttack(entry: AttackDraft): void {
-    formState.attacks.push({ id: crypto.randomUUID(), ...entry })
-  }
-
-  function removeAttack(id: string): void {
-    const index = formState.attacks.findIndex((a) => a.id === id)
-    if (index !== -1) formState.attacks.splice(index, 1)
-  }
-
-  function updateAttack(id: string, data: AttackDraft): void {
-    const index = formState.attacks.findIndex((a) => a.id === id)
-    if (index !== -1) formState.attacks[index] = { id, ...data }
-  }
-
-  // ─── Spells ───────────────────────────────────────────────────────────
-
-  function toggleLearnedSpell(name: string): void {
-    const index = formState.learnedSpells.indexOf(name)
-    if (index === -1) {
-      formState.learnedSpells.push(name)
-      return
-    }
-    formState.learnedSpells.splice(index, 1)
-    const preparedIndex = formState.preparedSpells.indexOf(name)
-    if (preparedIndex !== -1) formState.preparedSpells.splice(preparedIndex, 1)
-  }
-
-  function togglePreparedSpell(name: string): void {
-    if (!formState.learnedSpells.includes(name)) return
-    const index = formState.preparedSpells.indexOf(name)
-    if (index === -1) {
-      formState.preparedSpells.push(name)
-    } else {
-      formState.preparedSpells.splice(index, 1)
-    }
-  }
-
-  // ─── Features ─────────────────────────────────────────────────────────
-
-  function addFeature(draft: FeatureDraft): void {
-    formState.features.push({ id: crypto.randomUUID(), ...draft, usage: { ...draft.usage } })
-  }
-
-  function removeFeature(id: string): void {
-    const index = formState.features.findIndex((f) => f.id === id)
-    if (index !== -1) formState.features.splice(index, 1)
-  }
-
-  function updateFeature(id: string, draft: FeatureDraft): void {
-    const index = formState.features.findIndex((f) => f.id === id)
-    if (index !== -1) {
-      formState.features[index] = { id, ...draft, usage: { ...draft.usage } }
-    }
-  }
+  const canSubmit = computed(
+    () =>
+      !isSubmitting.value &&
+      formState.name.trim() !== '' &&
+      formState.professions.some((p) => p.profession !== null),
+  )
 
   // ─── Submit ───────────────────────────────────────────────────────────
 
   const logger = createLogger('[CharacterUpdate]')
 
   async function submit(): Promise<void> {
-    if (!core.canSubmit.value) return
-    core.isSubmitting.value = true
+    if (!canSubmit.value) return
+    isSubmitting.value = true
     try {
       const updated = store.updateCharacter(id, formState)
       if (!updated) {
         useToast().error('儲存失敗，請稍後再試')
-        core.isSubmitting.value = false
+        isSubmitting.value = false
         return
       }
       await navigateTo(`/character/${id}`)
     } catch (error) {
       logger.error('submit failed:', error)
       useToast().error('儲存失敗，請稍後再試')
-      core.isSubmitting.value = false
+      isSubmitting.value = false
     }
   }
 
@@ -240,39 +150,9 @@ export function useCharacterUpdate(id: string) {
     activeTab,
     character,
     formState,
-    core,
+    isSubmitting,
+    canSubmit,
     derived,
-
-    abilities: {
-      updateBonusScore,
-    },
-
-    combat: {
-      updateCustomHpBonus,
-      updateArmorType,
-      updateArmorValue,
-      updateArmorAbilityKey,
-      updateShieldValue,
-      updateSpeedBonus,
-      updateInitiativeBonus,
-      updatePassivePerceptionBonus,
-      updateSavingThrowExtras,
-      addAttack,
-      removeAttack,
-      updateAttack,
-    },
-
-    spells: {
-      toggleLearnedSpell,
-      togglePreparedSpell,
-    },
-
-    features: {
-      addFeature,
-      removeFeature,
-      updateFeature,
-    },
-
     submit,
   }
 }
