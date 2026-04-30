@@ -23,7 +23,13 @@
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-sm font-semibold text-content">{{ feature.name }}</span>
-                <Badge size="sm">{{ FEATURE_SOURCE_LABELS[feature.source] }}</Badge>
+                <Badge
+                  size="sm"
+                  :bg-color="FEATURE_SOURCE_BADGE_STYLES[feature.source].bgColor"
+                  :text-color="FEATURE_SOURCE_BADGE_STYLES[feature.source].textColor"
+                >
+                  {{ FEATURE_SOURCE_LABELS[feature.source] }}
+                </Badge>
                 <Badge v-if="feature.usage.hasUses" size="sm" bg-color="var(--color-surface-2)">
                   {{ FEATURE_RECOVERY_LABELS[feature.usage.recovery] }}
                 </Badge>
@@ -74,7 +80,11 @@
 
 <script setup lang="ts">
 import { Accordion, AccordionItem, Badge, Icon } from '@ui'
-import { FEATURE_RECOVERY_LABELS, FEATURE_SOURCE_LABELS } from '~/constants/features'
+import {
+  FEATURE_RECOVERY_LABELS,
+  FEATURE_SOURCE_BADGE_STYLES,
+  FEATURE_SOURCE_LABELS,
+} from '~/constants/features'
 import type { CharacterFeature } from '~/types/business/character'
 
 const props = defineProps<{

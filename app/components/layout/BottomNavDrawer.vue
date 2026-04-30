@@ -7,7 +7,7 @@
     tabindex="0"
     :aria-expanded="isNavOpen"
     aria-haspopup="dialog"
-    class="relative flex w-full cursor-pointer select-none items-center justify-center gap-2 border-t border-surface bg-panel-2 px-4 py-2 text-content-muted transition-colors hover:bg-canvas-elevated hover:text-content focus-visible:outline-2 focus-visible:outline-ring"
+    class="relative flex w-full cursor-pointer select-none items-center justify-center gap-2 border-t border-surface bg-panel-2 px-4 py-2 text-content-muted transition-colors hover:bg-panel hover:text-content focus-visible:outline-2 focus-visible:outline-ring"
     @click="toggleNav"
     @keydown.enter.prevent="toggleNav"
     @keydown.space.prevent="toggleNav"
