@@ -6,8 +6,6 @@ import type { InventoryItem, InventoryItemDraft } from '~/types/business/charact
 
 const CHAR_ID = 'inv-001'
 
-const mockToastError = vi.fn()
-
 function makeItem(overrides: Partial<InventoryItem>): InventoryItem {
   return {
     id: overrides.id ?? `item-${Math.random().toString(36).slice(2, 8)}`,
@@ -38,7 +36,6 @@ async function getComposable(characterId: string, items: InventoryItem[] = []) {
 
   const { useCharacterStore } = await import('~/stores/character')
   vi.stubGlobal('useCharacterStore', useCharacterStore)
-  vi.stubGlobal('useToast', () => ({ error: mockToastError }))
 
   const { useCharacterInventory } = await import('~/composables/domain/useCharacterInventory')
   return useCharacterInventory(characterId)

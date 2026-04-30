@@ -1,9 +1,7 @@
 import type {
   Character,
-  CharacterCurrency,
   CharacterFormState,
   CharacterUpdateFormState,
-  InventoryItem,
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import { ABILITY_KEYS } from '~/constants/dnd'
@@ -15,6 +13,9 @@ import {
 } from '~/helpers/character'
 import { createDefaultInventory } from '~/helpers/inventory'
 import { MOCK_CHARACTERS } from '~/mocks/characters'
+
+/** 可由外部 patch 的欄位（排除身分識別與建立時間） */
+export type CharacterMutablePatch = Partial<Omit<Character, 'id' | 'createdAt'>>
 
 /** 對 Character 做深拷貝，斷開與 store 內部 reactive proxy 的關聯。 */
 function cloneCharacter(c: Character): Character {
@@ -143,18 +144,16 @@ export const useCharacterStore = defineStore('character', () => {
     return cloneCharacter(updated)
   }
 
-  function updateInventory(
-    id: string,
-    items: InventoryItem[],
-    currency: CharacterCurrency,
-  ): boolean {
+  /**
+   * 對指定角色合併寫入欄位並持久化。
+   */
+  function patchCharacter(id: string, patch: CharacterMutablePatch): boolean {
     const index = characters.value.findIndex((c) => c.id === id)
     if (index === -1) return false
     const previous = characters.value[index]!
     characters.value[index] = {
       ...previous,
-      items: JSON.parse(JSON.stringify(items)),
-      currency: { ...currency },
+      ...(JSON.parse(JSON.stringify(patch)) as CharacterMutablePatch),
     }
     if (!saveToStorage(characters.value)) {
       characters.value[index] = previous
@@ -168,6 +167,7 @@ export const useCharacterStore = defineStore('character', () => {
     if (!import.meta.dev) return
     characters.value = MOCK_CHARACTERS.map(cloneCharacter)
     saveToStorage(characters.value)
+    useAdventureStore().removeAll()
   }
 
   return {
@@ -175,7 +175,7 @@ export const useCharacterStore = defineStore('character', () => {
     getById,
     addCharacter,
     updateCharacter,
-    updateInventory,
+    patchCharacter,
     removeCharacter,
     resetCharacters,
   }
