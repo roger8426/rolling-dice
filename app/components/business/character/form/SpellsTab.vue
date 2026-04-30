@@ -6,12 +6,12 @@
       <Button size="sm" bg-color="var(--color-warning)" :radius="4" @click="refresh()">重試</Button>
     </div>
     <div v-else class="flex flex-col gap-6 md:flex-row md:items-start">
-      <BusinessCharacterFormSpellBookPanel
+      <BusinessCharacterFormSpellsSpellBookPanel
         v-model:form-state="formState"
         class="min-w-0 md:flex-2"
       />
 
-      <BusinessCharacterFormPreparedSpellPanel
+      <BusinessCharacterFormSpellsPreparedSpellPanel
         v-model:form-state="formState"
         class="min-w-0 md:sticky md:top-4 md:flex-1"
       />

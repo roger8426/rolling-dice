@@ -41,7 +41,7 @@
             :lock-primary-profession="true"
           >
             <template #ability-panel>
-              <BusinessCharacterFormAbilityScoreUpdatePanel v-model:form-state="formState" />
+              <BusinessCharacterFormBasicAbilityScoreUpdatePanel v-model:form-state="formState" />
             </template>
           </BusinessCharacterFormBasicTab>
         </Tab>

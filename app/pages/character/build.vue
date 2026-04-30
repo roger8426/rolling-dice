@@ -19,7 +19,7 @@
           :ability-scores="totalAbilityScores"
         >
           <template #ability-panel>
-            <BusinessCharacterFormAbilityScorePanel
+            <BusinessCharacterFormBasicAbilityScorePanel
               :abilities="formState.abilities"
               :ability-method="formState.abilityMethod"
               :point-buy-usage="pointBuyUsage"
@@ -32,7 +32,7 @@
             />
           </template>
           <template #race-bonus-panel>
-            <BusinessCharacterFormRaceAbilityBonusPanel v-model:form-state="formState" />
+            <BusinessCharacterFormBasicRaceAbilityBonusPanel v-model:form-state="formState" />
           </template>
         </BusinessCharacterFormBasicTab>
       </Tab>
