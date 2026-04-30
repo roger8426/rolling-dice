@@ -11,6 +11,7 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     name: '測試角色',
     gender: 'male',
     race: 'human',
+    subrace: null,
     alignment: 'trueNeutral',
     professions: [{ profession: 'fighter', level: 5 }],
     abilities: {
@@ -62,6 +63,7 @@ export function createMockFormState(
     name: '新角色',
     gender: null,
     race: null,
+    subrace: null,
     alignment: null,
     professions: [{ profession: 'fighter', level: 1 }],
     abilities: {
@@ -100,6 +102,7 @@ export function createMockUpdateFormState(
     name: '測試角色',
     gender: null,
     race: null,
+    subrace: null,
     alignment: null,
     professions: [{ profession: 'fighter', level: 5 }],
     abilities: {

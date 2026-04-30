@@ -52,6 +52,20 @@
             @update-attunement="setAttunement"
           />
         </Tab>
+        <Tab value="adventures">
+          <template #label>
+            <span class="text-content">冒險</span>
+          </template>
+          <BusinessCharacterAdventuresTab
+            :entries="adventureEntries"
+            :total-exp-earned="totalExpEarned"
+            :sync-money-to-currency="syncMoneyToCurrency"
+            @add="addAdventure"
+            @update="updateAdventure"
+            @remove="removeAdventure"
+            @update:sync-money-to-currency="setSyncMoneyToCurrency"
+          />
+        </Tab>
       </Tabs>
     </div>
 
@@ -71,6 +85,9 @@ const id = getRouteParam(route.params.id)
 const characterStore = useCharacterStore()
 const character = computed(() => characterStore.getById(id))
 
+const inventory = useCharacterInventory(id)
+const adventures = useCharacterAdventures(id)
+
 const {
   currency,
   backpackItems,
@@ -79,11 +96,27 @@ const {
   backpackLoad,
   maxCarryWeight,
   isOverEncumbered,
-  addItem,
-  removeItem,
-  updateItem,
-  moveItem,
-  updateCurrency,
-  setAttunement,
-} = useCharacterInventory(id)
+} = inventory
+const { entries: adventureEntries, totalExpEarned, syncMoneyToCurrency } = adventures
+
+const toast = useToast()
+function withSaveErrorToast<TArgs extends unknown[]>(
+  action: (...args: TArgs) => boolean,
+): (...args: TArgs) => void {
+  return (...args) => {
+    if (!action(...args)) toast.error('儲存失敗，請稍後再試')
+  }
+}
+
+const addItem = withSaveErrorToast(inventory.addItem)
+const removeItem = withSaveErrorToast(inventory.removeItem)
+const updateItem = withSaveErrorToast(inventory.updateItem)
+const moveItem = withSaveErrorToast(inventory.moveItem)
+const updateCurrency = withSaveErrorToast(inventory.updateCurrency)
+const setAttunement = withSaveErrorToast(inventory.setAttunement)
+
+const addAdventure = withSaveErrorToast(adventures.addAdventure)
+const updateAdventure = withSaveErrorToast(adventures.updateAdventure)
+const removeAdventure = withSaveErrorToast(adventures.removeAdventure)
+const setSyncMoneyToCurrency = withSaveErrorToast(adventures.setSyncMoneyToCurrency)
 </script>

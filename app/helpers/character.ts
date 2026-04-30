@@ -203,6 +203,7 @@ export function formStateToCharacterPatch(
   const name = formState.name
   const gender = formState.gender
   const race = formState.race
+  const subrace = formState.subrace
   const alignment = formState.alignment
 
   // progression
@@ -234,6 +235,7 @@ export function formStateToCharacterPatch(
     name,
     gender,
     race,
+    subrace,
     alignment,
     professions,
     skills,

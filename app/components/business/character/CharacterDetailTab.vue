@@ -24,9 +24,7 @@
           </div>
           <div>
             <dt class="text-xs text-content-muted">種族</dt>
-            <dd class="mt-0.5 text-sm text-content-soft">
-              {{ character.race ? RACE_NAMES[character.race] : '—' }}
-            </dd>
+            <dd class="mt-0.5 text-sm text-content-soft">{{ raceDisplay }}</dd>
           </div>
           <div>
             <dt class="text-xs text-content-muted">背景</dt>
@@ -279,7 +277,6 @@ import {
   ALIGNMENT_NAMES,
   GENDER_NAMES,
   PROFESSION_CONFIG,
-  RACE_NAMES,
   SKILL_NAMES,
   SKILL_TO_ABILITY_MAP,
 } from '~/constants/dnd'
@@ -287,6 +284,12 @@ import {
 const props = defineProps<{
   character: Character
 }>()
+
+const raceDisplay = computed(() => {
+  const { race, subrace } = props.character
+  if (!race) return '—'
+  return subrace ? `${race}（${subrace}）` : race
+})
 
 // ─── Ability Computed ──────────────────────────────────────────────────────
 

@@ -8,7 +8,6 @@ import type {
   GenderKey,
   ProfessionKey,
   ProficiencyLevel,
-  RaceKey,
   SkillKey,
 } from '~/types/business/dnd'
 
@@ -101,7 +100,8 @@ export interface CharacterCurrency {
 export interface CharacterProfile {
   name: string
   gender: GenderKey | null
-  race: RaceKey | null
+  race: string | null
+  subrace: string | null
   alignment: AlignmentKey | null
   background: string | null
   faith: string | null
@@ -170,6 +170,7 @@ export type CharacterWritablePatch = Pick<
   | 'name'
   | 'gender'
   | 'race'
+  | 'subrace'
   | 'alignment'
   | 'professions'
   | 'skills'
@@ -226,7 +227,8 @@ export interface DiceCell {
 export interface CharacterFormStateBase {
   name: string
   gender: GenderKey | null
-  race: RaceKey | null
+  race: string | null
+  subrace: string | null
   alignment: AlignmentKey | null
   professions: FormProfessionEntry[]
   skills: SkillProficiencies

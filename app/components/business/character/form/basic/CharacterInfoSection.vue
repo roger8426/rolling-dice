@@ -30,17 +30,32 @@
           @update:model-value="formState.gender = ($event as GenderKey) || null"
         />
       </div>
+    </div>
+    <div class="flex items-end gap-2">
       <!-- 種族 -->
-      <div>
+      <div class="min-w-20 flex-1">
         <label for="char-race" class="mb-1 block text-xs text-content"> 種族 </label>
-        <CommonAppSelect
+        <CommonAppInput
           id="char-race"
-          class="min-w-20"
-          :model-value="formState.race || null"
-          :options="raceOptions"
-          placeholder=""
+          class="w-full"
+          :radius="0"
+          :model-value="formState.race ?? ''"
           size="sm"
-          @update:model-value="formState.race = ($event as RaceKey) || null"
+          outline
+          @update:model-value="formState.race = $event || null"
+        />
+      </div>
+      <!-- 亞種 -->
+      <div class="min-w-20 flex-1">
+        <label for="char-subrace" class="mb-1 block text-xs text-content"> 亞種 </label>
+        <CommonAppInput
+          id="char-subrace"
+          class="w-full"
+          :radius="0"
+          :model-value="formState.subrace ?? ''"
+          size="sm"
+          outline
+          @update:model-value="formState.subrace = $event || null"
         />
       </div>
     </div>
@@ -208,15 +223,9 @@
 <script setup lang="ts">
 import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
-import {
-  ALIGNMENT_NAMES,
-  GENDER_NAMES,
-  PROFESSION_CONFIG,
-  PROFESSION_KEYS,
-  RACE_NAMES,
-} from '~/constants/dnd'
+import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, PROFESSION_KEYS } from '~/constants/dnd'
 import type { CharacterFormStateBase } from '~/types/business/character'
-import type { AlignmentKey, GenderKey, ProfessionKey, RaceKey } from '~/types/business/dnd'
+import type { AlignmentKey, GenderKey, ProfessionKey } from '~/types/business/dnd'
 
 const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 
@@ -229,11 +238,6 @@ withDefaults(
 )
 
 const genderOptions: SelectOption[] = Object.entries(GENDER_NAMES).map(([value, label]) => ({
-  value,
-  label,
-}))
-
-const raceOptions: SelectOption[] = Object.entries(RACE_NAMES).map(([value, label]) => ({
   value,
   label,
 }))

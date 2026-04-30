@@ -13,6 +13,7 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     name: character.name,
     gender: character.gender,
     race: character.race,
+    subrace: character.subrace,
     alignment: character.alignment,
     professions: character.professions.map((p) => ({ profession: p.profession, level: p.level })),
     abilities: Object.fromEntries(
@@ -65,6 +66,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     name: '',
     gender: null,
     race: null,
+    subrace: null,
     alignment: null,
     professions: [{ profession: null, level: 1 }],
     abilities: Object.fromEntries(

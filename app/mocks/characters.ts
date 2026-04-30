@@ -6,7 +6,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-001',
     name: '亞倫·鐵拳',
     gender: 'male',
-    race: 'dwarf',
+    race: '矮人',
+    subrace: '丘陵矮人',
     alignment: 'lawfulNeutral',
     professions: [
       { profession: 'monk', level: 3 },
@@ -55,7 +56,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-002',
     name: '璃拉·月之歌',
     gender: 'female',
-    race: 'elf',
+    race: '精靈',
+    subrace: '高等精靈',
     alignment: 'chaoticGood',
     professions: [{ profession: 'wizard', level: 3 }],
     abilities: {
@@ -101,7 +103,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-003',
     name: '達克·暗影',
     gender: 'male',
-    race: 'tiefling',
+    race: '提夫林',
+    subrace: null,
     alignment: 'chaoticNeutral',
     professions: [{ profession: 'rogue', level: 7 }],
     abilities: {
@@ -152,7 +155,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-004',
     name: '伊莉絲·星焰',
     gender: 'female',
-    race: 'halfElf',
+    race: '半精靈',
+    subrace: null,
     alignment: 'neutralGood',
     professions: [
       { profession: 'sorcerer', level: 10 },
@@ -201,7 +205,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-005',
     name: '瓦爾登·聖盾',
     gender: 'male',
-    race: 'human',
+    race: '人類',
+    subrace: null,
     alignment: 'lawfulGood',
     professions: [
       { profession: 'paladin', level: 14 },
@@ -255,7 +260,8 @@ export const MOCK_CHARACTERS: Character[] = [
     id: 'char-006',
     name: '索拉爾·終焉',
     gender: 'male',
-    race: 'dragonborn',
+    race: '龍裔',
+    subrace: '金龍裔',
     alignment: 'chaoticGood',
     professions: [
       { profession: 'barbarian', level: 12 },

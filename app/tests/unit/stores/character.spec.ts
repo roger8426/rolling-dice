@@ -184,6 +184,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   name: '更新後角色',
   gender: 'female',
   race: 'elf',
+  subrace: null,
   alignment: 'chaoticGood',
   professions: [
     { profession: 'wizard', level: 5 },
