@@ -71,6 +71,7 @@
             :total-speed="totalSpeed"
             :total-initiative="totalInitiative"
             :total-passive-perception="totalPassivePerception"
+            :total-passive-insight="totalPassiveInsight"
             :proficiency-bonus="proficiencyBonus"
             :professions="validProfessions"
           />
@@ -107,5 +108,6 @@ const {
   totalInitiative,
   totalSpeed,
   totalPassivePerception,
+  totalPassiveInsight,
 } = derived
 </script>

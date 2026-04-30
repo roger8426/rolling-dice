@@ -111,12 +111,13 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.isTough).toBe(false)
   })
 
-  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus 應初始化為 0', () => {
+  it('新增後 speedBonus / initiativeBonus / passivePerceptionBonus / passiveInsightBonus 應初始化為 0', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
     expect(created!.speedBonus).toBe(0)
     expect(created!.initiativeBonus).toBe(0)
     expect(created!.passivePerceptionBonus).toBe(0)
+    expect(created!.passiveInsightBonus).toBe(0)
   })
 
   it('新增後 savingThrowExtras 應為空陣列', () => {
@@ -214,6 +215,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   speedBonus: 0,
   initiativeBonus: 0,
   passivePerceptionBonus: 0,
+  passiveInsightBonus: 0,
   customHpBonus: 0,
   attacks: [],
   learnedSpells: [],
@@ -291,7 +293,7 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(store.getById('test-001')?.name).toBe('測試角色')
   })
 
-  it('更新後 speedBonus / initiativeBonus / passivePerceptionBonus 應從 formState 寫入', () => {
+  it('更新後 speedBonus / initiativeBonus / passivePerceptionBonus / passiveInsightBonus 應從 formState 寫入', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
@@ -299,10 +301,12 @@ describe('useCharacterStore — updateCharacter', () => {
       speedBonus: 10,
       initiativeBonus: 3,
       passivePerceptionBonus: 2,
+      passiveInsightBonus: 4,
     })
     expect(updated!.speedBonus).toBe(10)
     expect(updated!.initiativeBonus).toBe(3)
     expect(updated!.passivePerceptionBonus).toBe(2)
+    expect(updated!.passiveInsightBonus).toBe(4)
   })
 
   it('formState 的 speedBonus 等為 0 時應寫入 0', () => {
@@ -312,6 +316,7 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.speedBonus).toBe(0)
     expect(updated!.initiativeBonus).toBe(0)
     expect(updated!.passivePerceptionBonus).toBe(0)
+    expect(updated!.passiveInsightBonus).toBe(0)
   })
 
   it('空字串的 optional 欄位更新後應為 null', () => {

@@ -30,6 +30,7 @@
         :speed-adjustment="state.speedAdjustment"
         :initiative="totalInitiative"
         :passive-perception="totalPassivePerception"
+        :passive-insight="totalPassiveInsight"
         @adjust-ac="adjustAc"
         @adjust-speed="adjustSpeed"
       />
@@ -109,6 +110,7 @@ const {
   totalInitiative,
   totalSpeed,
   totalPassivePerception,
+  totalPassiveInsight,
 } = useCharacterDerivedStatsFromCharacter(characterRef)
 
 const {

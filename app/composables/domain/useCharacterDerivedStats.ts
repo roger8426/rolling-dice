@@ -8,13 +8,12 @@ import type {
 } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 import {
-  calculatePerceptionSkillBonus,
+  calculatePassiveScore,
   calculateSavingThrowProficiencies,
   calculateTotalAbilityScores,
   calculateTotalHp,
   calculateTotalInitiative,
   calculateTotalLevel,
-  calculateTotalPassivePerception,
   calculateTotalSpeed,
   getProficiencyBonus,
   getTotalArmorClass,
@@ -32,6 +31,7 @@ export interface CharacterDerivedStats {
   totalInitiative: ComputedRef<number>
   totalSpeed: ComputedRef<number>
   totalPassivePerception: ComputedRef<number>
+  totalPassiveInsight: ComputedRef<number>
 }
 
 /**
@@ -76,15 +76,25 @@ export function useCharacterDerivedStats(
 
   const totalSpeed = computed(() => calculateTotalSpeed(formState.speedBonus))
 
-  const totalPassivePerception = computed(() => {
-    const perceptionBonus = calculatePerceptionSkillBonus({
-      wisdomModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
-      perceptionLevel: formState.skills.perception ?? 'none',
+  const totalPassivePerception = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: formState.skills.perception ?? 'none',
       proficiencyBonus: proficiencyBonus.value,
       isJackOfAllTrades: formState.isJackOfAllTrades,
-    })
-    return calculateTotalPassivePerception(perceptionBonus, formState.passivePerceptionBonus)
-  })
+      extraBonus: formState.passivePerceptionBonus,
+    }),
+  )
+
+  const totalPassiveInsight = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: formState.skills.insight ?? 'none',
+      proficiencyBonus: proficiencyBonus.value,
+      isJackOfAllTrades: formState.isJackOfAllTrades,
+      extraBonus: formState.passiveInsightBonus,
+    }),
+  )
 
   return {
     totalLevel,
@@ -97,6 +107,7 @@ export function useCharacterDerivedStats(
     totalInitiative,
     totalSpeed,
     totalPassivePerception,
+    totalPassiveInsight,
   }
 }
 
@@ -141,15 +152,25 @@ export function useCharacterDerivedStatsFromCharacter(
 
   const totalSpeed = computed(() => calculateTotalSpeed(character.value.speedBonus))
 
-  const totalPassivePerception = computed(() => {
-    const perceptionBonus = calculatePerceptionSkillBonus({
-      wisdomModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
-      perceptionLevel: character.value.skills.perception ?? 'none',
+  const totalPassivePerception = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: character.value.skills.perception ?? 'none',
       proficiencyBonus: proficiencyBonus.value,
       isJackOfAllTrades: character.value.isJackOfAllTrades,
-    })
-    return calculateTotalPassivePerception(perceptionBonus, character.value.passivePerceptionBonus)
-  })
+      extraBonus: character.value.passivePerceptionBonus,
+    }),
+  )
+
+  const totalPassiveInsight = computed(() =>
+    calculatePassiveScore({
+      abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
+      skillLevel: character.value.skills.insight ?? 'none',
+      proficiencyBonus: proficiencyBonus.value,
+      isJackOfAllTrades: character.value.isJackOfAllTrades,
+      extraBonus: character.value.passiveInsightBonus,
+    }),
+  )
 
   return {
     totalLevel,
@@ -162,5 +183,6 @@ export function useCharacterDerivedStatsFromCharacter(
     totalInitiative,
     totalSpeed,
     totalPassivePerception,
+    totalPassiveInsight,
   }
 }

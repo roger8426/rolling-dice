@@ -139,6 +139,8 @@ export interface CharacterStats {
   initiativeBonus: number
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
+  /** 額外被動洞察加值 */
+  passiveInsightBonus: number
 }
 
 export interface CharacterCapabilities {
@@ -335,6 +337,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   initiativeBonus: number
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
+  /** 額外被動洞察加值 */
+  passiveInsightBonus: number
   /** 額外生命值（與職業 HP、體質加值、健壯加值累加為總 HP） */
   customHpBonus: number
   /** 自訂攻擊列表 */

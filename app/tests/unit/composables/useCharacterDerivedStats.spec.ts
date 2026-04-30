@@ -40,6 +40,7 @@ function createFormState(
     speedBonus: 0,
     initiativeBonus: 0,
     passivePerceptionBonus: 0,
+    passiveInsightBonus: 0,
     customHpBonus: 0,
     attacks: [],
     learnedSpells: [],

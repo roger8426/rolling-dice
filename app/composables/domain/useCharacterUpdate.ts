@@ -44,6 +44,7 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     speedBonus: character.speedBonus ?? 0,
     initiativeBonus: character.initiativeBonus ?? 0,
     passivePerceptionBonus: character.passivePerceptionBonus ?? 0,
+    passiveInsightBonus: character.passiveInsightBonus ?? 0,
     customHpBonus: character.customHpBonus,
     attacks: character.attacks.map((a) => ({
       ...a,
@@ -87,6 +88,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     speedBonus: 0,
     initiativeBonus: 0,
     passivePerceptionBonus: 0,
+    passiveInsightBonus: 0,
     customHpBonus: 0,
     attacks: [],
     learnedSpells: [],

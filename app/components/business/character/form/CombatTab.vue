@@ -8,6 +8,7 @@
         :total-speed="totalSpeed"
         :total-initiative="totalInitiative"
         :total-passive-perception="totalPassivePerception"
+        :total-passive-insight="totalPassiveInsight"
       />
 
       <BusinessCharacterFormCombatArmorClassPanel
@@ -49,6 +50,7 @@ defineProps<{
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
+  totalPassiveInsight: number
   proficiencyBonus: number
   professions: ProfessionEntry[]
 }>()

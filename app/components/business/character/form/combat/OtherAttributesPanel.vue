@@ -108,6 +108,32 @@
           />
         </div>
       </div>
+
+      <div class="flex flex-col rounded-lg border border-border-soft bg-surface p-3">
+        <span id="passive-insight-label" class="text-xs text-content-muted">被動洞察</span>
+        <output
+          aria-labelledby="passive-insight-label"
+          class="mt-1 text-2xl font-bold text-content"
+        >
+          {{ totalPassiveInsight }}
+        </output>
+        <div class="mt-2">
+          <label for="passive-insight-bonus" class="block text-xs text-content">額外加值</label>
+          <CommonAppInput
+            id="passive-insight-bonus"
+            :radius="0"
+            :model-value="
+              formState.passiveInsightBonus ? String(formState.passiveInsightBonus) : ''
+            "
+            type="number"
+            size="sm"
+            outline
+            placeholder="0"
+            class="mt-1 w-full"
+            @update:model-value="formState.passiveInsightBonus = parseIntegerInput($event, 0)"
+          />
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -124,6 +150,7 @@ const props = defineProps<{
   totalSpeed: number
   totalInitiative: number
   totalPassivePerception: number
+  totalPassiveInsight: number
 }>()
 
 const initiativeTextColor = computed(() => {

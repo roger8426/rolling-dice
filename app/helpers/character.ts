@@ -118,10 +118,21 @@ export function createDefaultArmorClass(): ArmorClassConfig {
 }
 
 /**
- * 計算被動感知：10 + 感知（Perception）技能加值
+ * 計算被動屬性檢定值：10 + 技能加值（含全能高手半熟練規則）+ 額外加值。
+ * 適用於被動察覺、被動洞察等同型計算。
  */
-export function getPassivePerception(perceptionBonus: number): number {
-  return 10 + perceptionBonus
+export function calculatePassiveScore(input: {
+  abilityModifier: number
+  skillLevel: ProficiencyLevel
+  proficiencyBonus: number
+  isJackOfAllTrades: boolean
+  extraBonus: number
+}): number {
+  const skillBonus =
+    input.skillLevel === 'none' && input.isJackOfAllTrades
+      ? input.abilityModifier + Math.floor(input.proficiencyBonus / 2)
+      : getSkillBonus(input.abilityModifier, input.skillLevel, input.proficiencyBonus)
+  return 10 + skillBonus + input.extraBonus
 }
 
 /**
@@ -165,33 +176,6 @@ export function calculateTotalSpeed(speedBonus: number): number {
  */
 export function calculateTotalInitiative(dexModifier: number, initiativeBonus: number): number {
   return dexModifier + initiativeBonus
-}
-
-/**
- * 計算感知（Perception）技能加值，含全能高手半熟練規則：
- * - 若 perception 未熟練且具備 isJackOfAllTrades，加 floor(proficiencyBonus / 2)
- * - 其餘依 proficiencyLevel 走標準 getSkillBonus
- */
-export function calculatePerceptionSkillBonus(input: {
-  wisdomModifier: number
-  perceptionLevel: ProficiencyLevel
-  proficiencyBonus: number
-  isJackOfAllTrades: boolean
-}): number {
-  if (input.perceptionLevel === 'none' && input.isJackOfAllTrades) {
-    return input.wisdomModifier + Math.floor(input.proficiencyBonus / 2)
-  }
-  return getSkillBonus(input.wisdomModifier, input.perceptionLevel, input.proficiencyBonus)
-}
-
-/**
- * 計算總被動察覺：getPassivePerception(perceptionBonus) + 額外加值。
- */
-export function calculateTotalPassivePerception(
-  perceptionBonus: number,
-  extraBonus: number,
-): number {
-  return getPassivePerception(perceptionBonus) + extraBonus
 }
 
 /**

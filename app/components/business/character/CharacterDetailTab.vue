@@ -185,7 +185,7 @@
           <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
             其他屬性
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
@@ -195,8 +195,14 @@
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
-              <span class="text-xs text-content-muted">被動感知</span>
+              <span class="text-xs text-content-muted">被動察覺</span>
               <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">被動洞察</span>
+              <span class="mt-1 text-2xl font-bold text-content">{{ passiveInsight }}</span>
             </div>
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
@@ -291,10 +297,29 @@ const baseAC = computed(() =>
   getTotalArmorClass(props.character.armorClass, totalAbilityScores.value),
 )
 
-const passivePerception = computed(() => {
-  const skill = skillList.value.find((s) => s.key === 'perception')
-  return getPassivePerception(skill?.bonus ?? 0)
-})
+const wisdomModifier = computed(() =>
+  getAbilityModifier(getTotalScore(props.character.abilities.wisdom)),
+)
+
+const passivePerception = computed(() =>
+  calculatePassiveScore({
+    abilityModifier: wisdomModifier.value,
+    skillLevel: props.character.skills.perception ?? 'none',
+    proficiencyBonus: proficiencyBonus.value,
+    isJackOfAllTrades: props.character.isJackOfAllTrades,
+    extraBonus: props.character.passivePerceptionBonus,
+  }),
+)
+
+const passiveInsight = computed(() =>
+  calculatePassiveScore({
+    abilityModifier: wisdomModifier.value,
+    skillLevel: props.character.skills.insight ?? 'none',
+    proficiencyBonus: proficiencyBonus.value,
+    isJackOfAllTrades: props.character.isJackOfAllTrades,
+    extraBonus: props.character.passiveInsightBonus,
+  }),
+)
 
 const classHpRows = computed(() =>
   props.character.professions.map((entry, index) => {
