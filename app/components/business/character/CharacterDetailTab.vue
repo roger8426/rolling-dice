@@ -305,13 +305,9 @@ const baseAC = computed(() =>
   getTotalArmorClass(props.character.armorClass, totalAbilityScores.value),
 )
 
-const wisdomModifier = computed(() =>
-  getAbilityModifier(getTotalScore(props.character.abilities.wisdom)),
-)
-
 const passivePerception = computed(() =>
   calculatePassiveScore({
-    abilityModifier: wisdomModifier.value,
+    abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
     skillLevel: props.character.skills.perception ?? 'none',
     proficiencyBonus: proficiencyBonus.value,
     isJackOfAllTrades: props.character.isJackOfAllTrades,
@@ -321,7 +317,7 @@ const passivePerception = computed(() =>
 
 const passiveInsight = computed(() =>
   calculatePassiveScore({
-    abilityModifier: wisdomModifier.value,
+    abilityModifier: getAbilityModifier(totalAbilityScores.value.wisdom),
     skillLevel: props.character.skills.insight ?? 'none',
     proficiencyBonus: proficiencyBonus.value,
     isJackOfAllTrades: props.character.isJackOfAllTrades,

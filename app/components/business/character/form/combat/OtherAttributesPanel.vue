@@ -175,7 +175,9 @@ const props = defineProps<{
 
 const abilityOptions: SelectOption[] = [
   { value: '', label: '無' },
-  ...Object.entries(ABILITY_NAMES).map(([value, label]) => ({ value, label })),
+  ...Object.entries(ABILITY_NAMES)
+    .filter(([key]) => key !== 'dexterity')
+    .map(([value, label]) => ({ value, label })),
 ]
 
 const initiativeTextColor = computed(() => {
