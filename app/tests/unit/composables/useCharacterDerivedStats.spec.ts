@@ -39,6 +39,7 @@ function createFormState(
     armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
     speedBonus: 0,
     initiativeBonus: 0,
+    initiativeAbilityKey: null,
     passivePerceptionBonus: 0,
     passiveInsightBonus: 0,
     customHpBonus: 0,

@@ -137,6 +137,8 @@ export interface CharacterStats {
   speedBonus: number
   /** 額外先攻加值 */
   initiativeBonus: number
+  /** 額外加值到先攻的屬性（null = 不加） */
+  initiativeAbilityKey: AbilityKey | null
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
   /** 額外被動洞察加值 */
@@ -335,6 +337,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   speedBonus: number
   /** 額外先攻加值 */
   initiativeBonus: number
+  /** 額外加值到先攻的屬性（null = 不加） */
+  initiativeAbilityKey: AbilityKey | null
   /** 額外被動察覺加值 */
   passivePerceptionBonus: number
   /** 額外被動洞察加值 */

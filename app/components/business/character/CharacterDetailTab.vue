@@ -185,12 +185,29 @@
           <h2 id="section-other-abilities" class="font-display text-lg font-bold text-content">
             其他屬性
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
             >
               <span class="text-xs text-content-muted">護甲值</span>
               <span class="mt-1 text-2xl font-bold text-content">{{ baseAC }}</span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">先攻</span>
+              <span class="mt-1 text-2xl font-bold" :class="modifierTextColor(totalInitiative)">
+                {{ formatModifier(totalInitiative) }}
+              </span>
+            </div>
+            <div
+              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
+            >
+              <span class="text-xs text-content-muted">移動速度</span>
+              <span class="mt-1 text-2xl font-bold text-content"
+                >30
+                <span class="text-xs font-normal text-content-muted">呎</span>
+              </span>
             </div>
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
@@ -203,15 +220,6 @@
             >
               <span class="text-xs text-content-muted">被動洞察</span>
               <span class="mt-1 text-2xl font-bold text-content">{{ passiveInsight }}</span>
-            </div>
-            <div
-              class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
-            >
-              <span class="text-xs text-content-muted">移動速度</span>
-              <span class="mt-1 text-2xl font-bold text-content"
-                >30
-                <span class="text-xs font-normal text-content-muted">呎</span>
-              </span>
             </div>
             <div
               class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3"
@@ -230,7 +238,7 @@
         <h2 id="section-skills" class="mb-4 font-display text-lg font-bold text-content">
           技能熟練度
         </h2>
-        <div class="grid grid-cols-2 grid-rows-9 grid-flow-col gap-x-6 gap-y-1">
+        <div class="grid grid-cols-2 grid-rows-9 grid-flow-col gap-x-6 gap-y-2">
           <div
             v-for="skill in skillList"
             :key="skill.key"
@@ -318,6 +326,16 @@ const passiveInsight = computed(() =>
     proficiencyBonus: proficiencyBonus.value,
     isJackOfAllTrades: props.character.isJackOfAllTrades,
     extraBonus: props.character.passiveInsightBonus,
+  }),
+)
+
+const totalInitiative = computed(() =>
+  calculateTotalInitiative({
+    dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+    extraAbilityModifier: props.character.initiativeAbilityKey
+      ? getAbilityModifier(totalAbilityScores.value[props.character.initiativeAbilityKey])
+      : 0,
+    initiativeBonus: props.character.initiativeBonus,
   }),
 )
 

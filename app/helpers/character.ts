@@ -172,10 +172,14 @@ export function calculateTotalSpeed(speedBonus: number): number {
 }
 
 /**
- * 計算總先攻加值：DEX 調整值 + 額外加值。
+ * 計算總先攻加值：DEX 調整值 + 額外屬性調整值（initiativeAbilityKey 對應）+ 額外加值。
  */
-export function calculateTotalInitiative(dexModifier: number, initiativeBonus: number): number {
-  return dexModifier + initiativeBonus
+export function calculateTotalInitiative(input: {
+  dexModifier: number
+  extraAbilityModifier: number
+  initiativeBonus: number
+}): number {
+  return input.dexModifier + input.extraAbilityModifier + input.initiativeBonus
 }
 
 /**

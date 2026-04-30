@@ -22,7 +22,6 @@
             @update:model-value="(checked) => onToggle(row.key, checked)"
           />
           <span class="text-sm font-semibold text-content">{{ row.name }}</span>
-          <span v-if="row.locked" class="text-[10px] text-content-muted">（主職業）</span>
         </label>
         <span class="text-sm font-bold" :class="modifierTextColor(row.bonus)">
           {{ formatModifier(row.bonus) }}

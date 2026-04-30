@@ -3,7 +3,7 @@
     <h3 id="quickview-skills-label" class="mb-2 font-display text-sm font-bold text-content">
       技能
     </h3>
-    <div class="grid grid-flow-col grid-cols-2 grid-rows-9 gap-x-4 gap-y-1">
+    <div class="grid grid-flow-col grid-cols-2 grid-rows-9 gap-x-4 gap-y-2">
       <div
         v-for="skill in skillList"
         :key="skill.key"

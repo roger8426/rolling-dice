@@ -68,10 +68,13 @@ export function useCharacterDerivedStats(
   )
 
   const totalInitiative = computed(() =>
-    calculateTotalInitiative(
-      getAbilityModifier(totalAbilityScores.value.dexterity),
-      formState.initiativeBonus,
-    ),
+    calculateTotalInitiative({
+      dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+      extraAbilityModifier: formState.initiativeAbilityKey
+        ? getAbilityModifier(totalAbilityScores.value[formState.initiativeAbilityKey])
+        : 0,
+      initiativeBonus: formState.initiativeBonus,
+    }),
   )
 
   const totalSpeed = computed(() => calculateTotalSpeed(formState.speedBonus))
@@ -144,10 +147,13 @@ export function useCharacterDerivedStatsFromCharacter(
   )
 
   const totalInitiative = computed(() =>
-    calculateTotalInitiative(
-      getAbilityModifier(totalAbilityScores.value.dexterity),
-      character.value.initiativeBonus,
-    ),
+    calculateTotalInitiative({
+      dexModifier: getAbilityModifier(totalAbilityScores.value.dexterity),
+      extraAbilityModifier: character.value.initiativeAbilityKey
+        ? getAbilityModifier(totalAbilityScores.value[character.value.initiativeAbilityKey])
+        : 0,
+      initiativeBonus: character.value.initiativeBonus,
+    }),
   )
 
   const totalSpeed = computed(() => calculateTotalSpeed(character.value.speedBonus))

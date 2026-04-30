@@ -411,16 +411,34 @@ describe('calculateTotalSpeed', () => {
 })
 
 describe('calculateTotalInitiative', () => {
-  it('bonus 為 0 時，僅回傳 dexModifier', () => {
-    expect(calculateTotalInitiative(3, 0)).toBe(3)
+  it('bonus 與 extraAbilityModifier 為 0 時，僅回傳 dexModifier', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 0, initiativeBonus: 0 }),
+    ).toBe(3)
   })
 
   it('bonus 為正數時，與 dexModifier 相加', () => {
-    expect(calculateTotalInitiative(3, 2)).toBe(5)
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 0, initiativeBonus: 2 }),
+    ).toBe(5)
   })
 
   it('dexModifier 為負數、bonus 為正數時可抵消', () => {
-    expect(calculateTotalInitiative(-1, 1)).toBe(0)
+    expect(
+      calculateTotalInitiative({ dexModifier: -1, extraAbilityModifier: 0, initiativeBonus: 1 }),
+    ).toBe(0)
+  })
+
+  it('extraAbilityModifier 不為 0 時，疊加於 dexModifier 之上', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 2, initiativeBonus: 0 }),
+    ).toBe(5)
+  })
+
+  it('三者同時非零時皆累加', () => {
+    expect(
+      calculateTotalInitiative({ dexModifier: 3, extraAbilityModifier: 2, initiativeBonus: 1 }),
+    ).toBe(6)
   })
 })
 
