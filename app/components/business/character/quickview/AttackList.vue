@@ -30,11 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import type { AbilityScores, AttackEntry } from '~/types/business/character'
+import type { TotalAbilityScores, AttackEntry } from '~/types/business/character'
 
 defineProps<{
   attacks: AttackEntry[]
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 </script>

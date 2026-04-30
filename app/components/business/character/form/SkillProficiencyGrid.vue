@@ -1,7 +1,7 @@
 <template>
-  <div class="flex-1 self-start space-y-1 px-2">
+  <div class="flex-1 self-start space-y-4 px-2">
     <div class="flex items-center justify-between">
-      <p class="text-xs text-content">技能熟練度</p>
+      <h2 class="font-display text-lg font-bold text-content">技能熟練</h2>
       <label class="flex items-center gap-1.5">
         <span class="text-xs text-content-soft">全能高手</span>
         <Toggle
@@ -44,13 +44,13 @@
 <script setup lang="ts">
 import { Toggle } from '@ui'
 import { PROFICIENCY_OPTIONS, SKILL_NAMES, SKILL_TO_ABILITY_MAP } from '~/constants/dnd'
-import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
+import type { TotalAbilityScores, CharacterFormStateBase } from '~/types/business/character'
 import type { ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
 const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 

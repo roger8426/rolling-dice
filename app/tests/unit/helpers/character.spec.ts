@@ -15,7 +15,7 @@ import {
   getTotalArmorClass,
 } from '~/helpers/character'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   ArmorClassConfig,
   CharacterAbilityScores,
   CharacterFormStateBase,
@@ -98,7 +98,7 @@ describe('getBaseArmorClass', () => {
 })
 
 describe('getTotalArmorClass', () => {
-  const baseScores: AbilityScores = {
+  const baseScores: TotalAbilityScores = {
     strength: 10,
     dexterity: 16, // modifier +3
     constitution: 14,
@@ -333,12 +333,12 @@ describe('formStateToCharacterPatch', () => {
 describe('calculateTotalAbilityScores', () => {
   it('每項屬性應加總 basicScore + bonusScore', () => {
     const abilities: CharacterAbilityScores = {
-      strength: { basicScore: 15, bonusScore: 2 },
-      dexterity: { basicScore: 14, bonusScore: 0 },
-      constitution: { basicScore: 13, bonusScore: 1 },
-      intelligence: { basicScore: 12, bonusScore: 0 },
-      wisdom: { basicScore: 10, bonusScore: 0 },
-      charisma: { basicScore: 8, bonusScore: 0 },
+      strength: { origin: 15, race: 0, bonusScore: 2 },
+      dexterity: { origin: 14, race: 0, bonusScore: 0 },
+      constitution: { origin: 13, race: 0, bonusScore: 1 },
+      intelligence: { origin: 12, race: 0, bonusScore: 0 },
+      wisdom: { origin: 10, race: 0, bonusScore: 0 },
+      charisma: { origin: 8, race: 0, bonusScore: 0 },
     }
     expect(calculateTotalAbilityScores(abilities)).toEqual({
       strength: 17,

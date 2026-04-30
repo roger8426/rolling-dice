@@ -16,7 +16,7 @@
         <BusinessCharacterFormBasicTab
           v-model:form-state="formState"
           :total-level="totalLevel"
-          :ability-scores="formState.abilities"
+          :ability-scores="totalAbilityScores"
         >
           <template #ability-panel>
             <BusinessCharacterFormAbilityScorePanel
@@ -30,6 +30,9 @@
               @roll:all="rollAllAbilities"
               @reset:abilities="resetAbilities"
             />
+          </template>
+          <template #race-bonus-panel>
+            <BusinessCharacterFormRaceAbilityBonusPanel v-model:form-state="formState" />
           </template>
         </BusinessCharacterFormBasicTab>
       </Tab>
@@ -57,7 +60,7 @@
     <BusinessCharacterBuildConfirmModal
       v-model="isConfirmOpen"
       :professions="formState.professions"
-      :abilities="formState.abilities"
+      :abilities="totalAbilityScores"
       @cancel="isConfirmOpen = false"
       @confirm="confirmSubmit"
     />
@@ -66,6 +69,8 @@
 
 <script setup lang="ts">
 import { Button, Tab, Tabs } from '@ui'
+import { ABILITY_KEYS } from '~/constants/dnd'
+import type { TotalAbilityScores } from '~/types/business/character'
 
 useHead({ title: '建立角色卡' })
 
@@ -79,6 +84,16 @@ const {
   updateAbilityScore,
   assignDiceToAbility,
 } = abilities
+
+const totalAbilityScores = computed<TotalAbilityScores>(
+  () =>
+    Object.fromEntries(
+      ABILITY_KEYS.map((key) => [
+        key,
+        formState.abilities[key].origin + formState.abilities[key].race,
+      ]),
+    ) as TotalAbilityScores,
+)
 
 const isConfirmOpen = ref(false)
 

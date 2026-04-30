@@ -8,12 +8,12 @@ const mockNavigateTo = vi.fn()
 const MOCK_CHARACTER = createMockCharacter({
   id: 'update-001',
   abilities: {
-    strength: { basicScore: 15, bonusScore: 2 },
-    dexterity: { basicScore: 14, bonusScore: 0 },
-    constitution: { basicScore: 13, bonusScore: 1 },
-    intelligence: { basicScore: 12, bonusScore: 0 },
-    wisdom: { basicScore: 10, bonusScore: 0 },
-    charisma: { basicScore: 8, bonusScore: 0 },
+    strength: { origin: 15, race: 0, bonusScore: 2 },
+    dexterity: { origin: 14, race: 0, bonusScore: 0 },
+    constitution: { origin: 13, race: 0, bonusScore: 1 },
+    intelligence: { origin: 12, race: 0, bonusScore: 0 },
+    wisdom: { origin: 10, race: 0, bonusScore: 0 },
+    charisma: { origin: 8, race: 0, bonusScore: 0 },
   },
   isTough: true,
   faith: '坦帕斯',
@@ -70,8 +70,8 @@ describe('useCharacterUpdate — 初始狀態', () => {
 
   it('應正確映射 abilities（保留 basicScore 與 bonusScore）', async () => {
     const { formState } = await getComposable('update-001')
-    expect(formState.abilities.strength).toEqual({ basicScore: 15, bonusScore: 2 })
-    expect(formState.abilities.constitution).toEqual({ basicScore: 13, bonusScore: 1 })
+    expect(formState.abilities.strength).toEqual({ origin: 15, race: 0, bonusScore: 2 })
+    expect(formState.abilities.constitution).toEqual({ origin: 13, race: 0, bonusScore: 1 })
   })
 
   it('應正確映射 optional 欄位', async () => {

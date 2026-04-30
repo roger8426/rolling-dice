@@ -37,7 +37,7 @@ import { Checkbox } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
 import { calculateSavingThrowProficiencies } from '~/helpers/character'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   CharacterUpdateFormState,
   ProfessionEntry,
 } from '~/types/business/character'
@@ -47,7 +47,7 @@ const formState = defineModel<CharacterUpdateFormState>('formState', { required:
 
 const props = defineProps<{
   professions: ProfessionEntry[]
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 

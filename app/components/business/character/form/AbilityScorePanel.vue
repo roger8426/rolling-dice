@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
-    <img src="~/assets/images/dnd.png" alt="" loading="lazy" aria-hidden="true" />
+    <h2 class="font-display text-lg font-bold text-content">屬性分配</h2>
     <!-- Method selector -->
     <div>
       <p class="mb-1 text-xs text-content">分配方式</p>
@@ -57,7 +57,9 @@
         <label :for="`ability-${key}`" class="block text-xs text-content">
           {{ ABILITY_NAMES[key]
           }}<template v-if="!isDiceMode || diceCells[key].selectedId">
-            （{{ formatModifier(getAbilityModifier(abilities[key])) }}）
+            （{{
+              formatModifier(getAbilityModifier(abilities[key].origin + abilities[key].race))
+            }}）
           </template>
         </label>
 
@@ -66,19 +68,19 @@
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] <= CUSTOM_ABILITY_MIN"
+            :disabled="abilities[key].origin <= CUSTOM_ABILITY_MIN"
             aria-label="減少"
             @click="adjustAbility(key, -1)"
           >
             <Icon name="minus" :size="16" />
           </button>
           <span :id="`ability-${key}`" class="w-8 text-center font-mono text-lg font-bold">
-            {{ abilities[key] }}
+            {{ abilities[key].origin + abilities[key].race }}
           </span>
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="abilities[key] >= CUSTOM_ABILITY_MAX"
+            :disabled="abilities[key].origin >= CUSTOM_ABILITY_MAX"
             aria-label="增加"
             @click="adjustAbility(key, 1)"
           >
@@ -198,7 +200,7 @@ function onAssign(key: AbilityKey, value: string | number | null): void {
 }
 
 function adjustAbility(key: AbilityKey, delta: number): void {
-  const current = props.abilities[key]
+  const current = props.abilities[key].origin
   const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
   if (next === current) return
   emit('update:score', key, next)

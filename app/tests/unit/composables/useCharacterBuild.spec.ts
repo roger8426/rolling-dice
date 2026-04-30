@@ -59,11 +59,11 @@ describe('useCharacterBuild — 初始狀態', () => {
     expect(formState.professions[0]!.level).toBe(1)
   })
 
-  it('所有屬性初始值應為 8（購點制預設值）', async () => {
+  it('所有屬性初始值 origin 應為 8（購點制預設值），race 應為 0', async () => {
     const { formState } = await getComposable()
     const values = Object.values(formState.abilities)
     expect(values).toHaveLength(6)
-    expect(values.every((v) => v === 8)).toBe(true)
+    expect(values.every((v) => v.origin === 8 && v.race === 0)).toBe(true)
   })
 
   it('canSubmit 初始值應為 false（表單尚未填寫）', async () => {
@@ -94,10 +94,10 @@ describe('useCharacterBuild — 屬性分配方式切換', () => {
   it('切換至 custom 應重置所有屬性為 8', async () => {
     const { formState, abilities } = await getComposable()
     abilities.setAbilityMethod('diceRoll')
-    formState.abilities.strength = 15
+    formState.abilities.strength.origin = 15
     abilities.setAbilityMethod('custom')
     expect(formState.abilityMethod).toBe('custom')
-    expect(formState.abilities.strength).toBe(8)
+    expect(formState.abilities.strength.origin).toBe(8)
   })
 
   it('在同一模式下重複呼叫 setAbilityMethod 不應觸發重置', async () => {
@@ -119,7 +119,7 @@ describe('useCharacterBuild — 屬性分配方式切換', () => {
     expect(formState.dicePool).toHaveLength(6)
     expect(formState.dicePool.every((slot) => slot.value === 15)).toBe(true)
     expect(formState.dicePool.every((slot) => slot.assignedTo === null)).toBe(true)
-    expect(Object.values(formState.abilities).every((v) => v === 8)).toBe(true)
+    expect(Object.values(formState.abilities).every((v) => v.origin === 8)).toBe(true)
     expect(mockRollAbilityScore).toHaveBeenCalledTimes(6)
   })
 })
@@ -131,22 +131,33 @@ describe('useCharacterBuild — 擲骰與重置', () => {
     const { formState, abilities } = await getComposable()
     abilities.setAbilityMethod('diceRoll')
     abilities.assignDiceToAbility('strength', formState.dicePool[0]!.id)
-    expect(formState.abilities.strength).toBe(15)
+    expect(formState.abilities.strength.origin).toBe(15)
 
     abilities.rollAllAbilities()
     expect(formState.dicePool).toHaveLength(6)
     expect(formState.dicePool.every((slot) => slot.assignedTo === null)).toBe(true)
-    expect(Object.values(formState.abilities).every((v) => v === 8)).toBe(true)
+    expect(Object.values(formState.abilities).every((v) => v.origin === 8)).toBe(true)
   })
 
-  it('resetAbilities 應將所有屬性重置為 8 並清空骰值池', async () => {
+  it('resetAbilities 應將所有屬性 origin 重置為 8 並清空骰值池', async () => {
     const { formState, abilities } = await getComposable()
-    formState.abilities.strength = 20
-    formState.abilities.dexterity = 18
+    formState.abilities.strength.origin = 20
+    formState.abilities.dexterity.origin = 18
     abilities.setAbilityMethod('diceRoll')
     abilities.resetAbilities()
-    expect(Object.values(formState.abilities).every((v) => v === 8)).toBe(true)
+    expect(Object.values(formState.abilities).every((v) => v.origin === 8)).toBe(true)
     expect(formState.dicePool).toHaveLength(0)
+  })
+
+  it('resetAbilities 應保留 race 不被洗掉', async () => {
+    const { formState, abilities } = await getComposable()
+    formState.abilities.strength.race = 2
+    formState.abilities.dexterity.race = 1
+    formState.abilities.strength.origin = 15
+    abilities.resetAbilities()
+    expect(formState.abilities.strength.origin).toBe(8)
+    expect(formState.abilities.strength.race).toBe(2)
+    expect(formState.abilities.dexterity.race).toBe(1)
   })
 })
 
@@ -160,25 +171,31 @@ describe('useCharacterBuild — pointBuyUsage', () => {
 
   it('custom 模式下將 strength 調至 10 後應為 2', async () => {
     const { formState, abilities } = await getComposable()
-    formState.abilities.strength = 10
+    formState.abilities.strength.origin = 10
     expect(abilities.pointBuyUsage.value).toBe(2)
   })
 
   it('custom 模式下總花費可超過 27（純指示，不阻擋）', async () => {
     const { formState, abilities } = await getComposable()
     for (const key of Object.keys(formState.abilities) as (keyof typeof formState.abilities)[]) {
-      formState.abilities[key] = 15
+      formState.abilities[key].origin = 15
     }
     expect(abilities.pointBuyUsage.value).toBe(54)
   })
 
   it('任一屬性超出 8–15 範圍時 pointBuyUsage 應為 null', async () => {
     const { formState, abilities } = await getComposable()
-    formState.abilities.strength = 16
+    formState.abilities.strength.origin = 16
     expect(abilities.pointBuyUsage.value).toBeNull()
 
-    formState.abilities.strength = 7
+    formState.abilities.strength.origin = 7
     expect(abilities.pointBuyUsage.value).toBeNull()
+  })
+
+  it('race 不影響 pointBuyUsage 計算（只看 origin）', async () => {
+    const { formState, abilities } = await getComposable()
+    formState.abilities.strength.race = 5
+    expect(abilities.pointBuyUsage.value).toBe(0)
   })
 
   it('切換至 diceRoll 模式時 pointBuyUsage 應為 null', async () => {
@@ -196,7 +213,7 @@ describe('useCharacterBuild — assignDiceToAbility', () => {
     abilities.setAbilityMethod('diceRoll')
     const slot = formState.dicePool[0]!
     abilities.assignDiceToAbility('strength', slot.id)
-    expect(formState.abilities.strength).toBe(slot.value)
+    expect(formState.abilities.strength.origin).toBe(slot.value)
     expect(formState.dicePool.find((s) => s.id === slot.id)!.assignedTo).toBe('strength')
   })
 
@@ -216,7 +233,7 @@ describe('useCharacterBuild — assignDiceToAbility', () => {
     const slot = formState.dicePool[0]!
     abilities.assignDiceToAbility('strength', slot.id)
     abilities.assignDiceToAbility('strength', null)
-    expect(formState.abilities.strength).toBe(8)
+    expect(formState.abilities.strength.origin).toBe(8)
     expect(formState.dicePool.find((s) => s.id === slot.id)!.assignedTo).toBeNull()
   })
 })
@@ -349,6 +366,27 @@ describe('useCharacterBuild — submit', () => {
     expect(mockToastError).toHaveBeenCalledWith('儲存失敗，請稍後再試')
     expect(mockNavigateTo).not.toHaveBeenCalled()
     expect(isSubmitting.value).toBe(false)
+  })
+
+  it('submit 時 abilities 應以 {origin, race, bonusScore: 0} 結構送進 store', async () => {
+    const { useCharacterStore } = await import('~/stores/character')
+    const store = useCharacterStore()
+    const addSpy = vi.spyOn(store, 'addCharacter')
+
+    const { formState, submit } = await getComposable()
+    formState.name = '加總角色'
+    formState.professions[0]!.profession = 'fighter'
+    formState.abilities.strength.origin = 15
+    formState.abilities.strength.race = 2
+    formState.abilities.dexterity.origin = 14
+    formState.abilities.dexterity.race = -1
+
+    await submit()
+    expect(addSpy).toHaveBeenCalledOnce()
+    const created = addSpy.mock.results[0]!.value
+    expect(created?.abilities.strength).toEqual({ origin: 15, race: 2, bonusScore: 0 })
+    expect(created?.abilities.dexterity).toEqual({ origin: 14, race: -1, bonusScore: 0 })
+    expect(created?.abilities.constitution).toEqual({ origin: 8, race: 0, bonusScore: 0 })
   })
 
   it('store.addCharacter 拋出例外時應顯示錯誤 toast 且不導航', async () => {

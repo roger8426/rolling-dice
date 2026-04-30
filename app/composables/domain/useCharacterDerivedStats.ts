@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   Character,
   CharacterUpdateFormState,
   ProfessionEntry,
@@ -23,7 +23,7 @@ import { getAbilityModifier } from '~/helpers/ability'
 
 export interface CharacterDerivedStats {
   totalLevel: ComputedRef<number>
-  totalAbilityScores: ComputedRef<AbilityScores>
+  totalAbilityScores: ComputedRef<TotalAbilityScores>
   proficiencyBonus: ComputedRef<number>
   savingThrowProficiencies: ComputedRef<AbilityKey[]>
   validProfessions: ComputedRef<ProfessionEntry[]>

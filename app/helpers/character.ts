@@ -1,11 +1,11 @@
 import type {
-  AbilityScores,
   ArmorClassConfig,
   CharacterAbilityScores,
   CharacterFormStateBase,
   CharacterTier,
   CharacterWritablePatch,
   ProfessionEntry,
+  TotalAbilityScores,
 } from '~/types/business/character'
 import type { AbilityKey, ArmorType, ProficiencyLevel } from '~/types/business/dnd'
 import { ABILITY_KEYS, PROFESSION_CONFIG, UNARMORED_AC_BASE } from '~/constants/dnd'
@@ -94,7 +94,10 @@ export function getBaseArmorClass(
  * 由護甲設定與屬性分數計算最終 AC：
  * base（依護甲類型處理 DEX）+ 額外屬性加值 + 盾牌加值。
  */
-export function getTotalArmorClass(config: ArmorClassConfig, abilityScores: AbilityScores): number {
+export function getTotalArmorClass(
+  config: ArmorClassConfig,
+  abilityScores: TotalAbilityScores,
+): number {
   const baseValue = config.value ?? UNARMORED_AC_BASE
   const dexModifier = getAbilityModifier(abilityScores.dexterity)
   let ac = getBaseArmorClass(baseValue, dexModifier, config.type)
@@ -122,12 +125,12 @@ export function getPassivePerception(perceptionBonus: number): number {
 }
 
 /**
- * 由完整屬性單元（basicScore + bonusScore）計算六項屬性的總分字典。
+ * 由完整屬性單元（origin + race + bonusScore）計算六項屬性的總分字典。
  */
-export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): AbilityScores {
+export function calculateTotalAbilityScores(abilities: CharacterAbilityScores): TotalAbilityScores {
   return Object.fromEntries(
     ABILITY_KEYS.map((key) => [key, getTotalScore(abilities[key])]),
-  ) as AbilityScores
+  ) as TotalAbilityScores
 }
 
 /**

@@ -23,11 +23,11 @@
 
 <script setup lang="ts">
 import { SKILL_NAMES, SKILL_TO_ABILITY_MAP } from '~/constants/dnd'
-import type { AbilityScores } from '~/types/business/character'
+import type { TotalAbilityScores } from '~/types/business/character'
 import type { ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
   skills: Partial<Record<SkillKey, Exclude<ProficiencyLevel, 'none'>>>
   isJackOfAllTrades: boolean

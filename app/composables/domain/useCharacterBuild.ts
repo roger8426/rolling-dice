@@ -8,8 +8,15 @@ export type BuildTab = 'basic' | 'profile'
 
 function createDefaultAbilities(): AbilityScores {
   return Object.fromEntries(
-    ABILITY_KEYS.map((key) => [key, POINT_BUY_DEFAULT_SCORE]),
+    ABILITY_KEYS.map((key) => [key, { origin: POINT_BUY_DEFAULT_SCORE, race: 0 }]),
   ) as AbilityScores
+}
+
+/** 只重置 origin（race 保留），用於重置按鈕 / 切換模式時不洗掉種族加值 */
+function resetOrigins(abilities: AbilityScores): void {
+  for (const key of ABILITY_KEYS) {
+    abilities[key].origin = POINT_BUY_DEFAULT_SCORE
+  }
 }
 
 function createDefaultFormState(): CharacterFormState {
@@ -50,11 +57,11 @@ export function useCharacterBuild() {
 
   function rollAllAbilities(): void {
     formState.dicePool = createDicePool()
-    formState.abilities = createDefaultAbilities()
+    resetOrigins(formState.abilities)
   }
 
   function resetAbilities(): void {
-    formState.abilities = createDefaultAbilities()
+    resetOrigins(formState.abilities)
     formState.dicePool = []
   }
 
@@ -63,14 +70,14 @@ export function useCharacterBuild() {
     if (previous) previous.assignedTo = null
 
     if (slotId === null) {
-      formState.abilities[key] = UNASSIGNED_ABILITY_SCORE
+      formState.abilities[key].origin = UNASSIGNED_ABILITY_SCORE
       return
     }
 
     const target = formState.dicePool.find((slot) => slot.id === slotId)
     if (!target) return
     target.assignedTo = key
-    formState.abilities[key] = target.value
+    formState.abilities[key].origin = target.value
   }
 
   // ─── Ability Method Switching ─────────────────────────────────────────
@@ -82,7 +89,7 @@ export function useCharacterBuild() {
     if (method === 'diceRoll') {
       rollAllAbilities()
     } else {
-      formState.abilities = createDefaultAbilities()
+      resetOrigins(formState.abilities)
       formState.dicePool = []
     }
   }
@@ -91,11 +98,14 @@ export function useCharacterBuild() {
 
   const pointBuyUsage = computed<number | null>(() => {
     if (formState.abilityMethod !== 'custom') return null
-    return tryCalculateSpentPoints(formState.abilities)
+    const origins = Object.fromEntries(
+      ABILITY_KEYS.map((key) => [key, formState.abilities[key].origin]),
+    ) as Record<AbilityKey, number>
+    return tryCalculateSpentPoints(origins)
   })
 
   function updateAbilityScore(key: AbilityKey, score: number): void {
-    formState.abilities[key] = score
+    formState.abilities[key].origin = score
   }
 
   // ─── Submit guard ─────────────────────────────────────────────────────
@@ -112,8 +122,8 @@ export function useCharacterBuild() {
   const canSubmit = computed(
     () =>
       !isSubmitting.value &&
-      formState.name.trim() !== '' &&
-      formState.professions.some((p) => p.profession !== null) &&
+      formState.name.trim().length > 0 &&
+      formState.professions.every((p) => p.profession !== null) &&
       isDiceAssignmentComplete.value,
   )
 

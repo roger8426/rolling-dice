@@ -1,4 +1,5 @@
 import { ATTUNEMENT_SLOT_COUNT, DEFAULT_CURRENCY } from '~/constants/inventory'
+import { getTotalScore } from '~/helpers/ability'
 import { calculateBackpackLoad, calculateMaxCarryWeight } from '~/helpers/inventory'
 import type {
   CharacterCurrency,
@@ -26,7 +27,7 @@ export function useCharacterInventory(characterId: string) {
   const backpackLoad = computed(() => calculateBackpackLoad(backpackItems.value, currency.value))
   const maxCarryWeight = computed(() => {
     const str = character.value?.abilities.strength
-    return str ? calculateMaxCarryWeight(str.basicScore + str.bonusScore) : 0
+    return str ? calculateMaxCarryWeight(getTotalScore(str)) : 0
   })
   const isOverEncumbered = computed(() => backpackLoad.value > maxCarryWeight.value)
 

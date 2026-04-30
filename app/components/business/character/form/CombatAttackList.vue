@@ -206,7 +206,7 @@
 import { Modal, Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   AttackDraft,
   AttackEntry,
   CharacterUpdateFormState,
@@ -223,7 +223,7 @@ import {
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
 }>()
 

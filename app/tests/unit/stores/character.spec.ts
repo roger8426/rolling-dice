@@ -14,12 +14,12 @@ const MOCK_FORM_STATE = createMockFormState({
   alignment: 'chaoticGood',
   professions: [{ profession: 'wizard', level: 3 }],
   abilities: {
-    strength: 8,
-    dexterity: 14,
-    constitution: 12,
-    intelligence: 15,
-    wisdom: 13,
-    charisma: 10,
+    strength: { origin: 8, race: 0 },
+    dexterity: { origin: 14, race: 0 },
+    constitution: { origin: 12, race: 0 },
+    intelligence: { origin: 15, race: 0 },
+    wisdom: { origin: 13, race: 0 },
+    charisma: { origin: 10, race: 0 },
   },
   skills: { arcana: 'proficient' },
   background: '學者',
@@ -188,12 +188,12 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
     { profession: 'cleric', level: 3 },
   ],
   abilities: {
-    strength: { basicScore: 15, bonusScore: 2 },
-    dexterity: { basicScore: 14, bonusScore: 0 },
-    constitution: { basicScore: 13, bonusScore: 1 },
-    intelligence: { basicScore: 12, bonusScore: 0 },
-    wisdom: { basicScore: 10, bonusScore: 0 },
-    charisma: { basicScore: 8, bonusScore: 0 },
+    strength: { origin: 15, race: 0, bonusScore: 2 },
+    dexterity: { origin: 14, race: 0, bonusScore: 0 },
+    constitution: { origin: 13, race: 0, bonusScore: 1 },
+    intelligence: { origin: 12, race: 0, bonusScore: 0 },
+    wisdom: { origin: 10, race: 0, bonusScore: 0 },
+    charisma: { origin: 8, race: 0, bonusScore: 0 },
   },
   savingThrowExtras: [],
   skills: { arcana: 'proficient', religion: 'proficient' },
@@ -246,12 +246,12 @@ describe('useCharacterStore — updateCharacter', () => {
     ])
   })
 
-  it('更新後 abilities 應保留 basicScore 與 bonusScore', () => {
+  it('更新後 abilities 應保留 origin / race / bonusScore', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
-    expect(updated!.abilities.strength).toEqual({ basicScore: 15, bonusScore: 2 })
-    expect(updated!.abilities.constitution).toEqual({ basicScore: 13, bonusScore: 1 })
+    expect(updated!.abilities.strength).toEqual({ origin: 15, race: 0, bonusScore: 2 })
+    expect(updated!.abilities.constitution).toEqual({ origin: 13, race: 0, bonusScore: 1 })
   })
 
   it('更新後應保留原始 id 與 createdAt', () => {

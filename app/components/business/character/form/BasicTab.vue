@@ -14,21 +14,22 @@
       :proficiency-bonus="proficiencyBonus"
     />
 
-    <div class="w-full md:w-1/3">
+    <div class="flex w-full flex-col gap-4 md:w-1/3">
       <slot name="ability-panel" />
+      <slot name="race-bonus-panel" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { AbilityScores, CharacterFormStateBase } from '~/types/business/character'
+import type { CharacterFormStateBase, TotalAbilityScores } from '~/types/business/character'
 
 const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 
 const props = withDefaults(
   defineProps<{
     totalLevel: number
-    abilityScores: AbilityScores
+    abilityScores: TotalAbilityScores
     lockPrimaryProfession?: boolean
   }>(),
   { lockPrimaryProfession: false },

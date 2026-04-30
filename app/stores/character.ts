@@ -51,8 +51,15 @@ export const useCharacterStore = defineStore('character', () => {
     const patch = formStateToCharacterPatch(formState)
 
     const abilities = Object.fromEntries(
-      ABILITY_KEYS.map((key) => [key, { basicScore: formState.abilities[key], bonusScore: 0 }]),
-    ) as Record<AbilityKey, { basicScore: number; bonusScore: number }>
+      ABILITY_KEYS.map((key) => [
+        key,
+        {
+          origin: formState.abilities[key].origin,
+          race: formState.abilities[key].race,
+          bonusScore: 0,
+        },
+      ]),
+    ) as Record<AbilityKey, { origin: number; race: number; bonusScore: number }>
 
     const character: Character = {
       id: crypto.randomUUID(),

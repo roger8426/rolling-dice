@@ -88,14 +88,14 @@
 
 <script setup lang="ts">
 import type { SelectOption } from '@ui'
-import type { AbilityScores, CharacterUpdateFormState } from '~/types/business/character'
+import type { TotalAbilityScores, CharacterUpdateFormState } from '~/types/business/character'
 import type { AbilityKey, ArmorType } from '~/types/business/dnd'
 import { ABILITY_NAMES, ARMOR_TYPE_NAMES, UNARMORED_AC_BASE } from '~/constants/dnd'
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
 }>()
 
 const armorTypeOptions: SelectOption[] = Object.entries(ARMOR_TYPE_NAMES).map(([value, label]) => ({

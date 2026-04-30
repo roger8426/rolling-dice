@@ -55,11 +55,11 @@
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
-import type { AbilityScores } from '~/types/business/character'
+import type { TotalAbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
 const props = defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   proficiencyBonus: number
   proficiencies: AbilityKey[]
   adjustments: Partial<Record<AbilityKey, number>>

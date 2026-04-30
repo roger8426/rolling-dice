@@ -257,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AbilityScores, Character } from '~/types/business/character'
+import type { TotalAbilityScores, Character } from '~/types/business/character'
 import type { AbilityKey, ProficiencyLevel, SkillKey } from '~/types/business/dnd'
 import {
   ABILITY_KEYS,
@@ -284,7 +284,7 @@ const totalAbilityScores = computed(
   () =>
     Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, getTotalScore(props.character.abilities[key])]),
-    ) as AbilityScores,
+    ) as TotalAbilityScores,
 )
 
 const baseAC = computed(() =>

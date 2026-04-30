@@ -34,19 +34,28 @@ export interface FormProfessionEntry {
 
 // ─── Abilities ────────────────────────────────────────────────────────────────
 
-/** 表單用六項屬性分數（純數字），以 AbilityKey 為鍵 */
-export type AbilityScores = Record<AbilityKey, number>
+/** 建立流程一個屬性的輸入結構：原始分數 + 種族加值 */
+export interface AbilityScoreInput {
+  /** 玩家自己分配 / 擲骰得到的純基礎值 */
+  origin: number
+  /** 種族加值（建立時填入） */
+  race: number
+}
 
-/** 角色屬性值儲存單元：基礎分數與獎勵加值 */
-export interface AbilityScoreEntry {
-  /** 建立角色時的初始屬性分數 */
-  basicScore: number
+/** 持久化於 Character 的屬性結構：origin + race + 後天 bonusScore */
+export interface AbilityScoreEntry extends AbilityScoreInput {
   /** 升級或冒險途中獲得的屬性提升 */
   bonusScore: number
 }
 
+/** 建立流程表單型別（六屬性） */
+export type AbilityScores = Record<AbilityKey, AbilityScoreInput>
+
 /** 角色六項屬性完整資料，以 AbilityKey 為鍵 */
 export type CharacterAbilityScores = Record<AbilityKey, AbilityScoreEntry>
+
+/** 計算後總值（讓只關心 modifier 的消費端使用） */
+export type TotalAbilityScores = Record<AbilityKey, number>
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-4 px-2">
+    <h2 class="font-display text-lg font-bold text-content">角色資訊</h2>
     <div class="flex items-end gap-2">
       <!-- 角色名稱 -->
       <div class="min-w-20 flex-1">

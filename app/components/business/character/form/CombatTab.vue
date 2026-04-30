@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import type {
-  AbilityScores,
+  TotalAbilityScores,
   CharacterUpdateFormState,
   ProfessionEntry,
 } from '~/types/business/character'
@@ -44,7 +44,7 @@ import type {
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 defineProps<{
-  abilityScores: AbilityScores
+  abilityScores: TotalAbilityScores
   totalHp: number
   totalSpeed: number
   totalInitiative: number
