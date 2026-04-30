@@ -39,6 +39,7 @@
           <BusinessCharacterFormInventoryTab
             :backpack-items="backpackItems"
             :dimensional-bag-items="dimensionalBagItems"
+            :attuned-items="attunedItems"
             :currency="currency"
             :backpack-load="backpackLoad"
             :max-carry-weight="maxCarryWeight"
@@ -48,6 +49,7 @@
             @update-item="updateItem"
             @move-item="moveItem"
             @update-currency="updateCurrency"
+            @update-attunement="setAttunement"
           />
         </Tab>
       </Tabs>
@@ -73,6 +75,7 @@ const {
   currency,
   backpackItems,
   dimensionalBagItems,
+  attunedItems,
   backpackLoad,
   maxCarryWeight,
   isOverEncumbered,
@@ -81,5 +84,6 @@ const {
   updateItem,
   moveItem,
   updateCurrency,
+  setAttunement,
 } = useCharacterInventory(id)
 </script>

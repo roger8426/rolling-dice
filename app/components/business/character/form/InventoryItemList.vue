@@ -43,7 +43,16 @@
 
           <!-- Name -->
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm text-content">{{ item.name }}</p>
+            <div class="flex items-center gap-1.5">
+              <p class="truncate text-sm text-content">{{ item.name }}</p>
+              <Icon
+                v-if="item.isAttuned"
+                name="star"
+                class="text-primary"
+                :size="10"
+                aria-label="已同調"
+              />
+            </div>
             <p v-if="item.description" class="truncate text-xs text-content-muted">
               {{ item.description }}
             </p>
@@ -315,7 +324,8 @@ function openCreate(): void {
 
 function openEdit(item: InventoryItem): void {
   editingId.value = item.id
-  draft.value = { ...item }
+  const { id: _id, isAttuned: _isAttuned, ...rest } = item
+  draft.value = rest
   modalOpen.value = true
 }
 

@@ -72,10 +72,12 @@ export interface InventoryItem {
   weight: number
   type: ItemType
   location: InventoryLocation
+  /** 是否被同調（最多 3 件物品可同時為 true） */
+  isAttuned: boolean
 }
 
-/** 物品草稿（尚未具備 id） */
-export type InventoryItemDraft = Omit<InventoryItem, 'id'>
+/** 物品草稿（尚未具備 id；同調狀態由 composable 管理，不入草稿） */
+export type InventoryItemDraft = Omit<InventoryItem, 'id' | 'isAttuned'>
 
 /** 角色持有金錢 */
 export interface CharacterCurrency {
