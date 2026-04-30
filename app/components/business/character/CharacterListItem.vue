@@ -39,7 +39,7 @@
             :radius="4"
             size="sm"
           >
-            {{ character.race ? RACE_NAMES[character.race] : '-' }}
+            {{ character.race ?? '-' }}
           </Badge>
         </div>
 
@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { Badge, Icon } from '@ui'
-import { PROFESSION_CONFIG, RACE_NAMES } from '~/constants/dnd'
+import { PROFESSION_CONFIG } from '~/constants/dnd'
 import type { Character, CharacterTier } from '~/types/business/character'
 
 const props = defineProps<{

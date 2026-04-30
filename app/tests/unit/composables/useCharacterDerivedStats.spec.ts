@@ -11,6 +11,7 @@ function createFormState(
     name: '測試角色',
     gender: 'male',
     race: 'human',
+    subrace: null,
     alignment: 'trueNeutral',
     professions: [{ profession: 'fighter', level: 3 }],
     abilities: {

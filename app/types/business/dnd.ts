@@ -79,20 +79,6 @@ export type AlignmentKey =
   | 'neutralEvil'
   | 'chaoticEvil'
 
-// ─── Race ─────────────────────────────────────────────────────────────────────
-
-export type RaceKey =
-  | 'human'
-  | 'elf'
-  | 'dwarf'
-  | 'halfling'
-  | 'gnome'
-  | 'halfElf'
-  | 'halfOrc'
-  | 'tiefling'
-  | 'dragonborn'
-  | 'aasimar'
-
 // ─── Size ─────────────────────────────────────────────────────────────────────
 
 /** 體型：D&D 尺寸分類，從超微型到龐大型 */

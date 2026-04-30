@@ -24,6 +24,7 @@ function createDefaultFormState(): CharacterFormState {
     name: '',
     gender: null,
     race: null,
+    subrace: null,
     alignment: null,
     professions: [{ profession: null, level: 1 }],
     abilities: createDefaultAbilities(),

@@ -8,7 +8,6 @@ import type {
   ProfessionData,
   ProfessionKey,
   ProficiencyLevel,
-  RaceKey,
   SizeKey,
   SkillKey,
 } from '~/types/business/dnd'
@@ -116,21 +115,6 @@ export const ALIGNMENT_NAMES: Readonly<Record<AlignmentKey, string>> = {
   lawfulEvil: '守序邪惡',
   neutralEvil: '中立邪惡',
   chaoticEvil: '混亂邪惡',
-}
-
-// ─── Race ─────────────────────────────────────────────────────────────────────
-
-export const RACE_NAMES: Readonly<Record<RaceKey, string>> = {
-  human: '人類',
-  elf: '精靈',
-  dwarf: '矮人',
-  halfling: '半身人',
-  gnome: '地侏',
-  halfElf: '半精靈',
-  halfOrc: '半獸人',
-  tiefling: '提夫林',
-  dragonborn: '龍裔',
-  aasimar: '阿斯莫',
 }
 
 // ─── Size ─────────────────────────────────────────────────────────────────────
@@ -301,9 +285,6 @@ export const SKILL_KEYS: readonly SkillKey[] = Object.keys(SKILL_NAMES) as Skill
 export const PROFESSION_KEYS: readonly ProfessionKey[] = Object.keys(
   PROFESSION_CONFIG,
 ) as ProfessionKey[]
-
-/** 所有 RaceKey，用於迭代 */
-export const RACE_KEYS: readonly RaceKey[] = Object.keys(RACE_NAMES) as RaceKey[]
 
 /** 所有 AlignmentKey，用於迭代 */
 export const ALIGNMENT_KEYS: readonly AlignmentKey[] = Object.keys(
