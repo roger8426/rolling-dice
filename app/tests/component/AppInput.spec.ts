@@ -18,8 +18,8 @@ describe('AppInput', () => {
     expect(wrapper.props('borderColor')).toBe('#ff0000')
   })
 
-  it('modelValue attr passes through to the input value', () => {
-    const wrapper = mount(AppInput, { attrs: { modelValue: '火焰箭' } })
+  it('modelValue prop passes through to the input value', () => {
+    const wrapper = mount(AppInput, { props: { modelValue: '火焰箭' } })
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('火焰箭')
   })
 
@@ -33,17 +33,53 @@ describe('AppInput', () => {
     expect(wrapper.find('input').attributes('placeholder')).toBeUndefined()
   })
 
-  it('fires update:modelValue handler when input changes', async () => {
-    const handler = vi.fn()
-    const wrapper = mount(AppInput, {
-      attrs: { modelValue: '', 'onUpdate:modelValue': handler },
-    })
-    await wrapper.find('input').setValue('abc')
-    expect(handler).toHaveBeenCalledWith('abc')
-  })
-
   it('disabled attr passes through', () => {
     const wrapper = mount(AppInput, { attrs: { disabled: true } })
     expect(wrapper.find('input').element.disabled).toBe(true)
+  })
+
+  it('strips leading whitespace on input event', async () => {
+    const handler = vi.fn()
+    const wrapper = mount(AppInput, {
+      props: { modelValue: '', 'onUpdate:modelValue': handler },
+    })
+    await wrapper.find('input').setValue('   abc')
+    expect(handler).toHaveBeenLastCalledWith('abc')
+  })
+
+  it('preserves middle and trailing whitespace during typing', async () => {
+    const handler = vi.fn()
+    const wrapper = mount(AppInput, {
+      props: { modelValue: '', 'onUpdate:modelValue': handler },
+    })
+    await wrapper.find('input').setValue('John  Smith ')
+    expect(handler).toHaveBeenLastCalledWith('John  Smith ')
+  })
+
+  it('does not trim trailing whitespace on input', async () => {
+    const handler = vi.fn()
+    const wrapper = mount(AppInput, {
+      props: { modelValue: '', 'onUpdate:modelValue': handler },
+    })
+    await wrapper.find('input').setValue('John ')
+    expect(handler).toHaveBeenLastCalledWith('John ')
+  })
+
+  it('whitespace-only input collapses to empty string', async () => {
+    const handler = vi.fn()
+    const wrapper = mount(AppInput, {
+      props: { modelValue: '', 'onUpdate:modelValue': handler },
+    })
+    await wrapper.find('input').setValue('   ')
+    expect(handler).toHaveBeenLastCalledWith('')
+  })
+
+  it('trim=false passes raw value through on input', async () => {
+    const handler = vi.fn()
+    const wrapper = mount(AppInput, {
+      props: { modelValue: '', trim: false, 'onUpdate:modelValue': handler },
+    })
+    await wrapper.find('input').setValue('   abc   ')
+    expect(handler).toHaveBeenLastCalledWith('   abc   ')
   })
 })
