@@ -83,7 +83,7 @@
     </div>
 
     <!-- Body -->
-    <p v-if="filter.level === 'unselected'" class="py-8 text-center text-content-muted">
+    <p v-if="filter.level === 'none'" class="py-8 text-center text-content-muted">
       請先選擇環數以顯示法術列表
     </p>
     <p v-else-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
@@ -203,7 +203,7 @@ interface SpellFilter {
 
 const defaultFilter = (): SpellFilter => ({
   keyword: '',
-  level: 'unselected',
+  level: 'none',
   school: '',
   ritual: false,
   concentration: false,
@@ -230,7 +230,7 @@ const levelSelectValue = computed(() =>
 const hasActiveFilter = computed(
   () =>
     filter.keyword !== '' ||
-    filter.level !== 'unselected' ||
+    filter.level !== 'none' ||
     filter.school !== '' ||
     filter.ritual ||
     filter.concentration,
@@ -243,7 +243,7 @@ function resetFilter() {
 }
 
 const filteredSpells = computed<Spell[]>(() => {
-  if (filter.level === 'unselected') return []
+  if (filter.level === 'none') return []
 
   const keyword = filter.keyword.trim().toLowerCase()
   const level = filter.level === 'all' ? null : filter.level
