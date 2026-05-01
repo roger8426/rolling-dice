@@ -22,7 +22,7 @@
             {{ formatModifier(getAttackHit(attack, abilityScores, proficiencyBonus)) }}
           </span>
           <span class="mx-1.5">·</span>
-          傷害 {{ formatDamageSummary(attack) }}
+          傷害 {{ formatDamageSummary(attack, abilityScores) }}
         </p>
       </li>
     </ul>

@@ -9,14 +9,14 @@
         class="flex items-center justify-between rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
         <div>
-          <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
+          <p class="text-sm font-semibold text-content">{{ attack.name }}</p>
           <p class="mt-0.5 text-xs text-content-muted">
             命中
             <span class="font-bold" :class="hitBonusColor(attack)">
               {{ formatModifier(computedHit(attack)) }}
             </span>
             <span class="mx-1.5">·</span>
-            傷害 {{ formatDamageSummary(attack) }}
+            傷害 {{ formatDamageSummary(attack, abilityScores) }}
           </p>
         </div>
         <div class="flex shrink-0 gap-1">
@@ -109,7 +109,19 @@
 
       <!-- 第二列：傷害骰多行 entries -->
       <div class="space-y-2">
-        <span class="block text-xs text-content">傷害骰</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-content">傷害骰</span>
+          <label class="flex cursor-pointer items-center gap-2 text-xs text-content-muted">
+            套用屬性調整
+            <Toggle
+              :model-value="draft.applyAbilityToDamage"
+              size="sm"
+              color="var(--color-primary)"
+              aria-label="套用屬性調整到傷害"
+              @update:model-value="draft.applyAbilityToDamage = $event"
+            />
+          </label>
+        </div>
         <div
           v-for="(entry, index) in draft.damageDice"
           :key="entry.id"
@@ -184,7 +196,9 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-content-muted">傷害</span>
-          <span class="text-sm font-bold text-content">{{ formatDamageSummary(draft) }}</span>
+          <span class="text-sm font-bold text-content">{{
+            formatDamageSummary(draft, abilityScores)
+          }}</span>
         </div>
       </div>
     </div>
@@ -203,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { Modal, Button, Icon } from '@ui'
+import { Modal, Button, Icon, Toggle } from '@ui'
 import type { SelectOption } from '@ui'
 import type {
   TotalAbilityScores,
@@ -255,6 +269,7 @@ function createEmptyDraft(): AttackDraft {
     abilityKey: null,
     damageDice: [],
     extraHitBonus: null,
+    applyAbilityToDamage: true,
   }
 }
 
@@ -292,6 +307,7 @@ function openEdit(attack: AttackEntry) {
     abilityKey: attack.abilityKey,
     damageDice: attack.damageDice.map((entry) => ({ ...entry })),
     extraHitBonus: attack.extraHitBonus,
+    applyAbilityToDamage: attack.applyAbilityToDamage,
   }
   modalOpen.value = true
 }

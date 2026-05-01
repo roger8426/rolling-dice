@@ -21,6 +21,7 @@ describe('useCharacterAttacksForm', () => {
       abilityKey: null,
       damageDice: [],
       extraHitBonus: null,
+      applyAbilityToDamage: true,
     })
     expect(formState.attacks[0]!.id).toBeTypeOf('string')
   })
@@ -59,6 +60,7 @@ describe('useCharacterAttacksForm', () => {
       abilityKey: 'strength',
       damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
+      applyAbilityToDamage: true,
     })
     expect(formState.attacks[0]).toMatchObject({
       id,
@@ -66,6 +68,7 @@ describe('useCharacterAttacksForm', () => {
       abilityKey: 'strength',
       damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
+      applyAbilityToDamage: true,
     })
   })
 })

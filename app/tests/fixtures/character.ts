@@ -151,6 +151,7 @@ export function createAttackDraft(overrides: Partial<AttackDraft> = {}): AttackD
     abilityKey: null,
     damageDice: [],
     extraHitBonus: null,
+    applyAbilityToDamage: true,
     ...overrides,
   }
 }

@@ -301,6 +301,8 @@ export interface AttackEntry {
   damageDice: DamageDieEntry[]
   /** 額外命中加值（疊加於屬性調整值 + 熟練加值之上） */
   extraHitBonus: number | null
+  /** 是否將屬性調整值加入第一行傷害（預設 true；false 用於額外傷害類型不吃屬性 mod 的情境） */
+  applyAbilityToDamage: boolean
 }
 
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */
