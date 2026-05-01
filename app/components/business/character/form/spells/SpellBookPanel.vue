@@ -26,11 +26,13 @@
           <label :for="levelSelectId" class="mb-1 block text-xs text-content">環數</label>
           <CommonAppSelect
             :id="levelSelectId"
-            :model-value="levelSelectValue"
+            v-model="filter.level"
             :options="SPELL_LEVEL_OPTIONS"
+            multiple
+            multiple-display="count"
+            placeholder="-"
             size="sm"
-            class="w-24"
-            @update:model-value="filter.level = toSpellLevelFilter($event)"
+            class="w-32"
           />
         </div>
         <div>
@@ -83,10 +85,7 @@
     </div>
 
     <!-- Body -->
-    <p v-if="filter.level === 'none'" class="py-8 text-center text-content-muted">
-      請先選擇環數以顯示法術列表
-    </p>
-    <p v-else-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
+    <p v-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
       沒有符合條件的法術
     </p>
     <div v-else class="space-y-5">
@@ -171,12 +170,7 @@
 <script setup lang="ts">
 import { Accordion, AccordionItem, Badge, Button, Checkbox, Toggle } from '@ui'
 import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
-import {
-  SPELL_LEVEL_OPTIONS,
-  SPELL_SCHOOL_OPTIONS,
-  toSpellLevelFilter,
-  type SpellLevelFilter,
-} from '~/constants/spell-options'
+import { SPELL_LEVEL_OPTIONS, SPELL_SCHOOL_OPTIONS } from '~/constants/spell-options'
 import type { CharacterUpdateFormState } from '~/types/business/character'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
@@ -195,7 +189,7 @@ const schoolSelectId = useId()
 
 interface SpellFilter {
   keyword: string
-  level: SpellLevelFilter
+  level: number[]
   school: SpellSchool | ''
   ritual: boolean
   concentration: boolean
@@ -203,7 +197,7 @@ interface SpellFilter {
 
 const defaultFilter = (): SpellFilter => ({
   keyword: '',
-  level: 'none',
+  level: [],
   school: '',
   ritual: false,
   concentration: false,
@@ -223,14 +217,10 @@ function onKeywordInput(value: string) {
 
 onBeforeUnmount(() => commitKeyword.cancel())
 
-const levelSelectValue = computed(() =>
-  typeof filter.level === 'number' ? String(filter.level) : filter.level,
-)
-
 const hasActiveFilter = computed(
   () =>
     filter.keyword !== '' ||
-    filter.level !== 'none' ||
+    filter.level.length > 0 ||
     filter.school !== '' ||
     filter.ritual ||
     filter.concentration,
@@ -243,15 +233,13 @@ function resetFilter() {
 }
 
 const filteredSpells = computed<Spell[]>(() => {
-  if (filter.level === 'none') return []
-
   const keyword = filter.keyword.trim().toLowerCase()
-  const level = filter.level === 'all' ? null : filter.level
+  const levels = filter.level.length > 0 ? new Set(filter.level) : null
   const school = filter.school === '' ? null : filter.school
 
   return spells.value.filter((s) => {
     if (keyword && !s.name.toLowerCase().includes(keyword)) return false
-    if (level !== null && s.level !== level) return false
+    if (levels && !levels.has(s.level)) return false
     if (school && s.school !== school) return false
     if (filter.ritual && !s.ritual) return false
     if (filter.concentration && !s.concentration) return false
