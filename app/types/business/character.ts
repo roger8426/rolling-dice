@@ -21,6 +21,8 @@ export interface ProfessionEntry {
   profession: ProfessionKey
   /** 該職業等級（1–20） */
   level: number
+  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
+  subprofession: string | null
 }
 
 /** 表單用職業條目：允許尚未選擇職業的空值狀態 */
@@ -29,6 +31,8 @@ export interface FormProfessionEntry {
   profession: ProfessionKey | null
   /** 該職業等級（1–20） */
   level: number
+  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
+  subprofession: string | null
 }
 
 // ─── Abilities ────────────────────────────────────────────────────────────────

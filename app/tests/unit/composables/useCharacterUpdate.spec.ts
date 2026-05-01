@@ -89,7 +89,25 @@ describe('useCharacterUpdate — 初始狀態', () => {
   it('應正確映射 professions', async () => {
     const { formState } = await getComposable('update-001')
     expect(formState.professions).toHaveLength(1)
-    expect(formState.professions[0]).toEqual({ profession: 'fighter', level: 5 })
+    expect(formState.professions[0]).toEqual({
+      profession: 'fighter',
+      level: 5,
+      subprofession: null,
+    })
+  })
+
+  it('應正確映射 professions 上的 subprofession', async () => {
+    const character = createMockCharacter({
+      id: 'update-sub-001',
+      professions: [
+        { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+        { profession: 'wizard', level: 3, subprofession: null },
+      ],
+    })
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([character]))
+    const { formState } = await getComposable('update-sub-001')
+    expect(formState.professions[0]!.subprofession).toBe('戰鬥大師')
+    expect(formState.professions[1]!.subprofession).toBeNull()
   })
 
   it('應正確映射 skills', async () => {
@@ -113,7 +131,7 @@ describe('useCharacterUpdate — 初始狀態', () => {
 describe('useCharacterUpdate — 職業管理', () => {
   it('totalLevel 應正確計算所有職業等級總和', async () => {
     const { formState, derived } = await getComposable('update-001')
-    formState.professions.push({ profession: null, level: 3 })
+    formState.professions.push({ profession: null, level: 3, subprofession: null })
     expect(derived.totalLevel.value).toBe(8)
   })
 })

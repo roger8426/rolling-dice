@@ -12,7 +12,7 @@ const MOCK_FORM_STATE = createMockFormState({
   gender: 'female',
   race: 'elf',
   alignment: 'chaoticGood',
-  professions: [{ profession: 'wizard', level: 3 }],
+  professions: [{ profession: 'wizard', level: 3, subprofession: null }],
   abilities: {
     strength: { origin: 8, race: 0 },
     dexterity: { origin: 14, race: 0 },
@@ -89,7 +89,7 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後 professions 應正確儲存', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3 }])
+    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3, subprofession: null }])
   })
 
   it('新增後應同步寫入 localStorage', () => {
@@ -187,8 +187,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   subrace: null,
   alignment: 'chaoticGood',
   professions: [
-    { profession: 'wizard', level: 5 },
-    { profession: 'cleric', level: 3 },
+    { profession: 'wizard', level: 5, subprofession: null },
+    { profession: 'cleric', level: 3, subprofession: null },
   ],
   abilities: {
     strength: { origin: 15, race: 0, bonusScore: 2 },
@@ -246,8 +246,8 @@ describe('useCharacterStore — updateCharacter', () => {
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.professions).toEqual([
-      { profession: 'wizard', level: 5 },
-      { profession: 'cleric', level: 3 },
+      { profession: 'wizard', level: 5, subprofession: null },
+      { profession: 'cleric', level: 3, subprofession: null },
     ])
   })
 

@@ -83,7 +83,7 @@ describe('useCharacterBuild — 職業管理', () => {
   it('totalLevel 應正確計算所有職業等級總和', async () => {
     const { formState, totalLevel } = await getComposable()
     formState.professions[0]!.level = 5
-    formState.professions.push({ profession: null, level: 3 })
+    formState.professions.push({ profession: null, level: 3, subprofession: null })
     expect(totalLevel.value).toBe(8)
   })
 })

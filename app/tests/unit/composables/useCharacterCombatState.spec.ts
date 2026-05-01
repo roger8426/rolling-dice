@@ -238,13 +238,13 @@ describe('useCharacterCombatState — 休息 toast 通知', () => {
   it('longRest 有回復生命骰時應彈出含骰數的 success toast', () => {
     const { adjustHitDiceUsed, longRest } = useCharacterCombatState(CHAR_ID, ref(30))
     adjustHitDiceUsed('fighter', 5, 5)
-    longRest([{ profession: 'fighter', level: 5 }])
+    longRest([{ profession: 'fighter', level: 5, subprofession: null }])
     expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿並回復 2 個生命骰')
   })
 
   it('longRest 無生命骰可回復時應彈出精簡 toast', () => {
     const { longRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    longRest([{ profession: 'fighter', level: 5 }])
+    longRest([{ profession: 'fighter', level: 5, subprofession: null }])
     expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿')
   })
 })
@@ -299,9 +299,9 @@ describe('useCharacterCombatState — 生命骰', () => {
     adjustHitDiceUsed('rogue', 1, 1)
     // totalLevel 8 → pool 4；hitDie: fighter d10 > rogue d8 > wizard d6
     longRest([
-      { profession: 'fighter', level: 5 },
-      { profession: 'wizard', level: 2 },
-      { profession: 'rogue', level: 1 },
+      { profession: 'fighter', level: 5, subprofession: null },
+      { profession: 'wizard', level: 2, subprofession: null },
+      { profession: 'rogue', level: 1, subprofession: null },
     ])
     expect(getHitDiceUsed('fighter')).toBe(1)
     expect(getHitDiceUsed('rogue')).toBe(1)
@@ -317,8 +317,8 @@ describe('useCharacterCombatState — 生命骰', () => {
     adjustHitDiceUsed('wizard', 4, 4)
     // totalLevel 8 → pool 4；fighter 用完 2 後池剩 2 接著回 wizard 2 顆
     longRest([
-      { profession: 'fighter', level: 4 },
-      { profession: 'wizard', level: 4 },
+      { profession: 'fighter', level: 4, subprofession: null },
+      { profession: 'wizard', level: 4, subprofession: null },
     ])
     expect(getHitDiceUsed('fighter')).toBe(0)
     expect(getHitDiceUsed('wizard')).toBe(2)
@@ -330,13 +330,13 @@ describe('useCharacterCombatState — 生命骰', () => {
       ref(30),
     )
     adjustHitDiceUsed('fighter', 1, 1)
-    longRest([{ profession: 'fighter', level: 1 }])
+    longRest([{ profession: 'fighter', level: 1, subprofession: null }])
     expect(getHitDiceUsed('fighter')).toBe(0)
   })
 
   it('longRest 對未使用的職業不增條目', () => {
     const { longRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
-    longRest([{ profession: 'fighter', level: 5 }])
+    longRest([{ profession: 'fighter', level: 5, subprofession: null }])
     expect(state.hitDiceUsed).toEqual({})
   })
 

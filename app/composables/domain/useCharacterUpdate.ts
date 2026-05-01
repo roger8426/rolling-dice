@@ -15,7 +15,11 @@ function characterToFormState(character: Character): CharacterUpdateFormState {
     race: character.race,
     subrace: character.subrace,
     alignment: character.alignment,
-    professions: character.professions.map((p) => ({ profession: p.profession, level: p.level })),
+    professions: character.professions.map((p) => ({
+      profession: p.profession,
+      level: p.level,
+      subprofession: p.subprofession,
+    })),
     abilities: Object.fromEntries(
       ABILITY_KEYS.map((key) => [
         key,
@@ -68,7 +72,7 @@ function createEmptyUpdateFormState(): CharacterUpdateFormState {
     race: null,
     subrace: null,
     alignment: null,
-    professions: [{ profession: null, level: 1 }],
+    professions: [{ profession: null, level: 1, subprofession: null }],
     abilities: Object.fromEntries(
       ABILITY_KEYS.map((key) => [key, { origin: POINT_BUY_DEFAULT_SCORE, race: 0, bonusScore: 0 }]),
     ) as CharacterUpdateFormState['abilities'],

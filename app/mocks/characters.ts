@@ -10,8 +10,8 @@ export const MOCK_CHARACTERS: Character[] = [
     subrace: '丘陵矮人',
     alignment: 'lawfulNeutral',
     professions: [
-      { profession: 'monk', level: 3 },
-      { profession: 'fighter', level: 2 },
+      { profession: 'monk', level: 3, subprofession: null },
+      { profession: 'fighter', level: 2, subprofession: null },
     ],
     abilities: {
       strength: { origin: 14, race: 0, bonusScore: 0 },
@@ -59,7 +59,7 @@ export const MOCK_CHARACTERS: Character[] = [
     race: '精靈',
     subrace: '高等精靈',
     alignment: 'chaoticGood',
-    professions: [{ profession: 'wizard', level: 3 }],
+    professions: [{ profession: 'wizard', level: 3, subprofession: null }],
     abilities: {
       strength: { origin: 8, race: 0, bonusScore: 0 },
       dexterity: { origin: 14, race: 0, bonusScore: 0 },
@@ -106,7 +106,7 @@ export const MOCK_CHARACTERS: Character[] = [
     race: '提夫林',
     subrace: null,
     alignment: 'chaoticNeutral',
-    professions: [{ profession: 'rogue', level: 7 }],
+    professions: [{ profession: 'rogue', level: 7, subprofession: null }],
     abilities: {
       strength: { origin: 10, race: 0, bonusScore: 0 },
       dexterity: { origin: 18, race: 0, bonusScore: 0 },
@@ -159,8 +159,8 @@ export const MOCK_CHARACTERS: Character[] = [
     subrace: null,
     alignment: 'neutralGood',
     professions: [
-      { profession: 'sorcerer', level: 10 },
-      { profession: 'warlock', level: 3 },
+      { profession: 'sorcerer', level: 10, subprofession: null },
+      { profession: 'warlock', level: 3, subprofession: null },
     ],
     abilities: {
       strength: { origin: 8, race: 0, bonusScore: 0 },
@@ -209,8 +209,8 @@ export const MOCK_CHARACTERS: Character[] = [
     subrace: null,
     alignment: 'lawfulGood',
     professions: [
-      { profession: 'paladin', level: 14 },
-      { profession: 'cleric', level: 4 },
+      { profession: 'paladin', level: 14, subprofession: null },
+      { profession: 'cleric', level: 4, subprofession: null },
     ],
     abilities: {
       strength: { origin: 18, race: 0, bonusScore: 0 },
@@ -264,9 +264,9 @@ export const MOCK_CHARACTERS: Character[] = [
     subrace: '金龍裔',
     alignment: 'chaoticGood',
     professions: [
-      { profession: 'barbarian', level: 12 },
-      { profession: 'fighter', level: 5 },
-      { profession: 'ranger', level: 3 },
+      { profession: 'barbarian', level: 12, subprofession: null },
+      { profession: 'fighter', level: 5, subprofession: null },
+      { profession: 'ranger', level: 3, subprofession: null },
     ],
     abilities: {
       strength: { origin: 20, race: 0, bonusScore: 0 },
