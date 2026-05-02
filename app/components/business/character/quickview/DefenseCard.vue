@@ -120,7 +120,7 @@ const initiativeColor = computed(() => {
   return 'text-content-muted'
 })
 
-function adjustmentColor(value: number): string {
+const adjustmentColor = (value: number): string => {
   if (value > 0) return 'text-success'
   if (value < 0) return 'text-danger'
   return 'text-content-muted'

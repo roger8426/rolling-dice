@@ -63,7 +63,7 @@ const rows = computed(() =>
   }),
 )
 
-function onToggle(key: AbilityKey, checked: boolean): void {
+const onToggle = (key: AbilityKey, checked: boolean): void => {
   if (lockedKeys.value.has(key)) return
   const next = new Set(formState.value.savingThrowExtras)
   if (checked) next.add(key)
@@ -71,7 +71,7 @@ function onToggle(key: AbilityKey, checked: boolean): void {
   formState.value.savingThrowExtras = Array.from(next)
 }
 
-function modifierTextColor(value: number): string {
+const modifierTextColor = (value: number): string => {
   if (value > 0) return 'text-success'
   if (value < 0) return 'text-danger'
   return 'text-content-muted'

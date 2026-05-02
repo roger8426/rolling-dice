@@ -45,13 +45,13 @@ const skillList = computed(() => {
   })
 })
 
-function dotClass(level: ProficiencyLevel): string {
+const dotClass = (level: ProficiencyLevel): string => {
   if (level === 'expertise') return 'bg-primary'
   if (level === 'proficient') return 'bg-content-soft'
   return props.isJackOfAllTrades ? 'bg-success' : 'bg-border-soft'
 }
 
-function modifierColor(value: number): string {
+const modifierColor = (value: number): string => {
   if (value > 0) return 'text-success'
   if (value < 0) return 'text-danger'
   return 'text-content-muted'

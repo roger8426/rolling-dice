@@ -140,7 +140,7 @@ const coverSrc = computed(() =>
     : PROFESSION_IMAGES[props.character.professions[0]!.profession],
 )
 
-function onCoverError() {
+const onCoverError = () => {
   coverError.value = true
 }
 </script>

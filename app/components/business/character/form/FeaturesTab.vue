@@ -220,7 +220,7 @@ const { addFeature, removeFeature, updateFeature } = useCharacterFeaturesForm(fo
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): FeatureDraft {
+const createEmptyDraft = (): FeatureDraft => {
   return {
     name: '',
     description: null,
@@ -238,13 +238,13 @@ watch(modalOpen, (open) => {
   }
 })
 
-function openCreate(): void {
+const openCreate = (): void => {
   editingId.value = null
   draft.value = createEmptyDraft()
   modalOpen.value = true
 }
 
-function openEdit(feature: CharacterFeature): void {
+const openEdit = (feature: CharacterFeature): void => {
   editingId.value = feature.id
   draft.value = {
     name: feature.name,
@@ -255,23 +255,23 @@ function openEdit(feature: CharacterFeature): void {
   modalOpen.value = true
 }
 
-function onToggleHasUses(checked: boolean): void {
+const onToggleHasUses = (checked: boolean): void => {
   draft.value.usage = checked
     ? { hasUses: true, max: 1, recovery: 'shortRest' }
     : { hasUses: false }
 }
 
-function onUpdateMax(value: string): void {
+const onUpdateMax = (value: string): void => {
   if (!draft.value.usage.hasUses) return
   draft.value.usage.max = Math.max(1, parseIntegerInput(value, 1))
 }
 
-function onUpdateRecovery(value: FeatureUsageRecovery): void {
+const onUpdateRecovery = (value: FeatureUsageRecovery): void => {
   if (!draft.value.usage.hasUses) return
   draft.value.usage.recovery = value
 }
 
-function save(): void {
+const save = (): void => {
   const payload: FeatureDraft = {
     name: draft.value.name.trim(),
     description: draft.value.description,

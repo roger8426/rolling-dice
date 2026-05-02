@@ -131,7 +131,7 @@ const CURRENCY_LABELS: Record<keyof CharacterCurrency, string> = {
   pp: '鉑金',
 }
 
-function todayISO(): string {
+const todayISO = (): string => {
   const now = new Date()
   const yyyy = now.getFullYear()
   const mm = String(now.getMonth() + 1).padStart(2, '0')
@@ -139,7 +139,7 @@ function todayISO(): string {
   return `${yyyy}-${mm}-${dd}`
 }
 
-function emptyDraft(): AdventureEntryDraft {
+const emptyDraft = (): AdventureEntryDraft => {
   return {
     name: '',
     date: todayISO(),
@@ -149,7 +149,7 @@ function emptyDraft(): AdventureEntryDraft {
   }
 }
 
-function sanitizeNumber(value: string): number {
+const sanitizeNumber = (value: string): number => {
   const parsed = Math.floor(Number(value) || 0)
   return Math.max(0, parsed)
 }
@@ -173,7 +173,7 @@ watch(
   },
 )
 
-function onSave(): void {
+const onSave = (): void => {
   const payload: AdventureEntryDraft = {
     ...draft.value,
     name: draft.value.name.trim(),

@@ -194,12 +194,12 @@ const diceCells = computed<Record<AbilityKey, DiceCell>>(() => {
   return Object.fromEntries(entries) as Record<AbilityKey, DiceCell>
 })
 
-function onAssign(key: AbilityKey, value: string | number | null): void {
+const onAssign = (key: AbilityKey, value: string | number | null): void => {
   const slotId = value === '' || value === null ? null : String(value)
   emit('assign:dice', key, slotId)
 }
 
-function adjustAbility(key: AbilityKey, delta: number): void {
+const adjustAbility = (key: AbilityKey, delta: number): void => {
   const current = props.abilities[key].origin
   const next = Math.max(CUSTOM_ABILITY_MIN, Math.min(CUSTOM_ABILITY_MAX, current + delta))
   if (next === current) return

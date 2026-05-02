@@ -31,7 +31,7 @@ const { pending, error, refresh } = useSpells()
 
 const spellBookRef = ref<{ focusSpell: (id: string) => Promise<void> } | null>(null)
 
-function onSelectLearned(id: string): void {
+const onSelectLearned = (id: string): void => {
   spellBookRef.value?.focusSpell(id)
 }
 </script>

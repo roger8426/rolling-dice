@@ -28,7 +28,7 @@ import type { AbilityKey } from '~/types/business/dnd'
 
 const formState = defineModel<CharacterFormState>('formState', { required: true })
 
-function onUpdate(key: AbilityKey, raw: string): void {
+const onUpdate = (key: AbilityKey, raw: string): void => {
   const num = Math.trunc(Number(raw))
   formState.value.abilities[key].race = Number.isFinite(num) ? num : 0
 }

@@ -30,7 +30,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-function onInput(value: string) {
+const onInput = (value: string) => {
   if (!props.trim) {
     emit('update:modelValue', value)
     return

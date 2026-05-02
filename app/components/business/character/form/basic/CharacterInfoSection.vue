@@ -277,25 +277,25 @@ const isButtonDisabled = computed(() => {
   return professionsOver || hasUnselected
 })
 
-function addProfession(): void {
+const addProfession = (): void => {
   formState.value.professions.push({ profession: null, level: 1, subprofession: null })
 }
 
-function removeProfession(index: number): void {
+const removeProfession = (index: number): void => {
   if (formState.value.professions.length <= 1) return
   formState.value.professions.splice(index, 1)
 }
 
-function updateProfessionKey(index: number, value: string): void {
+const updateProfessionKey = (index: number, value: string): void => {
   formState.value.professions[index]!.profession = value as ProfessionKey
 }
 
-function updateProfessionLevel(index: number, value: string): void {
+const updateProfessionLevel = (index: number, value: string): void => {
   const level = parseIntegerInput(value, 1)
   formState.value.professions[index]!.level = Math.max(1, Math.min(20, level))
 }
 
-function updateProfessionSubprofession(index: number, value: string): void {
+const updateProfessionSubprofession = (index: number, value: string): void => {
   const trimmed = value.trim()
   formState.value.professions[index]!.subprofession = trimmed || null
 }

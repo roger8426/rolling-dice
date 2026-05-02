@@ -263,7 +263,7 @@ const damageTypeOptions: SelectOption[] = [
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): AttackDraft {
+const createEmptyDraft = (): AttackDraft => {
   return {
     name: '',
     abilityKey: null,
@@ -273,15 +273,15 @@ function createEmptyDraft(): AttackDraft {
   }
 }
 
-function createDamageEntry(): DamageDieEntry {
+const createDamageEntry = (): DamageDieEntry => {
   return { id: crypto.randomUUID(), dieType: null, count: 0, bonus: null, damageType: null }
 }
 
-function addDamageEntry(): void {
+const addDamageEntry = (): void => {
   draft.value.damageDice.push(createDamageEntry())
 }
 
-function removeDamageEntry(index: number): void {
+const removeDamageEntry = (index: number): void => {
   draft.value.damageDice.splice(index, 1)
 }
 
@@ -294,13 +294,13 @@ watch(modalOpen, (open) => {
   }
 })
 
-function openCreate() {
+const openCreate = () => {
   editingId.value = null
   draft.value = createEmptyDraft()
   modalOpen.value = true
 }
 
-function openEdit(attack: AttackEntry) {
+const openEdit = (attack: AttackEntry) => {
   editingId.value = attack.id
   draft.value = {
     name: attack.name,
@@ -312,7 +312,7 @@ function openEdit(attack: AttackEntry) {
   modalOpen.value = true
 }
 
-function saveAttack() {
+const saveAttack = () => {
   const entry: AttackDraft = {
     ...draft.value,
     damageDice: draft.value.damageDice.map((e) => ({ ...e })),
@@ -332,11 +332,11 @@ const draftHit = computed(() =>
 )
 const draftHitColor = computed(() => getHitBonusColorClass(draftHit.value))
 
-function computedHit(attack: AttackEntry): number {
+const computedHit = (attack: AttackEntry): number => {
   return getAttackHit(attack, props.abilityScores, props.proficiencyBonus)
 }
 
-function hitBonusColor(attack: AttackEntry): string {
+const hitBonusColor = (attack: AttackEntry): string => {
   return getHitBonusColorClass(computedHit(attack))
 }
 </script>

@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<PageHeaderProps>(), {
 
 const route = useRoute()
 
-function handleBack() {
+const handleBack = () => {
   if (props.backTo) {
     navigateTo(props.backTo)
     return

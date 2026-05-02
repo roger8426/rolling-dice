@@ -109,14 +109,14 @@ const {
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
 
-function onShortRest(): void {
+const onShortRest = (): void => {
   const ids = props.character.features
     .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
     .map((f) => f.id)
   shortRest(ids)
 }
 
-function onLongRest(): void {
+const onLongRest = (): void => {
   longRest(props.character.professions)
 }
 </script>

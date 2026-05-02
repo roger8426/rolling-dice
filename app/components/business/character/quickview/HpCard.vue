@@ -121,19 +121,19 @@ const currentHpColor = computed(() => {
   return 'text-content'
 })
 
-function adjustmentColor(value: number): string {
+const adjustmentColor = (value: number): string => {
   if (value > 0) return 'text-success'
   if (value < 0) return 'text-danger'
   return 'text-content-muted'
 }
 
-function onDamage(): void {
+const onDamage = (): void => {
   if (amount.value <= 0) return
   emit('damage', amount.value)
   amount.value = 0
 }
 
-function onHeal(): void {
+const onHeal = (): void => {
   if (amount.value <= 0) return
   emit('heal', amount.value)
   amount.value = 0

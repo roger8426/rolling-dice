@@ -216,7 +216,7 @@ const commitKeyword = debounce((value: string) => {
   filter.keyword = value
 }, 250)
 
-function onKeywordInput(value: string) {
+const onKeywordInput = (value: string) => {
   keywordInput.value = value
   commitKeyword(value)
 }
@@ -232,7 +232,7 @@ const hasActiveFilter = computed(
     filter.concentration,
 )
 
-function resetFilter() {
+const resetFilter = () => {
   Object.assign(filter, defaultFilter())
   keywordInput.value = ''
   commitKeyword.cancel()
@@ -255,13 +255,13 @@ const filteredSpells = computed<Spell[]>(() => {
 
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
-function isLearned(id: string): boolean {
+const isLearned = (id: string): boolean => {
   return formState.value.learnedSpells.includes(id)
 }
 
 const itemEls = new Map<string, HTMLElement>()
 
-function registerItemEl(id: string, el: unknown): void {
+const registerItemEl = (id: string, el: unknown): void => {
   if (el && typeof el === 'object' && '$el' in el && el.$el instanceof HTMLElement) {
     itemEls.set(id, el.$el)
   } else {
@@ -269,7 +269,7 @@ function registerItemEl(id: string, el: unknown): void {
   }
 }
 
-async function focusSpell(id: string): Promise<void> {
+const focusSpell = async (id: string): Promise<void> => {
   Object.assign(filter, defaultFilter())
   keywordInput.value = ''
   commitKeyword.cancel()

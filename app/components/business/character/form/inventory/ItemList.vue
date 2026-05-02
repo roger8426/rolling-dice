@@ -252,16 +252,16 @@ const totalWeight = computed(() => calculateItemsWeight(props.items))
 const isDragOver = ref(false)
 const dragEnterCount = ref(0)
 
-function onDragStart(event: DragEvent, id: string): void {
+const onDragStart = (event: DragEvent, id: string): void => {
   event.dataTransfer?.setData('application/json', JSON.stringify({ id, section: props.section }))
 }
 
-function onDragEnter(): void {
+const onDragEnter = (): void => {
   dragEnterCount.value++
   isDragOver.value = true
 }
 
-function onDragLeave(): void {
+const onDragLeave = (): void => {
   dragEnterCount.value--
   if (dragEnterCount.value <= 0) {
     dragEnterCount.value = 0
@@ -269,7 +269,7 @@ function onDragLeave(): void {
   }
 }
 
-function onDrop(event: DragEvent): void {
+const onDrop = (event: DragEvent): void => {
   dragEnterCount.value = 0
   isDragOver.value = false
   const raw = event.dataTransfer?.getData('application/json')
@@ -296,7 +296,7 @@ const typeOptions: SelectOption[] = (Object.entries(ITEM_TYPE_LABELS) as [ItemTy
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): InventoryItemDraft {
+const createEmptyDraft = (): InventoryItemDraft => {
   return {
     name: '',
     description: null,
@@ -316,20 +316,20 @@ watch(modalOpen, (open) => {
   }
 })
 
-function openCreate(): void {
+const openCreate = (): void => {
   editingId.value = null
   draft.value = createEmptyDraft()
   modalOpen.value = true
 }
 
-function openEdit(item: InventoryItem): void {
+const openEdit = (item: InventoryItem): void => {
   editingId.value = item.id
   const { id: _id, isAttuned: _isAttuned, ...rest } = item
   draft.value = rest
   modalOpen.value = true
 }
 
-function save(): void {
+const save = (): void => {
   const payload: InventoryItemDraft = {
     ...draft.value,
     name: draft.value.name.trim(),

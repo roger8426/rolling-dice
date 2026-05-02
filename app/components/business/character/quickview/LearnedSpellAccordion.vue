@@ -124,11 +124,11 @@ const learnedSpellDetails = computed(() => {
 const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value.found))
 const missingNames = computed(() => learnedSpellDetails.value.missing)
 
-function isPrepared(id: string): boolean {
+const isPrepared = (id: string): boolean => {
   return props.character.preparedSpells.includes(id)
 }
 
-function onTogglePrepared(spell: Spell): void {
+const onTogglePrepared = (spell: Spell): void => {
   if (spell.level === 0) return
   const latest = characterStore.getById(props.character.id)
   if (!latest) return

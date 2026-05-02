@@ -40,7 +40,7 @@ const emit = defineEmits<{
 
 const attunedCount = computed(() => props.attunedItems.length)
 
-function optionsForSlot(slotIndex: number): SelectItem[] {
+const optionsForSlot = (slotIndex: number): SelectItem[] => {
   const occupiedByOthers = new Set(
     props.attunedItems
       .map((item, idx) => (idx === slotIndex ? null : item.id))
@@ -62,7 +62,7 @@ function optionsForSlot(slotIndex: number): SelectItem[] {
   return result
 }
 
-function onChange(slotIndex: number, value: string | number | null): void {
+const onChange = (slotIndex: number, value: string | number | null): void => {
   if (value === null || value === 'none') {
     emit('update', slotIndex, null)
     return
