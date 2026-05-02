@@ -4,10 +4,7 @@
       特性
     </h3>
 
-    <p
-      v-if="features.length === 0"
-      class="rounded-lg border border-dashed border-border-soft bg-surface px-3 py-6 text-center text-xs text-content-muted"
-    >
+    <p v-if="features.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未設定任何特性
     </p>
 

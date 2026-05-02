@@ -52,17 +52,19 @@
       />
     </div>
 
-    <BusinessCharacterQuickviewFeatureList
-      :features="character.features"
-      :feature-uses="state.featureUses"
-      @adjust="adjustFeatureUse"
-    />
+    <div class="grid items-start gap-4 md:grid-cols-2">
+      <BusinessCharacterQuickviewFeatureList
+        :features="character.features"
+        :feature-uses="state.featureUses"
+        @adjust="adjustFeatureUse"
+      />
 
-    <BusinessCharacterQuickviewAttackList
-      :attacks="character.attacks"
-      :ability-scores="totalAbilityScores"
-      :proficiency-bonus="proficiencyBonus"
-    />
+      <BusinessCharacterQuickviewAttackList
+        :attacks="character.attacks"
+        :ability-scores="totalAbilityScores"
+        :proficiency-bonus="proficiencyBonus"
+      />
+    </div>
   </div>
 </template>
 
