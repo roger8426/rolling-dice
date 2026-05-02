@@ -18,5 +18,15 @@ export function useCharacterFeaturesForm(formState: CharacterUpdateFormState) {
     }
   }
 
-  return { addFeature, removeFeature, updateFeature }
+  function moveFeature(fromIndex: number, toIndex: number): void {
+    const length = formState.features.length
+    if (fromIndex === toIndex) return
+    if (fromIndex < 0 || fromIndex >= length) return
+    if (toIndex < 0 || toIndex >= length) return
+    const [moved] = formState.features.splice(fromIndex, 1)
+    if (!moved) return
+    formState.features.splice(toIndex, 0, moved)
+  }
+
+  return { addFeature, removeFeature, updateFeature, moveFeature }
 }
