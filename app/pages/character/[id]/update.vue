@@ -81,7 +81,11 @@
           <template #label>
             <span class="text-content">法術書</span>
           </template>
-          <BusinessCharacterFormSpellsTab v-model:form-state="formState" />
+          <BusinessCharacterFormSpellsTab
+            v-model:form-state="formState"
+            :proficiency-bonus="proficiencyBonus"
+            :ability-scores="totalAbilityScores"
+          />
         </Tab>
       </Tabs>
     </template>

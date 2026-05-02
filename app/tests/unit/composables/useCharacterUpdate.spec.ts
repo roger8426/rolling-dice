@@ -125,9 +125,20 @@ describe('useCharacterUpdate — 初始狀態', () => {
     expect(formState.spellcastingAbilities).toEqual(['intelligence', 'charisma'])
   })
 
+  it('應正確映射 customSpellcastingBonuses', async () => {
+    const character = createMockCharacter({
+      id: 'update-spell-002',
+      customSpellcastingBonuses: { intelligence: 2 },
+    })
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([character]))
+    const { formState } = await getComposable('update-spell-002')
+    expect(formState.customSpellcastingBonuses).toEqual({ intelligence: 2 })
+  })
+
   it('找不到角色時 formState.spellcastingAbilities 應為空陣列', async () => {
     const { formState } = await getComposable('non-existent')
     expect(formState.spellcastingAbilities).toEqual([])
+    expect(formState.customSpellcastingBonuses).toEqual({})
   })
 
   it('activeTab 初始值應為 "basic"', async () => {

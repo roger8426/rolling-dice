@@ -16,6 +16,12 @@
         <BusinessCharacterFormSpellsSpellcastingAbilitySelect
           v-model:abilities="formState.spellcastingAbilities"
         />
+        <BusinessCharacterFormSpellsSpellcastingModifiersList
+          v-model:custom-bonuses="formState.customSpellcastingBonuses"
+          :selected-abilities="formState.spellcastingAbilities"
+          :proficiency-bonus="proficiencyBonus"
+          :ability-scores="abilityScores"
+        />
         <BusinessCharacterFormSpellsLearnedSpellList
           :learned-spell-ids="formState.learnedSpells"
           @select="onSelectLearned"
@@ -27,9 +33,14 @@
 
 <script setup lang="ts">
 import { Button } from '@ui'
-import type { CharacterUpdateFormState } from '~/types/business/character'
+import type { CharacterUpdateFormState, TotalAbilityScores } from '~/types/business/character'
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
+
+defineProps<{
+  proficiencyBonus: number
+  abilityScores: TotalAbilityScores
+}>()
 
 const { pending, error, refresh } = useSpells()
 
