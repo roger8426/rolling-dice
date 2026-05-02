@@ -175,6 +175,18 @@
             @update:model-value="updateProfessionKey(index, $event as string)"
           />
         </div>
+        <div class="min-w-16 flex-1">
+          <label :for="`prof-sub-${index}`" class="mb-1 block text-xs text-content"> 子職業 </label>
+          <CommonAppInput
+            :id="`prof-sub-${index}`"
+            class="w-full"
+            :radius="0"
+            :model-value="entry.subprofession ?? ''"
+            size="sm"
+            outline
+            @update:model-value="updateProfessionSubprofession(index, $event)"
+          />
+        </div>
         <div class="max-w-12">
           <label :for="`prof-level-${index}`" class="mb-1 block text-xs text-content"> 等級 </label>
           <CommonAppInput
@@ -265,21 +277,26 @@ const isButtonDisabled = computed(() => {
   return professionsOver || hasUnselected
 })
 
-function addProfession(): void {
-  formState.value.professions.push({ profession: null, level: 1 })
+const addProfession = (): void => {
+  formState.value.professions.push({ profession: null, level: 1, subprofession: null })
 }
 
-function removeProfession(index: number): void {
+const removeProfession = (index: number): void => {
   if (formState.value.professions.length <= 1) return
   formState.value.professions.splice(index, 1)
 }
 
-function updateProfessionKey(index: number, value: string): void {
+const updateProfessionKey = (index: number, value: string): void => {
   formState.value.professions[index]!.profession = value as ProfessionKey
 }
 
-function updateProfessionLevel(index: number, value: string): void {
+const updateProfessionLevel = (index: number, value: string): void => {
   const level = parseIntegerInput(value, 1)
   formState.value.professions[index]!.level = Math.max(1, Math.min(20, level))
+}
+
+const updateProfessionSubprofession = (index: number, value: string): void => {
+  const trimmed = value.trim()
+  formState.value.professions[index]!.subprofession = trimmed || null
 }
 </script>

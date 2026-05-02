@@ -42,6 +42,8 @@
         :proficiency-bonus="proficiencyBonus"
         :proficiencies="savingThrowProficiencies"
         :adjustments="state.savingThrowAdjustments"
+        :spellcasting-abilities="character.spellcastingAbilities"
+        :custom-spellcasting-bonuses="character.customSpellcastingBonuses"
         @adjust="adjustSavingThrow"
       />
       <BusinessCharacterQuickviewSkillList
@@ -52,38 +54,17 @@
       />
     </div>
 
-    <BusinessCharacterQuickviewFeatureList
-      :features="character.features"
-      :feature-uses="state.featureUses"
-      @adjust="adjustFeatureUse"
-    />
+    <div class="grid items-start gap-4 md:grid-cols-2">
+      <BusinessCharacterQuickviewFeatureList
+        :features="character.features"
+        :feature-uses="state.featureUses"
+        @adjust="adjustFeatureUse"
+      />
 
-    <div class="grid gap-4 md:grid-cols-2">
       <BusinessCharacterQuickviewAttackList
         :attacks="character.attacks"
         :ability-scores="totalAbilityScores"
         :proficiency-bonus="proficiencyBonus"
-      />
-      <section v-if="spellsPending" aria-labelledby="quickview-spells-label">
-        <h3 id="quickview-spells-label" class="mb-2 font-display text-sm font-bold text-content">
-          準備法術
-        </h3>
-        <p class="py-12 text-center text-content-muted">法術資料載入中…</p>
-      </section>
-      <section v-else-if="spellsError" aria-labelledby="quickview-spells-label">
-        <h3 id="quickview-spells-label" class="mb-2 font-display text-sm font-bold text-content">
-          準備法術
-        </h3>
-        <div class="flex flex-col items-center gap-3 py-12 text-center">
-          <p class="text-danger">法術資料載入失敗</p>
-          <Button size="sm" bg-color="var(--color-warning)" :radius="4" @click="refreshSpells()">
-            重試
-          </Button>
-        </div>
-      </section>
-      <BusinessCharacterQuickviewPreparedSpellList
-        v-else
-        :prepared-spells="character.preparedSpells"
       />
     </div>
   </div>
@@ -130,16 +111,14 @@ const {
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
 
-const { pending: spellsPending, error: spellsError, refresh: refreshSpells } = useSpells()
-
-function onShortRest(): void {
+const onShortRest = (): void => {
   const ids = props.character.features
     .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
     .map((f) => f.id)
   shortRest(ids)
 }
 
-function onLongRest(): void {
+const onLongRest = (): void => {
   longRest(props.character.professions)
 }
 </script>

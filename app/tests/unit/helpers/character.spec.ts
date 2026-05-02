@@ -10,6 +10,7 @@ import {
   formStateToCharacterPatch,
   getBaseArmorClass,
   getCharacterTier,
+  getSpellSaveDc,
   getTotalArmorClass,
 } from '~/helpers/character'
 import type {
@@ -180,17 +181,16 @@ describe('createDefaultArmorClass', () => {
 
 describe('calculateSavingThrowProficiencies', () => {
   it('主職業為 fighter 時，回傳 strength + constitution', () => {
-    expect(calculateSavingThrowProficiencies([{ profession: 'fighter', level: 3 }])).toEqual([
-      'strength',
-      'constitution',
-    ])
+    expect(
+      calculateSavingThrowProficiencies([{ profession: 'fighter', level: 3, subprofession: null }]),
+    ).toEqual(['strength', 'constitution'])
   })
 
   it('多職業時，以第一個職業為主職業決定豁免熟練', () => {
     expect(
       calculateSavingThrowProficiencies([
-        { profession: 'wizard', level: 5 },
-        { profession: 'fighter', level: 3 },
+        { profession: 'wizard', level: 5, subprofession: null },
+        { profession: 'fighter', level: 3, subprofession: null },
       ]),
     ).toEqual(['intelligence', 'wisdom'])
   })
@@ -200,13 +200,14 @@ describe('calculateSavingThrowProficiencies', () => {
   })
 
   it('回傳陣列為新的陣列（不與 PROFESSION_CONFIG 共享參照）', () => {
-    const result = calculateSavingThrowProficiencies([{ profession: 'wizard', level: 1 }])
+    const result = calculateSavingThrowProficiencies([
+      { profession: 'wizard', level: 1, subprofession: null },
+    ])
     result.push('charisma')
     // 第二次呼叫仍為原始結果，代表回傳陣列是獨立副本
-    expect(calculateSavingThrowProficiencies([{ profession: 'wizard', level: 1 }])).toEqual([
-      'intelligence',
-      'wisdom',
-    ])
+    expect(
+      calculateSavingThrowProficiencies([{ profession: 'wizard', level: 1, subprofession: null }]),
+    ).toEqual(['intelligence', 'wisdom'])
   })
 })
 
@@ -220,7 +221,7 @@ describe('formStateToCharacterPatch', () => {
       race: 'human',
       subrace: null,
       alignment: 'trueNeutral',
-      professions: [{ profession: 'fighter', level: 3 }],
+      professions: [{ profession: 'fighter', level: 3, subprofession: null }],
       skills: {},
       background: null,
       isJackOfAllTrades: false,
@@ -242,13 +243,13 @@ describe('formStateToCharacterPatch', () => {
   it('基本 happy path：欄位原樣帶入，professions 不變', () => {
     const form = createBaseFormState({
       name: '法師小明',
-      professions: [{ profession: 'wizard', level: 5 }],
+      professions: [{ profession: 'wizard', level: 5, subprofession: null }],
       faith: '無神論',
       age: 25,
     })
     const patch = formStateToCharacterPatch(form)
     expect(patch.name).toBe('法師小明')
-    expect(patch.professions).toEqual([{ profession: 'wizard', level: 5 }])
+    expect(patch.professions).toEqual([{ profession: 'wizard', level: 5, subprofession: null }])
     expect(patch.faith).toBe('無神論')
     expect(patch.age).toBe(25)
   })
@@ -262,23 +263,37 @@ describe('formStateToCharacterPatch', () => {
   it('professions 含 null 條目時應過濾掉 null', () => {
     const form = createBaseFormState({
       professions: [
-        { profession: 'fighter', level: 3 },
-        { profession: null, level: 2 },
-        { profession: 'wizard', level: 1 },
+        { profession: 'fighter', level: 3, subprofession: null },
+        { profession: null, level: 2, subprofession: null },
+        { profession: 'wizard', level: 1, subprofession: null },
       ],
     })
     const patch = formStateToCharacterPatch(form)
     expect(patch.professions).toEqual([
-      { profession: 'fighter', level: 3 },
-      { profession: 'wizard', level: 1 },
+      { profession: 'fighter', level: 3, subprofession: null },
+      { profession: 'wizard', level: 1, subprofession: null },
+    ])
+  })
+
+  it('professions 含 subprofession 文字時應原樣保留', () => {
+    const form = createBaseFormState({
+      professions: [
+        { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+        { profession: 'wizard', level: 3, subprofession: null },
+      ],
+    })
+    const patch = formStateToCharacterPatch(form)
+    expect(patch.professions).toEqual([
+      { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+      { profession: 'wizard', level: 3, subprofession: null },
     ])
   })
 
   it('professions 全為 null 時，professions 為空陣列', () => {
     const form = createBaseFormState({
       professions: [
-        { profession: null, level: 1 },
-        { profession: null, level: 2 },
+        { profession: null, level: 1, subprofession: null },
+        { profession: null, level: 2, subprofession: null },
       ],
     })
     const patch = formStateToCharacterPatch(form)
@@ -342,7 +357,7 @@ describe('calculateTotalHp', () => {
     // class HP: 10 + avg(6) × 2 = 22；CON 加值：2 × 3 = 6；total = 28
     expect(
       calculateTotalHp({
-        professions: [{ profession: 'fighter', level: 3 }],
+        professions: [{ profession: 'fighter', level: 3, subprofession: null }],
         conModifier: 2,
         isTough: false,
         customHpBonus: 0,
@@ -357,8 +372,8 @@ describe('calculateTotalHp', () => {
     expect(
       calculateTotalHp({
         professions: [
-          { profession: 'fighter', level: 2 },
-          { profession: 'wizard', level: 1 },
+          { profession: 'fighter', level: 2, subprofession: null },
+          { profession: 'wizard', level: 1, subprofession: null },
         ],
         conModifier: 2,
         isTough: false,
@@ -371,7 +386,7 @@ describe('calculateTotalHp', () => {
     // fighter lv3 = 22 class HP + 6 CON = 28；tough: 3×2=6 → 34
     expect(
       calculateTotalHp({
-        professions: [{ profession: 'fighter', level: 3 }],
+        professions: [{ profession: 'fighter', level: 3, subprofession: null }],
         conModifier: 2,
         isTough: true,
         customHpBonus: 0,
@@ -382,7 +397,7 @@ describe('calculateTotalHp', () => {
   it('customHpBonus 加值應直接疊加', () => {
     expect(
       calculateTotalHp({
-        professions: [{ profession: 'fighter', level: 1 }],
+        professions: [{ profession: 'fighter', level: 1, subprofession: null }],
         conModifier: 1,
         isTough: false,
         customHpBonus: 5,
@@ -502,5 +517,47 @@ describe('calculatePassiveScore', () => {
         extraBonus: 4,
       }),
     ).toBe(10 + 2 + 3 + 4)
+  })
+})
+
+describe('getSpellSaveDc', () => {
+  it('標準情境：8 + 熟練 + 屬性調整', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 0,
+        proficiencyBonus: 2,
+        customBonus: 0,
+      }),
+    ).toBe(10)
+  })
+
+  it('正屬性 + 自定義加值都正確套入', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 5,
+        proficiencyBonus: 6,
+        customBonus: 1,
+      }),
+    ).toBe(20)
+  })
+
+  it('負屬性調整也正確扣減', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: -1,
+        proficiencyBonus: 2,
+        customBonus: 0,
+      }),
+    ).toBe(9)
+  })
+
+  it('自定義加值可為負', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 3,
+        proficiencyBonus: 3,
+        customBonus: -2,
+      }),
+    ).toBe(12)
   })
 })

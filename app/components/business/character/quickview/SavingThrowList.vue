@@ -49,12 +49,26 @@
         </div>
       </li>
     </ul>
+
+    <div
+      v-if="spellSaveRows.length > 0"
+      class="mt-2 flex items-center gap-3 rounded-lg border border-border-soft bg-surface px-3 py-2"
+    >
+      <span class="text-sm font-semibold text-content-muted">法術豁免 DC</span>
+      <ul class="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <li v-for="row in spellSaveRows" :key="row.key" class="flex items-center gap-1.5 text-sm">
+          <span class="text-content-muted">{{ row.name }}</span>
+          <span class="font-bold text-content">{{ row.dc }}</span>
+        </li>
+      </ul>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { ABILITY_KEYS, ABILITY_NAMES } from '~/constants/dnd'
+import { getSpellSaveDc } from '~/helpers/character'
 import type { TotalAbilityScores } from '~/types/business/character'
 import type { AbilityKey } from '~/types/business/dnd'
 
@@ -63,6 +77,8 @@ const props = defineProps<{
   proficiencyBonus: number
   proficiencies: AbilityKey[]
   adjustments: Partial<Record<AbilityKey, number>>
+  spellcastingAbilities: AbilityKey[]
+  customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
 }>()
 
 const emit = defineEmits<{
@@ -89,7 +105,19 @@ const rows = computed(() =>
   }),
 )
 
-function modifierColor(value: number): string {
+const spellSaveRows = computed(() =>
+  props.spellcastingAbilities.map((key) => ({
+    key,
+    name: ABILITY_NAMES[key],
+    dc: getSpellSaveDc({
+      abilityModifier: getAbilityModifier(props.abilityScores[key]),
+      proficiencyBonus: props.proficiencyBonus,
+      customBonus: props.customSpellcastingBonuses[key] ?? 0,
+    }),
+  })),
+)
+
+const modifierColor = (value: number): string => {
   if (value > 0) return 'text-success'
   if (value < 0) return 'text-danger'
   return 'text-content-muted'

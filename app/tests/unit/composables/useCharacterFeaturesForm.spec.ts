@@ -110,4 +110,40 @@ describe('useCharacterFeaturesForm', () => {
     expect(stored.hasUses).toBe(true)
     if (stored.hasUses) expect(stored.max).toBe(5)
   })
+
+  it('moveFeature 應將條目從 fromIndex 搬到 toIndex', () => {
+    const { formState, features } = setup()
+    features.addFeature(defaultFeatureDraft({ name: 'A' }))
+    features.addFeature(defaultFeatureDraft({ name: 'B' }))
+    features.addFeature(defaultFeatureDraft({ name: 'C' }))
+    features.moveFeature(0, 2)
+    expect(formState.features.map((f) => f.name)).toEqual(['B', 'C', 'A'])
+  })
+
+  it('moveFeature 由後往前搬亦應正確', () => {
+    const { formState, features } = setup()
+    features.addFeature(defaultFeatureDraft({ name: 'A' }))
+    features.addFeature(defaultFeatureDraft({ name: 'B' }))
+    features.addFeature(defaultFeatureDraft({ name: 'C' }))
+    features.moveFeature(2, 0)
+    expect(formState.features.map((f) => f.name)).toEqual(['C', 'A', 'B'])
+  })
+
+  it('moveFeature fromIndex 與 toIndex 相同時不應變動', () => {
+    const { formState, features } = setup()
+    features.addFeature(defaultFeatureDraft({ name: 'A' }))
+    features.addFeature(defaultFeatureDraft({ name: 'B' }))
+    features.moveFeature(1, 1)
+    expect(formState.features.map((f) => f.name)).toEqual(['A', 'B'])
+  })
+
+  it('moveFeature 索引越界時不應變動且不應拋錯', () => {
+    const { formState, features } = setup()
+    features.addFeature(defaultFeatureDraft({ name: 'A' }))
+    features.addFeature(defaultFeatureDraft({ name: 'B' }))
+    expect(() => features.moveFeature(-1, 0)).not.toThrow()
+    expect(() => features.moveFeature(0, 5)).not.toThrow()
+    expect(() => features.moveFeature(5, 0)).not.toThrow()
+    expect(formState.features.map((f) => f.name)).toEqual(['A', 'B'])
+  })
 })

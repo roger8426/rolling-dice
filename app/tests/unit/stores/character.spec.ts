@@ -12,7 +12,7 @@ const MOCK_FORM_STATE = createMockFormState({
   gender: 'female',
   race: 'elf',
   alignment: 'chaoticGood',
-  professions: [{ profession: 'wizard', level: 3 }],
+  professions: [{ profession: 'wizard', level: 3, subprofession: null }],
   abilities: {
     strength: { origin: 8, race: 0 },
     dexterity: { origin: 14, race: 0 },
@@ -89,7 +89,7 @@ describe('useCharacterStore — addCharacter', () => {
   it('新增後 professions 應正確儲存', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3 }])
+    expect(created!.professions).toEqual([{ profession: 'wizard', level: 3, subprofession: null }])
   })
 
   it('新增後應同步寫入 localStorage', () => {
@@ -187,8 +187,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   subrace: null,
   alignment: 'chaoticGood',
   professions: [
-    { profession: 'wizard', level: 5 },
-    { profession: 'cleric', level: 3 },
+    { profession: 'wizard', level: 5, subprofession: null },
+    { profession: 'cleric', level: 3, subprofession: null },
   ],
   abilities: {
     strength: { origin: 15, race: 0, bonusScore: 2 },
@@ -221,6 +221,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   passiveInsightBonus: 0,
   customHpBonus: 0,
   attacks: [],
+  spellcastingAbilities: [],
+  customSpellcastingBonuses: {},
   learnedSpells: [],
   preparedSpells: [],
   features: [],
@@ -246,8 +248,8 @@ describe('useCharacterStore — updateCharacter', () => {
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.professions).toEqual([
-      { profession: 'wizard', level: 5 },
-      { profession: 'cleric', level: 3 },
+      { profession: 'wizard', level: 5, subprofession: null },
+      { profession: 'cleric', level: 3, subprofession: null },
     ])
   })
 
@@ -257,6 +259,26 @@ describe('useCharacterStore — updateCharacter', () => {
     const updated = store.updateCharacter('test-001', MOCK_UPDATE_FORM_STATE)
     expect(updated!.abilities.strength).toEqual({ origin: 15, race: 0, bonusScore: 2 })
     expect(updated!.abilities.constitution).toEqual({ origin: 13, race: 0, bonusScore: 1 })
+  })
+
+  it('更新後 spellcastingAbilities 應正確儲存', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      spellcastingAbilities: ['intelligence', 'charisma'],
+    })
+    expect(updated!.spellcastingAbilities).toEqual(['intelligence', 'charisma'])
+  })
+
+  it('更新後 customSpellcastingBonuses 應正確儲存', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      customSpellcastingBonuses: { intelligence: 2, charisma: -1 },
+    })
+    expect(updated!.customSpellcastingBonuses).toEqual({ intelligence: 2, charisma: -1 })
   })
 
   it('更新後應保留原始 id 與 createdAt', () => {

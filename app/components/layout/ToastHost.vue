@@ -20,7 +20,7 @@ import type { ToastVariant } from '~/composables/ui/useToast'
 
 const { items, remove } = useToast()
 
-function variantBgColor(variant: ToastVariant): string {
+const variantBgColor = (variant: ToastVariant): string => {
   if (variant === 'error') return 'var(--color-danger)'
   if (variant === 'success') return 'var(--color-success)'
   return 'var(--color-primary)'

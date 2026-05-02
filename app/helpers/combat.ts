@@ -34,10 +34,22 @@ function formatDamageEntry(entry: DamageDieEntry): string {
 }
 
 /** 將攻擊的傷害條目組合為顯示字串，例如 `1d8+5 劈砍 + 4d8+10 光耀` 或 `10 酸蝕` */
-export function formatDamageSummary(attack: AttackDraft): string {
+export function formatDamageSummary(
+  attack: AttackDraft,
+  abilityScores: TotalAbilityScores,
+): string {
+  const mod =
+    attack.abilityKey && attack.applyAbilityToDamage
+      ? getAbilityModifier(abilityScores[attack.abilityKey])
+      : 0
   const renderable = attack.damageDice.filter(
     (entry) => hasDicePart(entry) || (entry.bonus ?? 0) !== 0,
   )
   if (renderable.length === 0) return '—'
-  return renderable.map((entry, i) => `${i > 0 ? '+ ' : ''}${formatDamageEntry(entry)}`).join(' ')
+  return renderable
+    .map((entry, i) => {
+      const adjusted = i === 0 && mod !== 0 ? { ...entry, bonus: (entry.bonus ?? 0) + mod } : entry
+      return `${i > 0 ? '+ ' : ''}${formatDamageEntry(adjusted)}`
+    })
+    .join(' ')
 }

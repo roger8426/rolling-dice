@@ -76,29 +76,29 @@ const emit = defineEmits<{
   adjust: [profession: ProfessionKey, delta: number, level: number]
 }>()
 
-function getUsed(entry: ProfessionEntry): number {
+const getUsed = (entry: ProfessionEntry): number => {
   return props.hitDiceUsed[entry.profession] ?? 0
 }
 
-function getRemaining(entry: ProfessionEntry): number {
+const getRemaining = (entry: ProfessionEntry): number => {
   return Math.max(0, entry.level - getUsed(entry))
 }
 
-function canDecrement(entry: ProfessionEntry): boolean {
+const canDecrement = (entry: ProfessionEntry): boolean => {
   return getRemaining(entry) > 0
 }
 
-function canIncrement(entry: ProfessionEntry): boolean {
+const canIncrement = (entry: ProfessionEntry): boolean => {
   return getRemaining(entry) < entry.level
 }
 
 // state 存「已使用數」、UI 顯示「剩餘」，故 -1 按鈕送出 +1 delta（消耗一顆）
-function onDecrement(entry: ProfessionEntry): void {
+const onDecrement = (entry: ProfessionEntry): void => {
   if (!canDecrement(entry)) return
   emit('adjust', entry.profession, 1, entry.level)
 }
 
-function onIncrement(entry: ProfessionEntry): void {
+const onIncrement = (entry: ProfessionEntry): void => {
   if (!canIncrement(entry)) return
   emit('adjust', entry.profession, -1, entry.level)
 }

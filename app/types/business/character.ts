@@ -21,6 +21,8 @@ export interface ProfessionEntry {
   profession: ProfessionKey
   /** 該職業等級（1–20） */
   level: number
+  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
+  subprofession: string | null
 }
 
 /** 表單用職業條目：允許尚未選擇職業的空值狀態 */
@@ -29,6 +31,8 @@ export interface FormProfessionEntry {
   profession: ProfessionKey | null
   /** 該職業等級（1–20） */
   level: number
+  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
+  subprofession: string | null
 }
 
 // ─── Abilities ────────────────────────────────────────────────────────────────
@@ -147,6 +151,10 @@ export interface CharacterStats {
 
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
+  /** 施法主屬性列表（兼職施法者可有多個來源） */
+  spellcastingAbilities: AbilityKey[]
+  /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
+  customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
   /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
@@ -297,6 +305,8 @@ export interface AttackEntry {
   damageDice: DamageDieEntry[]
   /** 額外命中加值（疊加於屬性調整值 + 熟練加值之上） */
   extraHitBonus: number | null
+  /** 是否將屬性調整值加入第一行傷害（預設 true；false 用於額外傷害類型不吃屬性 mod 的情境） */
+  applyAbilityToDamage: boolean
 }
 
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */
@@ -349,6 +359,10 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   customHpBonus: number
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
+  /** 施法主屬性列表（兼職施法者可有多個來源） */
+  spellcastingAbilities: AbilityKey[]
+  /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
+  customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
   /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */

@@ -4,10 +4,7 @@
       特性
     </h3>
 
-    <p
-      v-if="features.length === 0"
-      class="rounded-lg border border-dashed border-border-soft bg-surface px-3 py-6 text-center text-xs text-content-muted"
-    >
+    <p v-if="features.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未設定任何特性
     </p>
 
@@ -96,27 +93,27 @@ const emit = defineEmits<{
   adjust: [id: string, delta: number, max: number]
 }>()
 
-function getCurrent(feature: CharacterFeature): number {
+const getCurrent = (feature: CharacterFeature): number => {
   if (!feature.usage.hasUses) return 0
   return props.featureUses[feature.id] ?? feature.usage.max
 }
 
-function canDecrement(feature: CharacterFeature): boolean {
+const canDecrement = (feature: CharacterFeature): boolean => {
   if (!feature.usage.hasUses) return false
   return getCurrent(feature) > 0
 }
 
-function canIncrement(feature: CharacterFeature): boolean {
+const canIncrement = (feature: CharacterFeature): boolean => {
   if (!feature.usage.hasUses) return false
   return getCurrent(feature) < feature.usage.max
 }
 
-function onDecrement(feature: CharacterFeature): void {
+const onDecrement = (feature: CharacterFeature): void => {
   if (!feature.usage.hasUses || !canDecrement(feature)) return
   emit('adjust', feature.id, -1, feature.usage.max)
 }
 
-function onIncrement(feature: CharacterFeature): void {
+const onIncrement = (feature: CharacterFeature): void => {
   if (!feature.usage.hasUses || !canIncrement(feature)) return
   emit('adjust', feature.id, 1, feature.usage.max)
 }

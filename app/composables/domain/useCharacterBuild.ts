@@ -26,7 +26,7 @@ function createDefaultFormState(): CharacterFormState {
     race: null,
     subrace: null,
     alignment: null,
-    professions: [{ profession: null, level: 1 }],
+    professions: [{ profession: null, level: 1, subprofession: null }],
     abilities: createDefaultAbilities(),
     abilityMethod: 'custom',
     dicePool: [],

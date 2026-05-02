@@ -3,10 +3,27 @@
     <section aria-labelledby="section-features">
       <ul class="space-y-2">
         <li
-          v-for="feature in formState.features"
+          v-for="(feature, index) in formState.features"
           :key="feature.id"
-          class="flex items-start justify-between gap-3 rounded-lg border border-border-soft bg-surface px-3 py-2"
+          draggable="true"
+          class="relative flex items-start justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
+          :class="{
+            'opacity-50': draggingId === feature.id,
+            'before:absolute before:inset-x-0 before:-top-1 before:h-0.5 before:rounded-full before:bg-primary':
+              overId === feature.id && draggingId !== feature.id,
+          }"
+          @dragstart="onDragStart($event, feature.id, index)"
+          @dragenter="onDragEnter(feature.id)"
+          @dragover.prevent="onDragOver($event)"
+          @drop.prevent="onDrop($event, index)"
+          @dragend="onDragEnd"
         >
+          <div
+            class="flex shrink-0 cursor-grab items-center self-stretch text-content-muted active:cursor-grabbing"
+            aria-hidden="true"
+          >
+            <Icon name="list" :size="14" />
+          </div>
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <p class="text-sm font-semibold text-content">{{ feature.name }}</p>
@@ -215,12 +232,52 @@ const recoveryOptions: Array<{ value: FeatureUsageRecovery; label: string }> = (
 ).map(([value, label]) => ({ value, label }))
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
-const { addFeature, removeFeature, updateFeature } = useCharacterFeaturesForm(formState.value)
+const { addFeature, removeFeature, updateFeature, moveFeature } = useCharacterFeaturesForm(
+  formState.value,
+)
+
+const draggingId = ref<string | null>(null)
+const overId = ref<string | null>(null)
+
+const onDragStart = (event: DragEvent, id: string, index: number): void => {
+  draggingId.value = id
+  event.dataTransfer?.setData('application/json', JSON.stringify({ id, index }))
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move'
+}
+
+const onDragEnter = (id: string): void => {
+  overId.value = id
+}
+
+const onDragOver = (event: DragEvent): void => {
+  event.preventDefault()
+}
+
+const onDrop = (event: DragEvent, targetIndex: number): void => {
+  const raw = event.dataTransfer?.getData('application/json')
+  draggingId.value = null
+  overId.value = null
+  if (!raw) return
+  let payload: { id: string; index: number }
+  try {
+    payload = JSON.parse(raw) as { id: string; index: number }
+  } catch {
+    return
+  }
+  if (typeof payload?.index !== 'number') return
+  if (payload.index === targetIndex) return
+  moveFeature(payload.index, targetIndex)
+}
+
+const onDragEnd = (): void => {
+  draggingId.value = null
+  overId.value = null
+}
 
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): FeatureDraft {
+const createEmptyDraft = (): FeatureDraft => {
   return {
     name: '',
     description: null,
@@ -238,13 +295,13 @@ watch(modalOpen, (open) => {
   }
 })
 
-function openCreate(): void {
+const openCreate = (): void => {
   editingId.value = null
   draft.value = createEmptyDraft()
   modalOpen.value = true
 }
 
-function openEdit(feature: CharacterFeature): void {
+const openEdit = (feature: CharacterFeature): void => {
   editingId.value = feature.id
   draft.value = {
     name: feature.name,
@@ -255,23 +312,23 @@ function openEdit(feature: CharacterFeature): void {
   modalOpen.value = true
 }
 
-function onToggleHasUses(checked: boolean): void {
+const onToggleHasUses = (checked: boolean): void => {
   draft.value.usage = checked
     ? { hasUses: true, max: 1, recovery: 'shortRest' }
     : { hasUses: false }
 }
 
-function onUpdateMax(value: string): void {
+const onUpdateMax = (value: string): void => {
   if (!draft.value.usage.hasUses) return
   draft.value.usage.max = Math.max(1, parseIntegerInput(value, 1))
 }
 
-function onUpdateRecovery(value: FeatureUsageRecovery): void {
+const onUpdateRecovery = (value: FeatureUsageRecovery): void => {
   if (!draft.value.usage.hasUses) return
   draft.value.usage.recovery = value
 }
 
-function save(): void {
+const save = (): void => {
   const payload: FeatureDraft = {
     name: draft.value.name.trim(),
     description: draft.value.description,

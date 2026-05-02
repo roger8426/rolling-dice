@@ -79,17 +79,17 @@ const emit = defineEmits<{
 const modalOpen = ref(false)
 const editing = ref<AdventureEntry | null>(null)
 
-function openCreate(): void {
+const openCreate = (): void => {
   editing.value = null
   modalOpen.value = true
 }
 
-function openEdit(entry: AdventureEntry): void {
+const openEdit = (entry: AdventureEntry): void => {
   editing.value = entry
   modalOpen.value = true
 }
 
-function onSave(draft: AdventureEntryDraft, editingId: string | null): void {
+const onSave = (draft: AdventureEntryDraft, editingId: string | null): void => {
   if (editingId) {
     emit('update', editingId, draft)
   } else {

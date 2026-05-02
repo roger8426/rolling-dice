@@ -9,14 +9,14 @@
         class="flex items-center justify-between rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
         <div>
-          <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
+          <p class="text-sm font-semibold text-content">{{ attack.name }}</p>
           <p class="mt-0.5 text-xs text-content-muted">
             命中
             <span class="font-bold" :class="hitBonusColor(attack)">
               {{ formatModifier(computedHit(attack)) }}
             </span>
             <span class="mx-1.5">·</span>
-            傷害 {{ formatDamageSummary(attack) }}
+            傷害 {{ formatDamageSummary(attack, abilityScores) }}
           </p>
         </div>
         <div class="flex shrink-0 gap-1">
@@ -109,7 +109,19 @@
 
       <!-- 第二列：傷害骰多行 entries -->
       <div class="space-y-2">
-        <span class="block text-xs text-content">傷害骰</span>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-content">傷害骰</span>
+          <label class="flex cursor-pointer items-center gap-2 text-xs text-content-muted">
+            套用屬性調整
+            <Toggle
+              :model-value="draft.applyAbilityToDamage"
+              size="sm"
+              color="var(--color-primary)"
+              aria-label="套用屬性調整到傷害"
+              @update:model-value="draft.applyAbilityToDamage = $event"
+            />
+          </label>
+        </div>
         <div
           v-for="(entry, index) in draft.damageDice"
           :key="entry.id"
@@ -184,7 +196,9 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-content-muted">傷害</span>
-          <span class="text-sm font-bold text-content">{{ formatDamageSummary(draft) }}</span>
+          <span class="text-sm font-bold text-content">{{
+            formatDamageSummary(draft, abilityScores)
+          }}</span>
         </div>
       </div>
     </div>
@@ -203,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { Modal, Button, Icon } from '@ui'
+import { Modal, Button, Icon, Toggle } from '@ui'
 import type { SelectOption } from '@ui'
 import type {
   TotalAbilityScores,
@@ -249,24 +263,25 @@ const damageTypeOptions: SelectOption[] = [
 const modalOpen = ref(false)
 const editingId = ref<string | null>(null)
 
-function createEmptyDraft(): AttackDraft {
+const createEmptyDraft = (): AttackDraft => {
   return {
     name: '',
     abilityKey: null,
     damageDice: [],
     extraHitBonus: null,
+    applyAbilityToDamage: true,
   }
 }
 
-function createDamageEntry(): DamageDieEntry {
+const createDamageEntry = (): DamageDieEntry => {
   return { id: crypto.randomUUID(), dieType: null, count: 0, bonus: null, damageType: null }
 }
 
-function addDamageEntry(): void {
+const addDamageEntry = (): void => {
   draft.value.damageDice.push(createDamageEntry())
 }
 
-function removeDamageEntry(index: number): void {
+const removeDamageEntry = (index: number): void => {
   draft.value.damageDice.splice(index, 1)
 }
 
@@ -279,24 +294,25 @@ watch(modalOpen, (open) => {
   }
 })
 
-function openCreate() {
+const openCreate = () => {
   editingId.value = null
   draft.value = createEmptyDraft()
   modalOpen.value = true
 }
 
-function openEdit(attack: AttackEntry) {
+const openEdit = (attack: AttackEntry) => {
   editingId.value = attack.id
   draft.value = {
     name: attack.name,
     abilityKey: attack.abilityKey,
     damageDice: attack.damageDice.map((entry) => ({ ...entry })),
     extraHitBonus: attack.extraHitBonus,
+    applyAbilityToDamage: attack.applyAbilityToDamage,
   }
   modalOpen.value = true
 }
 
-function saveAttack() {
+const saveAttack = () => {
   const entry: AttackDraft = {
     ...draft.value,
     damageDice: draft.value.damageDice.map((e) => ({ ...e })),
@@ -316,11 +332,11 @@ const draftHit = computed(() =>
 )
 const draftHitColor = computed(() => getHitBonusColorClass(draftHit.value))
 
-function computedHit(attack: AttackEntry): number {
+const computedHit = (attack: AttackEntry): number => {
   return getAttackHit(attack, props.abilityScores, props.proficiencyBonus)
 }
 
-function hitBonusColor(attack: AttackEntry): string {
+const hitBonusColor = (attack: AttackEntry): string => {
   return getHitBonusColorClass(computedHit(attack))
 }
 </script>

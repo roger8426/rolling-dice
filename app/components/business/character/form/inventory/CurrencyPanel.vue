@@ -49,7 +49,7 @@ const coinWeight = computed(() => {
   return raw % 1 === 0 ? raw.toString() : raw.toFixed(2)
 })
 
-function onUpdate(key: CoinKey, value: string): void {
+const onUpdate = (key: CoinKey, value: string): void => {
   const num = Math.max(0, Math.floor(Number(value) || 0))
   emit('update:currency', { ...props.currency, [key]: num })
 }

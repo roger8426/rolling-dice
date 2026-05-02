@@ -13,7 +13,7 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     race: 'human',
     subrace: null,
     alignment: 'trueNeutral',
-    professions: [{ profession: 'fighter', level: 5 }],
+    professions: [{ profession: 'fighter', level: 5, subprofession: null }],
     abilities: {
       strength: { origin: 15, race: 0, bonusScore: 0 },
       dexterity: { origin: 14, race: 0, bonusScore: 0 },
@@ -47,6 +47,8 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     passiveInsightBonus: 0,
     armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
     attacks: [],
+    spellcastingAbilities: [],
+    customSpellcastingBonuses: {},
     learnedSpells: [],
     preparedSpells: [],
     features: [],
@@ -65,7 +67,7 @@ export function createMockFormState(
     race: null,
     subrace: null,
     alignment: null,
-    professions: [{ profession: 'fighter', level: 1 }],
+    professions: [{ profession: 'fighter', level: 1, subprofession: null }],
     abilities: {
       strength: { origin: 8, race: 0 },
       dexterity: { origin: 8, race: 0 },
@@ -104,7 +106,7 @@ export function createMockUpdateFormState(
     race: null,
     subrace: null,
     alignment: null,
-    professions: [{ profession: 'fighter', level: 5 }],
+    professions: [{ profession: 'fighter', level: 5, subprofession: null }],
     abilities: {
       strength: { origin: 15, race: 0, bonusScore: 0 },
       dexterity: { origin: 14, race: 0, bonusScore: 0 },
@@ -136,6 +138,8 @@ export function createMockUpdateFormState(
     passiveInsightBonus: 0,
     armorClass: { type: 'none', value: 10, abilityKey: null, shieldValue: 0 },
     attacks: [],
+    spellcastingAbilities: [],
+    customSpellcastingBonuses: {},
     learnedSpells: [],
     preparedSpells: [],
     features: [],
@@ -151,6 +155,7 @@ export function createAttackDraft(overrides: Partial<AttackDraft> = {}): AttackD
     abilityKey: null,
     damageDice: [],
     extraHitBonus: null,
+    applyAbilityToDamage: true,
     ...overrides,
   }
 }

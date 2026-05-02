@@ -32,6 +32,12 @@
           </template>
           <BusinessCharacterCombatQuickView :character="character" />
         </Tab>
+        <Tab value="spells">
+          <template #label>
+            <span class="text-content">法術表</span>
+          </template>
+          <BusinessCharacterSpellsQuickView :character="character" />
+        </Tab>
         <Tab value="backpack">
           <template #label>
             <span class="text-content">背包</span>

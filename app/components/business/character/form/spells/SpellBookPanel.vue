@@ -2,10 +2,6 @@
   <section :aria-labelledby="headingId">
     <header class="mb-4 flex items-center justify-between">
       <h2 :id="headingId" class="font-display text-lg font-bold text-content">法術資料庫</h2>
-      <span class="text-xs text-content-muted">
-        已掌握
-        <span class="font-bold text-content">{{ formState.learnedSpells.length }}</span> 個法術
-      </span>
     </header>
 
     <!-- Filter bar -->
@@ -26,11 +22,13 @@
           <label :for="levelSelectId" class="mb-1 block text-xs text-content">環數</label>
           <CommonAppSelect
             :id="levelSelectId"
-            :model-value="levelSelectValue"
+            v-model="filter.level"
             :options="SPELL_LEVEL_OPTIONS"
+            multiple
+            multiple-display="count"
+            placeholder="-"
             size="sm"
-            class="w-24"
-            @update:model-value="filter.level = toSpellLevelFilter($event)"
+            class="w-32"
           />
         </div>
         <div>
@@ -83,13 +81,13 @@
     </div>
 
     <!-- Body -->
-    <p v-if="filter.level === 'unselected'" class="py-8 text-center text-content-muted">
-      請先選擇環數以顯示法術列表
-    </p>
-    <p v-else-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
+    <p v-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
       沒有符合條件的法術
     </p>
-    <div v-else class="space-y-5">
+    <div
+      v-else
+      class="space-y-5 max-h-[60vh] overflow-y-auto md:max-h-[calc(100vh-18rem)] scrollbar-hidden"
+    >
       <div v-for="group in groupedSpells" :key="group.level">
         <div class="mb-2 flex items-center gap-2">
           <h3 class="font-display text-sm font-bold text-content">
@@ -97,8 +95,13 @@
           </h3>
           <span class="text-xs text-content-muted">{{ group.spells.length }} 個</span>
         </div>
-        <Accordion multiple class="spell-accordion">
-          <AccordionItem v-for="spell in group.spells" :key="spell.id" :value="spell.id">
+        <Accordion v-model="expandedSpellIds" multiple class="spell-accordion">
+          <AccordionItem
+            v-for="spell in group.spells"
+            :key="spell.id"
+            :ref="(el) => registerItemEl(spell.id, el)"
+            :value="spell.id"
+          >
             <template #title>
               <div class="flex flex-1 items-center gap-3">
                 <Checkbox
@@ -171,12 +174,7 @@
 <script setup lang="ts">
 import { Accordion, AccordionItem, Badge, Button, Checkbox, Toggle } from '@ui'
 import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
-import {
-  SPELL_LEVEL_OPTIONS,
-  SPELL_SCHOOL_OPTIONS,
-  toSpellLevelFilter,
-  type SpellLevelFilter,
-} from '~/constants/spell-options'
+import { SPELL_LEVEL_OPTIONS, SPELL_SCHOOL_OPTIONS } from '~/constants/spell-options'
 import type { CharacterUpdateFormState } from '~/types/business/character'
 import type { Spell, SpellSchool } from '~/types/business/spell'
 
@@ -195,7 +193,7 @@ const schoolSelectId = useId()
 
 interface SpellFilter {
   keyword: string
-  level: SpellLevelFilter
+  level: number[]
   school: SpellSchool | ''
   ritual: boolean
   concentration: boolean
@@ -203,7 +201,7 @@ interface SpellFilter {
 
 const defaultFilter = (): SpellFilter => ({
   keyword: '',
-  level: 'unselected',
+  level: [],
   school: '',
   ritual: false,
   concentration: false,
@@ -211,47 +209,43 @@ const defaultFilter = (): SpellFilter => ({
 
 const filter = reactive<SpellFilter>(defaultFilter())
 
+const expandedSpellIds = ref<string[]>([])
+
 const keywordInput = ref('')
 const commitKeyword = debounce((value: string) => {
   filter.keyword = value
 }, 250)
 
-function onKeywordInput(value: string) {
+const onKeywordInput = (value: string) => {
   keywordInput.value = value
   commitKeyword(value)
 }
 
 onBeforeUnmount(() => commitKeyword.cancel())
 
-const levelSelectValue = computed(() =>
-  typeof filter.level === 'number' ? String(filter.level) : filter.level,
-)
-
 const hasActiveFilter = computed(
   () =>
     filter.keyword !== '' ||
-    filter.level !== 'unselected' ||
+    filter.level.length > 0 ||
     filter.school !== '' ||
     filter.ritual ||
     filter.concentration,
 )
 
-function resetFilter() {
+const resetFilter = () => {
   Object.assign(filter, defaultFilter())
   keywordInput.value = ''
   commitKeyword.cancel()
 }
 
 const filteredSpells = computed<Spell[]>(() => {
-  if (filter.level === 'unselected') return []
-
   const keyword = filter.keyword.trim().toLowerCase()
-  const level = filter.level === 'all' ? null : filter.level
+  const levels = filter.level.length > 0 ? new Set(filter.level) : null
   const school = filter.school === '' ? null : filter.school
 
   return spells.value.filter((s) => {
     if (keyword && !s.name.toLowerCase().includes(keyword)) return false
-    if (level !== null && s.level !== level) return false
+    if (levels && !levels.has(s.level)) return false
     if (school && s.school !== school) return false
     if (filter.ritual && !s.ritual) return false
     if (filter.concentration && !s.concentration) return false
@@ -261,9 +255,30 @@ const filteredSpells = computed<Spell[]>(() => {
 
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
-function isLearned(id: string): boolean {
+const isLearned = (id: string): boolean => {
   return formState.value.learnedSpells.includes(id)
 }
+
+const itemEls = new Map<string, HTMLElement>()
+
+const registerItemEl = (id: string, el: unknown): void => {
+  if (el && typeof el === 'object' && '$el' in el && el.$el instanceof HTMLElement) {
+    itemEls.set(id, el.$el)
+  } else {
+    itemEls.delete(id)
+  }
+}
+
+const focusSpell = async (id: string): Promise<void> => {
+  Object.assign(filter, defaultFilter())
+  keywordInput.value = ''
+  commitKeyword.cancel()
+  if (!expandedSpellIds.value.includes(id)) expandedSpellIds.value.push(id)
+  await nextTick()
+  itemEls.get(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+defineExpose({ focusSpell })
 </script>
 
 <style scoped>

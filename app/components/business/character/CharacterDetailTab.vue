@@ -107,7 +107,13 @@
                       loading="lazy"
                       decoding="async"
                     />
-                    {{ row.label }}
+                    <span>{{ row.label }}</span>
+                    <span
+                      v-if="row.subprofession"
+                      class="text-xs text-content-muted hidden xs:inline"
+                    >
+                      （{{ row.subprofession }}）
+                    </span>
                   </div>
                 </td>
                 <td class="py-2 pr-2 text-right text-content-soft">{{ row.level }}</td>
@@ -346,6 +352,7 @@ const classHpRows = computed(() =>
     return {
       profession: entry.profession,
       label: config.label,
+      subprofession: entry.subprofession,
       level: entry.level,
       hitDie: config.hitDie,
       hp,

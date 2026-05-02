@@ -83,11 +83,11 @@ import type { AbilityKey } from '~/types/business/dnd'
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
-function formatSigned(value: number): string {
+const formatSigned = (value: number): string => {
   return value > 0 ? `+${value}` : `${value}`
 }
 
-function adjustBonus(key: AbilityKey, delta: number): void {
+const adjustBonus = (key: AbilityKey, delta: number): void => {
   const entry = formState.value.abilities[key]
   const nextBonus = Math.max(0, entry.bonusScore + delta)
   const nextTotal = entry.origin + entry.race + nextBonus

@@ -7,23 +7,46 @@
     </div>
     <div v-else class="flex flex-col gap-6 md:flex-row md:items-start">
       <BusinessCharacterFormSpellsSpellBookPanel
+        ref="spellBookRef"
         v-model:form-state="formState"
         class="min-w-0 md:flex-2"
       />
 
-      <BusinessCharacterFormSpellsPreparedSpellPanel
-        v-model:form-state="formState"
-        class="min-w-0 md:sticky md:top-4 md:flex-1"
-      />
+      <div class="flex min-w-0 flex-col gap-4 md:sticky md:top-4 md:flex-1">
+        <BusinessCharacterFormSpellsSpellcastingAbilitySelect
+          v-model:abilities="formState.spellcastingAbilities"
+        />
+        <BusinessCharacterFormSpellsSpellcastingModifiersList
+          v-model:custom-bonuses="formState.customSpellcastingBonuses"
+          :selected-abilities="formState.spellcastingAbilities"
+          :proficiency-bonus="proficiencyBonus"
+          :ability-scores="abilityScores"
+        />
+        <BusinessCharacterFormSpellsLearnedSpellList
+          :learned-spell-ids="formState.learnedSpells"
+          @select="onSelectLearned"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Button } from '@ui'
-import type { CharacterUpdateFormState } from '~/types/business/character'
+import type { CharacterUpdateFormState, TotalAbilityScores } from '~/types/business/character'
 
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
+defineProps<{
+  proficiencyBonus: number
+  abilityScores: TotalAbilityScores
+}>()
+
 const { pending, error, refresh } = useSpells()
+
+const spellBookRef = ref<{ focusSpell: (id: string) => Promise<void> } | null>(null)
+
+const onSelectLearned = (id: string): void => {
+  spellBookRef.value?.focusSpell(id)
+}
 </script>

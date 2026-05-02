@@ -90,7 +90,7 @@ const isLocked = computed(() =>
   ),
 )
 
-function isActive(to: string): boolean {
+const isActive = (to: string): boolean => {
   return route.path.startsWith(to)
 }
 </script>
