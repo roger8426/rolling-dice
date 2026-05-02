@@ -151,6 +151,8 @@ export interface CharacterStats {
 
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
+  /** 施法主屬性列表（兼職施法者可有多個來源） */
+  spellcastingAbilities: AbilityKey[]
   /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
@@ -355,6 +357,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   customHpBonus: number
   /** 自訂攻擊列表 */
   attacks: AttackEntry[]
+  /** 施法主屬性列表（兼職施法者可有多個來源） */
+  spellcastingAbilities: AbilityKey[]
   /** 已掌握的法術 UUID 列表 */
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */

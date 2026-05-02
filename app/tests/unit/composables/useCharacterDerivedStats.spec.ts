@@ -45,6 +45,7 @@ function createFormState(
     passiveInsightBonus: 0,
     customHpBonus: 0,
     attacks: [],
+    spellcastingAbilities: [],
     learnedSpells: [],
     preparedSpells: [],
     features: [],

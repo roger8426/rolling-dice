@@ -12,11 +12,15 @@
         class="min-w-0 md:flex-2"
       />
 
-      <BusinessCharacterFormSpellsLearnedSpellList
-        :learned-spell-ids="formState.learnedSpells"
-        class="min-w-0 md:sticky md:top-4 md:flex-1"
-        @select="onSelectLearned"
-      />
+      <div class="flex min-w-0 flex-col gap-4 md:sticky md:top-4 md:flex-1">
+        <BusinessCharacterFormSpellsSpellcastingAbilitySelect
+          v-model:abilities="formState.spellcastingAbilities"
+        />
+        <BusinessCharacterFormSpellsLearnedSpellList
+          :learned-spell-ids="formState.learnedSpells"
+          @select="onSelectLearned"
+        />
+      </div>
     </div>
   </div>
 </template>

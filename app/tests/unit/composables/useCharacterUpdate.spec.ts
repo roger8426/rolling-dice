@@ -115,6 +115,21 @@ describe('useCharacterUpdate — 初始狀態', () => {
     expect(formState.skills).toEqual({ athletics: 'proficient' })
   })
 
+  it('應正確映射 spellcastingAbilities', async () => {
+    const character = createMockCharacter({
+      id: 'update-spell-001',
+      spellcastingAbilities: ['intelligence', 'charisma'],
+    })
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([character]))
+    const { formState } = await getComposable('update-spell-001')
+    expect(formState.spellcastingAbilities).toEqual(['intelligence', 'charisma'])
+  })
+
+  it('找不到角色時 formState.spellcastingAbilities 應為空陣列', async () => {
+    const { formState } = await getComposable('non-existent')
+    expect(formState.spellcastingAbilities).toEqual([])
+  })
+
   it('activeTab 初始值應為 "basic"', async () => {
     const { activeTab } = await getComposable('update-001')
     expect(activeTab.value).toBe('basic')
