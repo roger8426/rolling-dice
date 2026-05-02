@@ -96,7 +96,12 @@
           <span class="text-xs text-content-muted">{{ group.spells.length }} 個</span>
         </div>
         <Accordion v-model="expandedSpellIds" multiple class="spell-accordion">
-          <AccordionItem v-for="spell in group.spells" :key="spell.id" :value="spell.id">
+          <AccordionItem
+            v-for="spell in group.spells"
+            :key="spell.id"
+            :ref="(el) => registerItemEl(spell.id, el)"
+            :value="spell.id"
+          >
             <template #title>
               <div class="flex flex-1 items-center gap-3">
                 <Checkbox
@@ -254,16 +259,23 @@ function isLearned(id: string): boolean {
   return formState.value.learnedSpells.includes(id)
 }
 
+const itemEls = new Map<string, HTMLElement>()
+
+function registerItemEl(id: string, el: unknown): void {
+  if (el && typeof el === 'object' && '$el' in el && el.$el instanceof HTMLElement) {
+    itemEls.set(id, el.$el)
+  } else {
+    itemEls.delete(id)
+  }
+}
+
 async function focusSpell(id: string): Promise<void> {
   Object.assign(filter, defaultFilter())
   keywordInput.value = ''
   commitKeyword.cancel()
   if (!expandedSpellIds.value.includes(id)) expandedSpellIds.value.push(id)
   await nextTick()
-  document.getElementById(`accordion-header-${id}`)?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-  })
+  itemEls.get(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 defineExpose({ focusSpell })

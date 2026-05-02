@@ -2,11 +2,7 @@
   <section :aria-labelledby="headingId">
     <header class="mb-3 flex items-center justify-between">
       <h2 :id="headingId" class="font-display text-lg font-bold text-content">已知法術</h2>
-      <!-- TODO 法術準備清單目前尚缺少個職業對應的準備數量資料，因此先註解相關程式碼 -->
-      <!-- <span class="text-xs text-content-muted">
-        已準備 <span class="font-bold text-content">{{ preparedCount }}</span> /
-        {{ preparableCount }}
-      </span> -->
+      <!-- TODO: 待職業對應的準備數量規則確定後，加回「已準備 N / M」計數 -->
     </header>
 
     <p
@@ -128,25 +124,17 @@ const learnedSpellDetails = computed(() => {
 const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.value.found))
 const missingNames = computed(() => learnedSpellDetails.value.missing)
 
-// TODO 法術準備清單目前尚缺少個職業對應的準備數量資料，因此先註解相關程式碼
-// const preparableIds = computed(
-//   () => new Set(learnedSpellDetails.value.found.filter((s) => s.level > 0).map((s) => s.id)),
-// )
-// const preparableCount = computed(() => preparableIds.value.size)
-// const preparedCount = computed(
-//   () => props.character.preparedSpells.filter((id) => preparableIds.value.has(id)).length,
-// )
-
 function isPrepared(id: string): boolean {
   return props.character.preparedSpells.includes(id)
 }
 
 function onTogglePrepared(spell: Spell): void {
   if (spell.level === 0) return
-  const current = props.character.preparedSpells
-  const next = current.includes(spell.id)
-    ? current.filter((id) => id !== spell.id)
-    : [...current, spell.id]
+  const latest = characterStore.getById(props.character.id)
+  if (!latest) return
+  const next = latest.preparedSpells.includes(spell.id)
+    ? latest.preparedSpells.filter((id) => id !== spell.id)
+    : [...latest.preparedSpells, spell.id]
   characterStore.patchCharacter(props.character.id, { preparedSpells: next })
 }
 </script>
