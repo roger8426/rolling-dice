@@ -46,6 +46,17 @@ export function getSavingThrowBonus(
 }
 
 /**
+ * 計算法術豁免 DC：8 + 熟練 + 施法主屬性調整 + 自定義加值。
+ */
+export function getSpellSaveDc(input: {
+  abilityModifier: number
+  proficiencyBonus: number
+  customBonus: number
+}): number {
+  return 8 + input.proficiencyBonus + input.abilityModifier + input.customBonus
+}
+
+/**
  * 計算技能檢定加值：
  * - none → modifier
  * - proficient → modifier + proficiencyBonus

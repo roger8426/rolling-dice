@@ -42,6 +42,8 @@
         :proficiency-bonus="proficiencyBonus"
         :proficiencies="savingThrowProficiencies"
         :adjustments="state.savingThrowAdjustments"
+        :spellcasting-abilities="character.spellcastingAbilities"
+        :custom-spellcasting-bonuses="character.customSpellcastingBonuses"
         @adjust="adjustSavingThrow"
       />
       <BusinessCharacterQuickviewSkillList

@@ -3,7 +3,9 @@
     <h3 id="quickview-hp-label" class="mb-2 font-display text-sm font-bold text-content">生命值</h3>
 
     <div class="grid grid-cols-3 gap-2">
-      <div class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3">
+      <div
+        class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3 gap-1"
+      >
         <span class="text-xs text-content-muted">最大生命</span>
         <span class="mt-1 flex items-baseline gap-1">
           <span class="text-2xl font-bold text-content">{{ maxHp }}</span>
@@ -31,7 +33,9 @@
         </div>
       </div>
 
-      <div class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3">
+      <div
+        class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3 gap-1"
+      >
         <span class="text-xs text-content-muted">臨時生命</span>
         <span class="mt-1 text-2xl font-bold text-content">{{ tempHp }}</span>
         <div class="mt-2 flex gap-1">
@@ -55,7 +59,9 @@
         </div>
       </div>
 
-      <div class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3">
+      <div
+        class="flex flex-col items-center rounded-lg border border-border-soft bg-surface p-3 gap-1"
+      >
         <span class="text-xs text-content-muted">當前生命</span>
         <span class="mt-1 text-2xl font-bold" :class="currentHpColor">{{ currentHp }}</span>
         <div class="mt-2 flex items-center gap-0.5 sm:gap-1">

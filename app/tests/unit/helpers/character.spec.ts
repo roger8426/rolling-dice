@@ -10,6 +10,7 @@ import {
   formStateToCharacterPatch,
   getBaseArmorClass,
   getCharacterTier,
+  getSpellSaveDc,
   getTotalArmorClass,
 } from '~/helpers/character'
 import type {
@@ -516,5 +517,47 @@ describe('calculatePassiveScore', () => {
         extraBonus: 4,
       }),
     ).toBe(10 + 2 + 3 + 4)
+  })
+})
+
+describe('getSpellSaveDc', () => {
+  it('標準情境：8 + 熟練 + 屬性調整', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 0,
+        proficiencyBonus: 2,
+        customBonus: 0,
+      }),
+    ).toBe(10)
+  })
+
+  it('正屬性 + 自定義加值都正確套入', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 5,
+        proficiencyBonus: 6,
+        customBonus: 1,
+      }),
+    ).toBe(20)
+  })
+
+  it('負屬性調整也正確扣減', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: -1,
+        proficiencyBonus: 2,
+        customBonus: 0,
+      }),
+    ).toBe(9)
+  })
+
+  it('自定義加值可為負', () => {
+    expect(
+      getSpellSaveDc({
+        abilityModifier: 3,
+        proficiencyBonus: 3,
+        customBonus: -2,
+      }),
+    ).toBe(12)
   })
 })
