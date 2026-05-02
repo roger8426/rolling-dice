@@ -7,13 +7,15 @@
     </div>
     <div v-else class="flex flex-col gap-6 md:flex-row md:items-start">
       <BusinessCharacterFormSpellsSpellBookPanel
+        ref="spellBookRef"
         v-model:form-state="formState"
         class="min-w-0 md:flex-2"
       />
 
-      <BusinessCharacterFormSpellsPreparedSpellPanel
-        v-model:form-state="formState"
+      <BusinessCharacterFormSpellsLearnedSpellList
+        :learned-spell-ids="formState.learnedSpells"
         class="min-w-0 md:sticky md:top-4 md:flex-1"
+        @select="onSelectLearned"
       />
     </div>
   </div>
@@ -26,4 +28,10 @@ import type { CharacterUpdateFormState } from '~/types/business/character'
 const formState = defineModel<CharacterUpdateFormState>('formState', { required: true })
 
 const { pending, error, refresh } = useSpells()
+
+const spellBookRef = ref<{ focusSpell: (id: string) => Promise<void> } | null>(null)
+
+function onSelectLearned(id: string): void {
+  spellBookRef.value?.focusSpell(id)
+}
 </script>

@@ -2,10 +2,6 @@
   <section :aria-labelledby="headingId">
     <header class="mb-4 flex items-center justify-between">
       <h2 :id="headingId" class="font-display text-lg font-bold text-content">法術資料庫</h2>
-      <span class="text-xs text-content-muted">
-        已掌握
-        <span class="font-bold text-content">{{ formState.learnedSpells.length }}</span> 個法術
-      </span>
     </header>
 
     <!-- Filter bar -->
@@ -88,7 +84,10 @@
     <p v-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
       沒有符合條件的法術
     </p>
-    <div v-else class="space-y-5">
+    <div
+      v-else
+      class="space-y-5 max-h-[60vh] overflow-y-auto md:max-h-[calc(100vh-18rem)] scrollbar-hidden"
+    >
       <div v-for="group in groupedSpells" :key="group.level">
         <div class="mb-2 flex items-center gap-2">
           <h3 class="font-display text-sm font-bold text-content">
@@ -96,7 +95,7 @@
           </h3>
           <span class="text-xs text-content-muted">{{ group.spells.length }} 個</span>
         </div>
-        <Accordion multiple class="spell-accordion">
+        <Accordion v-model="expandedSpellIds" multiple class="spell-accordion">
           <AccordionItem v-for="spell in group.spells" :key="spell.id" :value="spell.id">
             <template #title>
               <div class="flex flex-1 items-center gap-3">
@@ -205,6 +204,8 @@ const defaultFilter = (): SpellFilter => ({
 
 const filter = reactive<SpellFilter>(defaultFilter())
 
+const expandedSpellIds = ref<string[]>([])
+
 const keywordInput = ref('')
 const commitKeyword = debounce((value: string) => {
   filter.keyword = value
@@ -252,6 +253,20 @@ const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 function isLearned(id: string): boolean {
   return formState.value.learnedSpells.includes(id)
 }
+
+async function focusSpell(id: string): Promise<void> {
+  Object.assign(filter, defaultFilter())
+  keywordInput.value = ''
+  commitKeyword.cancel()
+  if (!expandedSpellIds.value.includes(id)) expandedSpellIds.value.push(id)
+  await nextTick()
+  document.getElementById(`accordion-header-${id}`)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+}
+
+defineExpose({ focusSpell })
 </script>
 
 <style scoped>

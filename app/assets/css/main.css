@@ -89,6 +89,15 @@
   --color-info-soft: var(--rd--color-info-soft);
 }
 
+/* ─── Utilities ─────────────────────────────────────────────────────────────── */
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ─── Tier Shimmer ─────────────────────────────────────────────────────────── */
 @keyframes tier-shimmer {
   0% {
