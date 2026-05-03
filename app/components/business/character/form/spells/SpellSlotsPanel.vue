@@ -37,19 +37,19 @@
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="getCount(level) <= 0"
+            :disabled="getDisplayed(level) <= 0"
             :aria-label="`減少 ${level} 環${activeTab === 'pact' ? '契術環位' : '環位'}`"
             @click="adjust(level, -1)"
           >
             <Icon name="minus" :size="16" />
           </button>
           <span class="w-5 text-center font-mono text-sm font-bold">
-            {{ getCount(level) }}
+            {{ getDisplayed(level) }}
           </span>
           <button
             type="button"
             class="flex items-center justify-center size-6 transition-colors hover:bg-surface-hover disabled:opacity-30"
-            :disabled="getCount(level) >= SLOT_MAX"
+            :disabled="getDisplayed(level) >= SLOT_MAX"
             :aria-label="`增加 ${level} 環${activeTab === 'pact' ? '契術環位' : '環位'}`"
             @click="adjust(level, 1)"
           >
@@ -64,7 +64,12 @@
 <script setup lang="ts">
 import { Icon } from '@ui'
 import { getSuggestedPactSlots, getSuggestedRegularSpellSlots } from '~/helpers/spell-slots'
-import type { FormProfessionEntry, SpellLevel, SpellSlots } from '~/types/business/character'
+import type {
+  FormProfessionEntry,
+  SpellLevel,
+  SpellSlots,
+  SpellSlotsDelta,
+} from '~/types/business/character'
 
 type SlotTab = 'regular' | 'pact'
 
@@ -79,46 +84,40 @@ const props = defineProps<{
   professions: FormProfessionEntry[]
 }>()
 
-const spellSlots = defineModel<SpellSlots>('spellSlots', { required: true })
-const pactSlots = defineModel<SpellSlots>('pactSlots', { required: true })
+const spellSlotsDelta = defineModel<SpellSlotsDelta>('spellSlotsDelta', { required: true })
+const pactSlotsDelta = defineModel<SpellSlotsDelta>('pactSlotsDelta', { required: true })
 
 const headingId = useId()
 const activeTab = ref<SlotTab>('regular')
 
-if (Object.keys(spellSlots.value).length === 0) {
-  spellSlots.value = getSuggestedRegularSpellSlots(props.professions)
-}
-if (Object.keys(pactSlots.value).length === 0) {
-  pactSlots.value = getSuggestedPactSlots(props.professions)
-}
+const regularBase = computed<SpellSlots>(() => getSuggestedRegularSpellSlots(props.professions))
+const pactBase = computed<SpellSlots>(() => getSuggestedPactSlots(props.professions))
 
-watch(
-  () => props.professions,
-  (next) => {
-    spellSlots.value = getSuggestedRegularSpellSlots(next)
-    pactSlots.value = getSuggestedPactSlots(next)
-  },
-  { deep: true },
+const activeBase = computed<SpellSlots>(() =>
+  activeTab.value === 'pact' ? pactBase.value : regularBase.value,
 )
-
-const activeSlots = computed<SpellSlots>({
-  get: () => (activeTab.value === 'pact' ? pactSlots.value : spellSlots.value),
+const activeDelta = computed<SpellSlotsDelta>({
+  get: () => (activeTab.value === 'pact' ? pactSlotsDelta.value : spellSlotsDelta.value),
   set: (value) => {
-    if (activeTab.value === 'pact') pactSlots.value = value
-    else spellSlots.value = value
+    if (activeTab.value === 'pact') pactSlotsDelta.value = value
+    else spellSlotsDelta.value = value
   },
 })
 
-const getCount = (level: SpellLevel): number => activeSlots.value[level] ?? 0
+const getDisplayed = (level: SpellLevel): number => {
+  const value = (activeBase.value[level] ?? 0) + (activeDelta.value[level] ?? 0)
+  return Math.max(0, Math.min(SLOT_MAX, value))
+}
 
-const adjust = (level: SpellLevel, delta: number): void => {
-  const next = Math.max(0, Math.min(SLOT_MAX, getCount(level) + delta))
-  if (next === getCount(level)) return
-  if (next === 0) {
-    const { [level]: _omit, ...rest } = activeSlots.value
-    activeSlots.value = rest
+const adjust = (level: SpellLevel, dir: -1 | 1): void => {
+  const next = getDisplayed(level) + dir
+  if (next < 0 || next > SLOT_MAX) return
+  const nextDelta = next - (activeBase.value[level] ?? 0)
+  if (nextDelta === 0) {
+    const { [level]: _omit, ...rest } = activeDelta.value
+    activeDelta.value = rest
   } else {
-    activeSlots.value = { ...activeSlots.value, [level]: next }
+    activeDelta.value = { ...activeDelta.value, [level]: nextDelta }
   }
 }
 </script>

@@ -23,8 +23,8 @@
           :ability-scores="abilityScores"
         />
         <BusinessCharacterFormSpellsSpellSlotsPanel
-          v-model:spell-slots="formState.spellSlots"
-          v-model:pact-slots="formState.pactSlots"
+          v-model:spell-slots-delta="formState.spellSlotsDelta"
+          v-model:pact-slots-delta="formState.pactSlotsDelta"
           :professions="formState.professions"
         />
         <BusinessCharacterFormSpellsLearnedSpellList
