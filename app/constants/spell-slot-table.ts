@@ -1,5 +1,5 @@
 import type { SpellLevel, SpellSlots } from '~/types/business/character'
-import type { ProfessionKey } from '~/types/business/dnd'
+import type { ProfessionKey, SubprofessionKey } from '~/types/business/dnd'
 
 export type CasterCategory = 'full' | 'half' | 'third' | 'warlock' | 'none'
 
@@ -18,6 +18,14 @@ export const CASTER_CATEGORY: Readonly<Record<ProfessionKey, CasterCategory>> = 
   fighter: 'none',
   monk: 'none',
   rogue: 'none',
+}
+
+/** 子職業對施法者類別的覆寫；主職業 CASTER_CATEGORY 為 'none' 時才生效。目前僅祕法騎士 / 奧法詭術師為 third-caster */
+export const SUBPROFESSION_CASTER_OVERRIDE: Readonly<
+  Partial<Record<SubprofessionKey, CasterCategory>>
+> = {
+  eldritchKnight: 'third',
+  arcaneTrickster: 'third',
 }
 
 /** 共用施法者環位表：index = effective level (1-20)，依 PHB p.113-115 全施法者表 */

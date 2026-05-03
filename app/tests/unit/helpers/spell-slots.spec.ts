@@ -66,6 +66,63 @@ describe('getSuggestedRegularSpellSlots', () => {
     })
   })
 
+  describe('1/3 施法子職業（祕法騎士 / 奧法詭術師）', () => {
+    it('戰士 9 + 祕法騎士 → effective 3 → 1:4, 2:2', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'fighter', level: 9, subprofession: 'eldritchKnight' },
+        ]),
+      ).toEqual({ 1: 4, 2: 2 })
+    })
+
+    it('戰士 9 + 鬥士（非施法子職業）→ {}', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'fighter', level: 9, subprofession: 'champion' },
+        ]),
+      ).toEqual({})
+    })
+
+    it('戰士 9（無 subprofession）→ {}', () => {
+      expect(
+        getSuggestedRegularSpellSlots([{ profession: 'fighter', level: 9, subprofession: null }]),
+      ).toEqual({})
+    })
+
+    it('遊蕩者 12 + 奧法詭術師 → effective 4 → 1:4, 2:3', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'rogue', level: 12, subprofession: 'arcaneTrickster' },
+        ]),
+      ).toEqual({ 1: 4, 2: 3 })
+    })
+
+    it('法師 5 + 戰士 3（祕法騎士）→ effective 6 → 1:4, 2:3, 3:3', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'wizard', level: 5, subprofession: null },
+          { profession: 'fighter', level: 3, subprofession: 'eldritchKnight' },
+        ]),
+      ).toEqual({ 1: 4, 2: 3, 3: 3 })
+    })
+
+    it('遊蕩者 3 + 奧法詭術師 → floor(3/3) = 1 → effective 1 → 1:2', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'rogue', level: 3, subprofession: 'arcaneTrickster' },
+        ]),
+      ).toEqual({ 1: 2 })
+    })
+
+    it('遊蕩者 2 + 奧法詭術師 → floor(2/3) = 0 → {}', () => {
+      expect(
+        getSuggestedRegularSpellSlots([
+          { profession: 'rogue', level: 2, subprofession: 'arcaneTrickster' },
+        ]),
+      ).toEqual({})
+    })
+  })
+
   describe('多職業合併', () => {
     it('牧師 3 + 聖武士 2 → effective 4 → 1:4, 2:3', () => {
       expect(getSuggestedRegularSpellSlots([entry('cleric', 3), entry('paladin', 2)])).toEqual({
@@ -108,8 +165,8 @@ describe('getSuggestedRegularSpellSlots', () => {
     it('null profession 與等級 0 應略過', () => {
       expect(
         getSuggestedRegularSpellSlots([
-          { profession: null, level: 5 },
-          { profession: 'wizard', level: 0 },
+          { profession: null, level: 5, subprofession: null },
+          { profession: 'wizard', level: 0, subprofession: null },
         ]),
       ).toEqual({})
     })
@@ -146,6 +203,6 @@ describe('getSuggestedPactSlots', () => {
   })
 
   it('null profession 應略過', () => {
-    expect(getSuggestedPactSlots([{ profession: null, level: 5 }])).toEqual({})
+    expect(getSuggestedPactSlots([{ profession: null, level: 5, subprofession: null }])).toEqual({})
   })
 })

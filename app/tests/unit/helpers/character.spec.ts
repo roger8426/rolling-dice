@@ -275,16 +275,16 @@ describe('formStateToCharacterPatch', () => {
     ])
   })
 
-  it('professions 含 subprofession 文字時應原樣保留', () => {
+  it('professions 含 subprofession key 時應原樣保留', () => {
     const form = createBaseFormState({
       professions: [
-        { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+        { profession: 'fighter', level: 5, subprofession: 'battleMaster' },
         { profession: 'wizard', level: 3, subprofession: null },
       ],
     })
     const patch = formStateToCharacterPatch(form)
     expect(patch.professions).toEqual([
-      { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+      { profession: 'fighter', level: 5, subprofession: 'battleMaster' },
       { profession: 'wizard', level: 3, subprofession: null },
     ])
   })

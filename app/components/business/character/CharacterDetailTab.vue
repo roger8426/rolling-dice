@@ -109,10 +109,10 @@
                     />
                     <span>{{ row.label }}</span>
                     <span
-                      v-if="row.subprofession"
+                      v-if="row.subprofessionLabel"
                       class="text-xs text-content-muted hidden xs:inline"
                     >
-                      （{{ row.subprofession }}）
+                      （{{ row.subprofessionLabel }}）
                     </span>
                   </div>
                 </td>
@@ -286,6 +286,7 @@ import {
   SKILL_NAMES,
   SKILL_TO_ABILITY_MAP,
 } from '~/constants/dnd'
+import { SUBPROFESSION_CONFIG } from '~/constants/subprofession'
 
 const props = defineProps<{
   character: Character
@@ -352,7 +353,10 @@ const classHpRows = computed(() =>
     return {
       profession: entry.profession,
       label: config.label,
-      subprofession: entry.subprofession,
+      subprofessionLabel:
+        entry.subprofession === null
+          ? null
+          : (SUBPROFESSION_CONFIG[entry.profession][entry.subprofession] ?? null),
       level: entry.level,
       hitDie: config.hitDie,
       hp,
