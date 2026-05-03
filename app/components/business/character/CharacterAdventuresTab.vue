@@ -25,11 +25,20 @@
       </div>
     </div>
 
+    <button
+      type="button"
+      aria-label="新增冒險紀錄"
+      class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft bg-canvas-elevated py-3 text-content-muted transition-colors duration-150 hover:bg-surface hover:text-content"
+      @click="openCreate"
+    >
+      <span class="text-lg leading-none">+</span>
+    </button>
+
     <p
       v-if="entries.length === 0"
       class="rounded-lg border border-dashed border-border-soft bg-surface-2 px-3 py-8 text-center text-xs text-content-muted"
     >
-      尚未記錄任何冒險，按下方按鈕新增第一筆。
+      尚未記錄任何冒險，按上方按鈕新增第一筆。
     </p>
 
     <Accordion v-else class="adventures-accordion flex flex-col gap-2">
@@ -41,15 +50,6 @@
         @remove="$emit('remove', $event)"
       />
     </Accordion>
-
-    <button
-      type="button"
-      aria-label="新增冒險紀錄"
-      class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft bg-canvas-elevated py-3 text-content-muted transition-colors duration-150 hover:bg-surface hover:text-content"
-      @click="openCreate"
-    >
-      <span class="text-lg leading-none">+</span>
-    </button>
 
     <BusinessCharacterAdventuresAdventureFormModal
       v-model="modalOpen"

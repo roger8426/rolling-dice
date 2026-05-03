@@ -2,6 +2,17 @@
   <div class="bg-canvas-elevated p-4 sm:p-6">
     <section aria-labelledby="section-features">
       <ul class="space-y-2">
+        <li>
+          <button
+            type="button"
+            aria-label="新增特性"
+            class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-4 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
+            @click="openCreate"
+          >
+            <span class="text-xl leading-none">+</span>
+          </button>
+        </li>
+
         <li
           v-for="(feature, index) in formState.features"
           :key="feature.id"
@@ -63,17 +74,6 @@
               <Icon name="trash" :size="16" />
             </button>
           </div>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            aria-label="新增特性"
-            class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-4 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
-            @click="openCreate"
-          >
-            <span class="text-xl leading-none">+</span>
-          </button>
         </li>
       </ul>
     </section>
