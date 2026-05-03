@@ -127,6 +127,12 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.savingThrowExtras).toEqual([])
   })
 
+  it('新增後 favoriteSpellIds 應為空陣列', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created!.favoriteSpellIds).toEqual([])
+  })
+
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
@@ -382,6 +388,40 @@ describe('useCharacterStore — updateCharacter', () => {
     })
     expect(updated!.savingThrowExtras).toEqual(['charisma'])
   })
+
+  it('favoriteSpellIds 中已不在 learnedSpells 的法術應同步移除', () => {
+    const KEPT = 'spell-keep'
+    const REMOVED = 'spell-remove'
+    const baseline = createMockCharacter({
+      learnedSpells: [KEPT, REMOVED],
+      favoriteSpellIds: [KEPT, REMOVED],
+    })
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([baseline]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      learnedSpells: [KEPT],
+      preparedSpells: [],
+    })
+    expect(updated!.favoriteSpellIds).toEqual([KEPT])
+  })
+
+  it('favoriteSpellIds 在 learnedSpells 維持不變時應完整保留', () => {
+    const A = 'spell-a'
+    const B = 'spell-b'
+    const baseline = createMockCharacter({
+      learnedSpells: [A, B],
+      favoriteSpellIds: [A, B],
+    })
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([baseline]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      learnedSpells: [A, B],
+      preparedSpells: [],
+    })
+    expect(updated!.favoriteSpellIds).toEqual([A, B])
+  })
 })
 
 describe('useCharacterStore — loadFromStorage migration', () => {
@@ -407,5 +447,13 @@ describe('useCharacterStore — loadFromStorage migration', () => {
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
     const store = useCharacterStore()
     expect(store.characters[0]!.currency).toEqual({ cp: 0, sp: 0, gp: 0, pp: 0 })
+  })
+
+  it('舊資料缺少 favoriteSpellIds 時應自動補為空陣列', () => {
+    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
+    delete legacyCharacter.favoriteSpellIds
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+    const store = useCharacterStore()
+    expect(store.characters[0]!.favoriteSpellIds).toEqual([])
   })
 })

@@ -7,7 +7,18 @@
         重試
       </Button>
     </div>
-    <BusinessCharacterQuickviewLearnedSpellAccordion v-else :character="character" />
+    <div v-else class="flex flex-col gap-4 md:flex-row md:items-start">
+      <BusinessCharacterQuickviewLearnedSpellAccordion
+        ref="learnedRef"
+        :character="character"
+        class="min-w-0 md:flex-2"
+      />
+      <BusinessCharacterQuickviewFavoriteSpellList
+        :character="character"
+        class="min-w-0 md:sticky md:top-4 md:flex-1"
+        @select="onSelectFavorite"
+      />
+    </div>
   </div>
 </template>
 
@@ -20,4 +31,10 @@ defineProps<{
 }>()
 
 const { pending, error, refresh } = useSpells()
+
+const learnedRef = ref<{ focusSpell: (id: string) => Promise<void> } | null>(null)
+
+const onSelectFavorite = (id: string): void => {
+  learnedRef.value?.focusSpell(id)
+}
 </script>

@@ -169,6 +169,8 @@ export interface CharacterCapabilities {
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 玩家標記為常用的法術 UUID 列表，必為 learnedSpells 的子集 */
+  favoriteSpellIds: string[]
   /** 一般施法者環位的使用者調整量；顯示值為 base + delta（base 由職業 / 等級推算） */
   spellSlotsDelta: SpellSlotsDelta
   /** 契術師 pact magic 環位的使用者調整量；獨立保留短休恢復語意 */

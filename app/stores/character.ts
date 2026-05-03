@@ -31,6 +31,7 @@ function loadFromStorage(): Character[] {
       savingThrowExtras: c.savingThrowExtras ?? [],
       features: c.features ?? [],
       attacks: c.attacks ?? [],
+      favoriteSpellIds: c.favoriteSpellIds ?? [],
     }))
   }
   return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
@@ -81,6 +82,7 @@ export const useCharacterStore = defineStore('character', () => {
       customSpellcastingBonuses: {},
       learnedSpells: [],
       preparedSpells: [],
+      favoriteSpellIds: [],
       spellSlotsDelta: {},
       pactSlotsDelta: {},
       features: [],
@@ -119,6 +121,7 @@ export const useCharacterStore = defineStore('character', () => {
     const learnedSpells = [...formState.learnedSpells]
     const learnedSet = new Set(learnedSpells)
     const preparedSpells = formState.preparedSpells.filter((id) => learnedSet.has(id))
+    const favoriteSpellIds = previous.favoriteSpellIds.filter((id) => learnedSet.has(id))
 
     const updated: Character = {
       ...previous,
@@ -137,6 +140,7 @@ export const useCharacterStore = defineStore('character', () => {
       customSpellcastingBonuses: { ...formState.customSpellcastingBonuses },
       learnedSpells,
       preparedSpells,
+      favoriteSpellIds,
       spellSlotsDelta: { ...formState.spellSlotsDelta },
       pactSlotsDelta: { ...formState.pactSlotsDelta },
       features: JSON.parse(JSON.stringify(formState.features)),

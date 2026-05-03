@@ -44,6 +44,7 @@ const SPELLS: Record<string, Spell> = {
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  Element.prototype.scrollIntoView = vi.fn()
   vi.stubGlobal('useId', useId)
   vi.stubGlobal('useCharacterStore', useCharacterStore)
   vi.stubGlobal('useSpells', () => ({ getSpell: (id: string) => SPELLS[id] }))
@@ -138,5 +139,40 @@ describe('LearnedSpellAccordion', () => {
     const character = seedCharacter({ learnedSpells: [unknownId] })
     const wrapper = mountAccordion(character)
     expect(wrapper.text()).toContain('資料庫中找不到下列法術')
+  })
+
+  it('點 star 按鈕 → patchCharacter 將 id 寫入 favoriteSpellIds', async () => {
+    const character = seedCharacter({ learnedSpells: [FIREBALL_ID] })
+    const wrapper = mountAccordion(character)
+
+    const starBtn = wrapper.find('button.favorite-btn')
+    await starBtn.trigger('click')
+
+    expect(useCharacterStore().getById(CHAR_ID)?.favoriteSpellIds).toEqual([FIREBALL_ID])
+  })
+
+  it('再次點已 favorite 的 star → patchCharacter 移除該 id', async () => {
+    const character = seedCharacter({
+      learnedSpells: [FIREBALL_ID],
+      favoriteSpellIds: [FIREBALL_ID],
+    })
+    const wrapper = mountAccordion(character)
+
+    const starBtn = wrapper.find('button.favorite-btn')
+    expect(starBtn.attributes('aria-pressed')).toBe('true')
+    await starBtn.trigger('click')
+
+    expect(useCharacterStore().getById(CHAR_ID)?.favoriteSpellIds).toEqual([])
+  })
+
+  it('focusSpell expose：呼叫後對應 id 應被加入 expandedSpellIds', async () => {
+    const character = seedCharacter({ learnedSpells: [FIREBALL_ID] })
+    const wrapper = mountAccordion(character)
+
+    const exposed = wrapper.vm as unknown as { focusSpell: (id: string) => Promise<void> }
+    await exposed.focusSpell(FIREBALL_ID)
+
+    const accordion = wrapper.findComponent({ name: 'Accordion' })
+    expect(accordion.props('modelValue')).toContain(FIREBALL_ID)
   })
 })

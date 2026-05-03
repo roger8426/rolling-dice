@@ -23,8 +23,13 @@
           </h4>
           <span class="text-xs text-content-muted">{{ group.spells.length }} 個</span>
         </div>
-        <Accordion multiple class="spell-accordion">
-          <AccordionItem v-for="spell in group.spells" :key="spell.id" :value="spell.id">
+        <Accordion v-model="expandedSpellIds" multiple class="spell-accordion">
+          <AccordionItem
+            v-for="spell in group.spells"
+            :key="spell.id"
+            :ref="(el) => registerItemEl(spell.id, el)"
+            :value="spell.id"
+          >
             <template #title>
               <div class="flex flex-1 items-center gap-3">
                 <Checkbox
@@ -77,6 +82,16 @@
                     {{ spell.range }}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  class="favorite-btn shrink-0"
+                  :class="{ 'is-active': isFavorite(spell.id) }"
+                  :aria-pressed="isFavorite(spell.id)"
+                  :aria-label="`${isFavorite(spell.id) ? '取消常用' : '標記為常用'} ${spell.name}`"
+                  @click.stop="onToggleFavorite(spell)"
+                >
+                  <Icon name="star" :size="18" />
+                </button>
               </div>
             </template>
 
@@ -106,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { Accordion, AccordionItem, Badge, Checkbox } from '@ui'
+import { Accordion, AccordionItem, Badge, Checkbox, Icon } from '@ui'
 import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
 import type { Character } from '~/types/business/character'
 import type { Spell } from '~/types/business/spell'
@@ -147,10 +162,63 @@ const onTogglePrepared = (spell: Spell): void => {
     : [...latest.preparedSpells, spell.id]
   characterStore.patchCharacter(props.character.id, { preparedSpells: next })
 }
+
+const isFavorite = (id: string): boolean => {
+  return props.character.favoriteSpellIds.includes(id)
+}
+
+const onToggleFavorite = (spell: Spell): void => {
+  const latest = characterStore.getById(props.character.id)
+  if (!latest) return
+  const next = latest.favoriteSpellIds.includes(spell.id)
+    ? latest.favoriteSpellIds.filter((id) => id !== spell.id)
+    : [...latest.favoriteSpellIds, spell.id]
+  characterStore.patchCharacter(props.character.id, { favoriteSpellIds: next })
+}
+
+const expandedSpellIds = ref<string[]>([])
+const itemEls = new Map<string, HTMLElement>()
+
+const registerItemEl = (id: string, el: unknown): void => {
+  if (el && typeof el === 'object' && '$el' in el && el.$el instanceof HTMLElement) {
+    itemEls.set(id, el.$el)
+  } else {
+    itemEls.delete(id)
+  }
+}
+
+const focusSpell = async (id: string): Promise<void> => {
+  if (!expandedSpellIds.value.includes(id)) expandedSpellIds.value.push(id)
+  await nextTick()
+  itemEls.get(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+defineExpose({ focusSpell })
 </script>
 
 <style scoped>
 .spell-accordion :deep(button:hover:not(:disabled)) {
   background-color: var(--color-info-soft);
+}
+
+.favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  color: var(--color-content-muted);
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.favorite-btn:hover {
+  color: var(--color-warning);
+}
+
+.favorite-btn.is-active {
+  color: var(--color-warning);
 }
 </style>

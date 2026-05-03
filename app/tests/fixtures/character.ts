@@ -51,6 +51,7 @@ export function createMockCharacter(overrides: Partial<Character> = {}): Charact
     customSpellcastingBonuses: {},
     learnedSpells: [],
     preparedSpells: [],
+    favoriteSpellIds: [],
     spellSlotsDelta: {},
     pactSlotsDelta: {},
     features: [],
