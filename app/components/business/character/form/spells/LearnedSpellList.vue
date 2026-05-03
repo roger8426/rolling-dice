@@ -17,10 +17,7 @@
     <p v-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未掌握任何法術
     </p>
-    <div
-      v-else
-      class="space-y-4 max-h-[50vh] overflow-y-auto md:max-h-[calc(100vh-8rem)] md:pr-1 scrollbar-hidden"
-    >
+    <div v-else class="space-y-4 max-h-[50vh] overflow-y-auto md:pr-1 scrollbar-hidden">
       <div v-for="group in groupedSpells" :key="group.level">
         <div class="mb-2 flex items-center gap-2">
           <h3 class="font-display text-sm font-bold text-content">

@@ -22,6 +22,11 @@
           :proficiency-bonus="proficiencyBonus"
           :ability-scores="abilityScores"
         />
+        <BusinessCharacterFormSpellsSpellSlotsPanel
+          v-model:spell-slots="formState.spellSlots"
+          v-model:pact-slots="formState.pactSlots"
+          :professions="formState.professions"
+        />
         <BusinessCharacterFormSpellsLearnedSpellList
           :learned-spell-ids="formState.learnedSpells"
           @select="onSelectLearned"

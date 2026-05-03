@@ -81,6 +81,8 @@ export const useCharacterStore = defineStore('character', () => {
       customSpellcastingBonuses: {},
       learnedSpells: [],
       preparedSpells: [],
+      spellSlots: {},
+      pactSlots: {},
       features: [],
       ...createDefaultInventory(),
     }
@@ -135,6 +137,8 @@ export const useCharacterStore = defineStore('character', () => {
       customSpellcastingBonuses: { ...formState.customSpellcastingBonuses },
       learnedSpells,
       preparedSpells,
+      spellSlots: { ...formState.spellSlots },
+      pactSlots: { ...formState.pactSlots },
       features: JSON.parse(JSON.stringify(formState.features)),
       items: JSON.parse(JSON.stringify(formState.items)),
       currency: { ...formState.currency },

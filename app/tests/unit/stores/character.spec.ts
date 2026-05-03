@@ -225,6 +225,8 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   customSpellcastingBonuses: {},
   learnedSpells: [],
   preparedSpells: [],
+  spellSlots: {},
+  pactSlots: {},
   features: [],
   items: [],
   currency: { cp: 0, sp: 0, gp: 0, pp: 0 },

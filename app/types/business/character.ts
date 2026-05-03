@@ -149,6 +149,12 @@ export interface CharacterStats {
   passiveInsightBonus: number
 }
 
+/** 法術環級（1-9，戲法不計） */
+export type SpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+/** 各環級最大環位數；只記錄非 0 項。warlock pact slot 與一般 slot 合併計入。 */
+export type SpellSlots = Partial<Record<SpellLevel, number>>
+
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
   /** 施法主屬性列表（兼職施法者可有多個來源） */
@@ -159,6 +165,10 @@ export interface CharacterCapabilities {
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 一般施法者（全 / 半 / 三分之一）環位數；只記錄非 0 項 */
+  spellSlots: SpellSlots
+  /** 契術師 pact magic 環位數；獨立儲存以保留短休恢復語意，只記錄非 0 項 */
+  pactSlots: SpellSlots
   features: CharacterFeature[]
 }
 
@@ -367,6 +377,10 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   learnedSpells: string[]
   /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
   preparedSpells: string[]
+  /** 一般施法者（全 / 半 / 三分之一）環位數；只記錄非 0 項 */
+  spellSlots: SpellSlots
+  /** 契術師 pact magic 環位數；獨立儲存以保留短休恢復語意，只記錄非 0 項 */
+  pactSlots: SpellSlots
   /** 角色特性列表 */
   features: CharacterFeature[]
   /** 背包與儲物袋的物品列表（以 location 區分位置） */
