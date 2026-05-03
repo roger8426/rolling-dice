@@ -171,4 +171,61 @@ describe('SpellSlotsPanel', () => {
       expect(wrapper.emitted('update:pactSlotsDelta')).toBeUndefined()
     })
   })
+
+  describe('ARIA 與鍵盤', () => {
+    it('tabpanel 的 aria-labelledby 對應當前 active tab id', async () => {
+      const wrapper = mountPanel({ professions: [profession('wizard', 5)] })
+      const tabs = wrapper.findAll('[role="tab"]')
+      const panel = wrapper.find('[role="tabpanel"]')
+      expect(panel.exists()).toBe(true)
+      expect(panel.attributes('aria-labelledby')).toBe(tabs[0]!.attributes('id'))
+
+      await tabs[1]!.trigger('click')
+      expect(panel.attributes('aria-labelledby')).toBe(tabs[1]!.attributes('id'))
+    })
+
+    it('每個 tab 的 aria-controls 指向 tabpanel id', () => {
+      const wrapper = mountPanel({ professions: [profession('wizard', 5)] })
+      const tabs = wrapper.findAll('[role="tab"]')
+      const panel = wrapper.find('[role="tabpanel"]')
+      const panelId = panel.attributes('id')
+      expect(panelId).toBeTruthy()
+      for (const tab of tabs) {
+        expect(tab.attributes('aria-controls')).toBe(panelId)
+      }
+    })
+
+    it('roving tabindex：active tab 為 0，inactive 為 -1', async () => {
+      const wrapper = mountPanel({ professions: [profession('wizard', 5)] })
+      const tabs = wrapper.findAll('[role="tab"]')
+      expect(tabs[0]!.attributes('tabindex')).toBe('0')
+      expect(tabs[1]!.attributes('tabindex')).toBe('-1')
+
+      await tabs[1]!.trigger('click')
+      expect(tabs[0]!.attributes('tabindex')).toBe('-1')
+      expect(tabs[1]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('右方向鍵切到下一個 tab，左方向鍵循環回上一個', async () => {
+      const wrapper = mountPanel({ professions: [profession('wizard', 5)] })
+      const tabs = wrapper.findAll('[role="tab"]')
+
+      await tabs[0]!.trigger('keydown', { key: 'ArrowRight' })
+      expect(tabs[1]!.attributes('aria-selected')).toBe('true')
+
+      await tabs[1]!.trigger('keydown', { key: 'ArrowLeft' })
+      expect(tabs[0]!.attributes('aria-selected')).toBe('true')
+    })
+
+    it('Home / End 跳到首 / 末 tab', async () => {
+      const wrapper = mountPanel({ professions: [profession('wizard', 5)] })
+      const tabs = wrapper.findAll('[role="tab"]')
+
+      await tabs[0]!.trigger('keydown', { key: 'End' })
+      expect(tabs[1]!.attributes('aria-selected')).toBe('true')
+
+      await tabs[1]!.trigger('keydown', { key: 'Home' })
+      expect(tabs[0]!.attributes('aria-selected')).toBe('true')
+    })
+  })
 })

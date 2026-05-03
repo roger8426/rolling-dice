@@ -9,10 +9,14 @@
       >
         <button
           v-for="tab in TABS"
+          :id="tab.id"
           :key="tab.value"
+          ref="tabButtons"
           type="button"
           role="tab"
           :aria-selected="activeTab === tab.value"
+          :aria-controls="panelId"
+          :tabindex="activeTab === tab.value ? 0 : -1"
           :class="[
             'px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
             activeTab === tab.value
@@ -20,13 +24,22 @@
               : 'bg-surface text-content-muted hover:bg-surface-hover',
           ]"
           @click="activeTab = tab.value"
+          @keydown.left.prevent="onTabArrow(-1)"
+          @keydown.right.prevent="onTabArrow(1)"
+          @keydown.home.prevent="onTabJump(0)"
+          @keydown.end.prevent="onTabJump(TABS.length - 1)"
         >
           {{ tab.label }}
         </button>
       </div>
     </header>
 
-    <div class="grid grid-cols-3 gap-2">
+    <div
+      :id="panelId"
+      role="tabpanel"
+      :aria-labelledby="activeTabId"
+      class="grid grid-cols-3 gap-2"
+    >
       <div
         v-for="level in SPELL_LEVELS"
         :key="level"
@@ -75,10 +88,6 @@ type SlotTab = 'regular' | 'pact'
 
 const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 const SLOT_MAX = 9
-const TABS: readonly { value: SlotTab; label: string }[] = [
-  { value: 'regular', label: '一般' },
-  { value: 'pact', label: '契術' },
-]
 
 const props = defineProps<{
   professions: FormProfessionEntry[]
@@ -88,7 +97,31 @@ const spellSlotsDelta = defineModel<SpellSlotsDelta>('spellSlotsDelta', { requir
 const pactSlotsDelta = defineModel<SpellSlotsDelta>('pactSlotsDelta', { required: true })
 
 const headingId = useId()
+const panelId = useId()
+const TABS: readonly { value: SlotTab; label: string; id: string }[] = [
+  { value: 'regular', label: '一般', id: useId() },
+  { value: 'pact', label: '契術', id: useId() },
+]
+
 const activeTab = ref<SlotTab>('regular')
+const tabButtons = ref<HTMLButtonElement[]>([])
+const activeTabId = computed(() => TABS.find((t) => t.value === activeTab.value)!.id)
+
+const onTabArrow = async (delta: -1 | 1): Promise<void> => {
+  const idx = TABS.findIndex((t) => t.value === activeTab.value)
+  const nextIdx = (idx + delta + TABS.length) % TABS.length
+  activeTab.value = TABS[nextIdx]!.value
+  await nextTick()
+  tabButtons.value[nextIdx]?.focus()
+}
+
+const onTabJump = async (idx: number): Promise<void> => {
+  const target = TABS[idx]
+  if (!target) return
+  activeTab.value = target.value
+  await nextTick()
+  tabButtons.value[idx]?.focus()
+}
 
 const regularBase = computed<SpellSlots>(() => getSuggestedRegularSpellSlots(props.professions))
 const pactBase = computed<SpellSlots>(() => getSuggestedPactSlots(props.professions))
