@@ -23,18 +23,10 @@ function cloneCharacter(c: Character): Character {
 }
 
 function loadFromStorage(): Character[] {
-  const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
-  if (stored) {
-    return stored.map((c) => ({
-      ...createDefaultInventory(),
-      ...c,
-      savingThrowExtras: c.savingThrowExtras ?? [],
-      features: c.features ?? [],
-      attacks: c.attacks ?? [],
-      favoriteSpellIds: c.favoriteSpellIds ?? [],
-    }))
-  }
-  return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
+  return (
+    getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY) ??
+    (import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : [])
+  )
 }
 
 function saveToStorage(characters: Character[]): boolean {

@@ -423,37 +423,3 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.favoriteSpellIds).toEqual([A, B])
   })
 })
-
-describe('useCharacterStore — loadFromStorage migration', () => {
-  it('舊資料缺少 savingThrowExtras 時應自動補為空陣列', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.savingThrowExtras
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
-    const store = useCharacterStore()
-    expect(store.characters[0]!.savingThrowExtras).toEqual([])
-  })
-
-  it('舊資料缺少 items 時應自動補為空陣列', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.items
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
-    const store = useCharacterStore()
-    expect(store.characters[0]!.items).toEqual([])
-  })
-
-  it('舊資料缺少 currency 時應自動補為全零', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.currency
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
-    const store = useCharacterStore()
-    expect(store.characters[0]!.currency).toEqual({ cp: 0, sp: 0, gp: 0, pp: 0 })
-  })
-
-  it('舊資料缺少 favoriteSpellIds 時應自動補為空陣列', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.favoriteSpellIds
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
-    const store = useCharacterStore()
-    expect(store.characters[0]!.favoriteSpellIds).toEqual([])
-  })
-})
