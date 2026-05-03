@@ -25,6 +25,11 @@ export function formatSpellComponents(
   return parts.join(' / ') || '—'
 }
 
+/** 判斷法術是否含「在施法時消耗」的材料成分 */
+export function hasConsumedMaterial(spell: Pick<Spell, 'material'>): boolean {
+  return spell.material.includes('在施法時消耗')
+}
+
 /** 將 Spell 列表依環數分組並組內依中文名稱排序 */
 export function groupSpellsByLevel(spells: Spell[]): Array<{ level: number; spells: Spell[] }> {
   const groups = new Map<number, Spell[]>()

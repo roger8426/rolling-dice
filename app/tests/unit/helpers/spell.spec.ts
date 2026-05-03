@@ -4,6 +4,7 @@ import {
   formatSpellComponents,
   formatSpellLevel,
   groupSpellsByLevel,
+  hasConsumedMaterial,
   validateSpell,
 } from '~/helpers/spell'
 import type { Spell, SpellDto, SpellSchool } from '~/types/business/spell'
@@ -115,6 +116,34 @@ describe('formatSpellComponents', () => {
 
   it('material 為空字串視為無材料成分', () => {
     expect(formatSpellComponents({ verbal: false, somatic: true, material: '' })).toBe('勢')
+  })
+})
+
+// ─── hasConsumedMaterial ──────────────────────────────────────────────────────
+
+describe('hasConsumedMaterial', () => {
+  it('空 material 回傳 false', () => {
+    expect(hasConsumedMaterial({ material: '' })).toBe(false)
+  })
+
+  it('純材料無消耗標記回傳 false', () => {
+    expect(hasConsumedMaterial({ material: '一根蝙蝠的羽毛和一塊硫磺' })).toBe(false)
+  })
+
+  it('material 以「在施法時消耗」結尾回傳 true', () => {
+    expect(hasConsumedMaterial({ material: '一顆價值至少1,000金幣的鑽石，在施法時消耗' })).toBe(
+      true,
+    )
+  })
+
+  it('「在施法時消耗」於中段（後接分號子句）回傳 true', () => {
+    expect(hasConsumedMaterial({ material: '價值25金幣的銀粉，在施法時消耗；一個價值至少…' })).toBe(
+      true,
+    )
+  })
+
+  it('「在施法時消耗」於中段（後接逗號子句）回傳 true', () => {
+    expect(hasConsumedMaterial({ material: '聖水，在施法時消耗，以及一塊白銀' })).toBe(true)
   })
 })
 

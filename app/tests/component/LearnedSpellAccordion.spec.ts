@@ -4,7 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useId } from 'vue'
 import LearnedSpellAccordion from '~/components/business/character/quickview/LearnedSpellAccordion.vue'
 import { CHARACTERS_STORAGE_KEY } from '~/constants/storage'
-import { formatSpellComponents, formatSpellLevel, groupSpellsByLevel } from '~/helpers/spell'
+import {
+  formatSpellComponents,
+  formatSpellLevel,
+  groupSpellsByLevel,
+  hasConsumedMaterial,
+} from '~/helpers/spell'
 import { useCharacterStore } from '~/stores/character'
 import { createMockCharacter } from '~/tests/fixtures/character'
 import type { Character } from '~/types/business/character'
@@ -67,7 +72,7 @@ function mountAccordion(character: Character) {
   return mount(LearnedSpellAccordion, {
     props: { character },
     global: {
-      mocks: { formatSpellLevel, formatSpellComponents },
+      mocks: { formatSpellLevel, formatSpellComponents, hasConsumedMaterial },
     },
   })
 }

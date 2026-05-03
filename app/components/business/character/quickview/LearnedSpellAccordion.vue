@@ -40,7 +40,10 @@
                 <div class="min-w-0 flex-1 text-left">
                   <div class="flex items-center gap-2">
                     <p class="truncate text-sm font-semibold text-content">{{ spell.name }}</p>
-                    <div v-if="spell.ritual || spell.concentration" class="flex shrink-0 gap-1">
+                    <div
+                      v-if="spell.ritual || spell.concentration || hasConsumedMaterial(spell)"
+                      class="flex shrink-0 gap-1"
+                    >
                       <Badge
                         v-if="spell.ritual"
                         size="sm"
@@ -56,6 +59,13 @@
                         text-color="var(--color-warning-soft)"
                       >
                         專注
+                      </Badge>
+                      <Badge
+                        v-if="hasConsumedMaterial(spell)"
+                        size="sm"
+                        bg-color="var(--color-surface-3)"
+                      >
+                        耗材
                       </Badge>
                     </div>
                   </div>
