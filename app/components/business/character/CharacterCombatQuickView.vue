@@ -61,11 +61,23 @@
         @adjust="adjustFeatureUse"
       />
 
-      <BusinessCharacterQuickviewAttackList
-        :attacks="character.attacks"
-        :ability-scores="totalAbilityScores"
-        :proficiency-bonus="proficiencyBonus"
-      />
+      <div class="flex flex-col gap-4">
+        <BusinessCharacterQuickviewSpellSlotsCard
+          v-if="hasAnySlot"
+          :spell-slots-base="spellSlotsBase"
+          :spell-slots-used="state.spellSlotsUsed"
+          :pact-slots-base="pactSlotsBase"
+          :pact-slots-used="state.pactSlotsUsed"
+          @adjust-spell="adjustSpellSlotUsed"
+          @adjust-pact="adjustPactSlotUsed"
+        />
+
+        <BusinessCharacterQuickviewAttackList
+          :attacks="character.attacks"
+          :ability-scores="totalAbilityScores"
+          :proficiency-bonus="proficiencyBonus"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -74,6 +86,11 @@
 import { Button } from '@ui'
 import { useCharacterCombatState } from '~/composables/domain/useCharacterCombatState'
 import { useCharacterDerivedStatsFromCharacter } from '~/composables/domain/useCharacterDerivedStats'
+import {
+  getSuggestedPactSlots,
+  getSuggestedRegularSpellSlots,
+  mergeSlots,
+} from '~/helpers/spell-slots'
 import type { Character } from '~/types/business/character'
 
 const props = defineProps<{
@@ -107,18 +124,34 @@ const {
   adjustSavingThrow,
   adjustFeatureUse,
   adjustHitDiceUsed,
+  adjustSpellSlotUsed,
+  adjustPactSlotUsed,
   shortRest,
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
+
+const spellSlotsBase = computed(() =>
+  mergeSlots(
+    getSuggestedRegularSpellSlots(props.character.professions),
+    props.character.spellSlotsDelta,
+  ),
+)
+const pactSlotsBase = computed(() =>
+  mergeSlots(getSuggestedPactSlots(props.character.professions), props.character.pactSlotsDelta),
+)
+const hasAnySlot = computed(
+  () => Object.keys(spellSlotsBase.value).length + Object.keys(pactSlotsBase.value).length > 0,
+)
 
 const onShortRest = (): void => {
   const ids = props.character.features
     .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
     .map((f) => f.id)
-  shortRest(ids)
+  if (shortRest(ids)) useToast().success('短休完成')
 }
 
 const onLongRest = (): void => {
   longRest(props.character.professions)
+  useToast().success('長休完成')
 }
 </script>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { getSuggestedPactSlots, getSuggestedRegularSpellSlots } from '~/helpers/spell-slots'
+import {
+  getSuggestedPactSlots,
+  getSuggestedRegularSpellSlots,
+  mergeSlots,
+} from '~/helpers/spell-slots'
 import type { ProfessionEntry } from '~/types/business/character'
 import type { ProfessionKey } from '~/types/business/dnd'
 
@@ -204,5 +208,35 @@ describe('getSuggestedPactSlots', () => {
 
   it('null profession 應略過', () => {
     expect(getSuggestedPactSlots([{ profession: null, level: 5, subprofession: null }])).toEqual({})
+  })
+})
+
+describe('mergeSlots', () => {
+  it('純 base 無 delta 時等同 base', () => {
+    expect(mergeSlots({ 1: 4, 2: 3 }, {})).toEqual({ 1: 4, 2: 3 })
+  })
+
+  it('delta 應疊加到對應環級', () => {
+    expect(mergeSlots({ 1: 4, 2: 3 }, { 1: 1, 2: -1 })).toEqual({ 1: 5, 2: 2 })
+  })
+
+  it('delta 使結果為 0 時應移除該環', () => {
+    expect(mergeSlots({ 1: 2 }, { 1: -2 })).toEqual({})
+  })
+
+  it('delta 使結果為負時應 clamp 為 0 並移除', () => {
+    expect(mergeSlots({ 1: 1 }, { 1: -5 })).toEqual({})
+  })
+
+  it('delta 使結果超過 9 時應 clamp 為 9', () => {
+    expect(mergeSlots({ 5: 1 }, { 5: 20 })).toEqual({ 5: 9 })
+  })
+
+  it('base 為空時 delta 仍可獨立加入新環級', () => {
+    expect(mergeSlots({}, { 3: 2 })).toEqual({ 3: 2 })
+  })
+
+  it('空輸入應回傳空物件', () => {
+    expect(mergeSlots({}, {})).toEqual({})
   })
 })

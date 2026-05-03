@@ -215,37 +215,17 @@ describe('useCharacterCombatState — 臨時調整', () => {
 })
 
 describe('useCharacterCombatState — 休息 toast 通知', () => {
-  it('shortRest 有恢復項時應彈出含項目數的 success toast', () => {
+  it('shortRest 有 feature 目標時回傳 true', () => {
     const { adjustFeatureUse, shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
     adjustFeatureUse('feat-1', -1, 2)
-    adjustFeatureUse('feat-2', -1, 2)
-    shortRest(['feat-1', 'feat-2'])
-    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成，2 項特性使用次數已回復')
+    expect(shortRest(['feat-1'])).toBe(true)
   })
 
-  it('shortRest 無已使用特性時應彈出精簡 toast', () => {
-    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    shortRest(['feat-1'])
-    expect(mockToastSuccess).toHaveBeenCalledWith('短休完成')
-  })
-
-  it('shortRest([]) early return 不應彈 toast', () => {
-    const { shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    shortRest([])
-    expect(mockToastSuccess).not.toHaveBeenCalled()
-  })
-
-  it('longRest 有回復生命骰時應彈出含骰數的 success toast', () => {
-    const { adjustHitDiceUsed, longRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustHitDiceUsed('fighter', 5, 5)
-    longRest([{ profession: 'fighter', level: 5, subprofession: null }])
-    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿並回復 2 個生命骰')
-  })
-
-  it('longRest 無生命骰可回復時應彈出精簡 toast', () => {
-    const { longRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    longRest([{ profession: 'fighter', level: 5, subprofession: null }])
-    expect(mockToastSuccess).toHaveBeenCalledWith('長休完成，HP 已回滿')
+  it('shortRest([]) 且無契術可回復時回傳 false 且不變更狀態', () => {
+    const { shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    const beforeUpdatedAt = state.updatedAt
+    expect(shortRest([])).toBe(false)
+    expect(state.updatedAt).toBe(beforeUpdatedAt)
   })
 })
 
@@ -419,6 +399,102 @@ describe('useCharacterCombatState — 特性次數', () => {
     shortRest([])
     expect(state.featureUses['long-feat']).toBe(1)
     expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+})
+
+describe('useCharacterCombatState — 法術位', () => {
+  it('未調整時 getSpellSlotUsed / getPactSlotUsed 應回傳 0', () => {
+    const { getSpellSlotUsed, getPactSlotUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getSpellSlotUsed(1)).toBe(0)
+    expect(getPactSlotUsed(3)).toBe(0)
+  })
+
+  it('adjustSpellSlotUsed 應夾在 0..max 之間', () => {
+    const { adjustSpellSlotUsed, getSpellSlotUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustSpellSlotUsed(1, 1, 4)
+    expect(getSpellSlotUsed(1)).toBe(1)
+    adjustSpellSlotUsed(1, 99, 4)
+    expect(getSpellSlotUsed(1)).toBe(4)
+    adjustSpellSlotUsed(1, -99, 4)
+    expect(getSpellSlotUsed(1)).toBe(0)
+  })
+
+  it('adjustPactSlotUsed 應夾在 0..max 之間', () => {
+    const { adjustPactSlotUsed, getPactSlotUsed } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustPactSlotUsed(3, 2, 2)
+    expect(getPactSlotUsed(3)).toBe(2)
+    adjustPactSlotUsed(3, 1, 2)
+    expect(getPactSlotUsed(3)).toBe(2)
+  })
+
+  it('歸零時應從 record 移除 entry', () => {
+    const { adjustSpellSlotUsed, setSpellSlotUsed, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustSpellSlotUsed(1, 2, 4)
+    expect(state.spellSlotsUsed[1]).toBe(2)
+    setSpellSlotUsed(1, 0, 4)
+    expect(state.spellSlotsUsed[1]).toBeUndefined()
+  })
+
+  it('一般環位與契術環位互相獨立', () => {
+    const { adjustSpellSlotUsed, adjustPactSlotUsed, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustSpellSlotUsed(1, 1, 4)
+    adjustPactSlotUsed(3, 1, 2)
+    expect(state.spellSlotsUsed).toEqual({ 1: 1 })
+    expect(state.pactSlotsUsed).toEqual({ 3: 1 })
+  })
+
+  it('shortRest 應清空 pactSlotsUsed 但保留 spellSlotsUsed', () => {
+    const { adjustSpellSlotUsed, adjustPactSlotUsed, shortRest, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustSpellSlotUsed(1, 2, 4)
+    adjustPactSlotUsed(3, 2, 2)
+    shortRest([])
+    expect(state.spellSlotsUsed).toEqual({ 1: 2 })
+    expect(state.pactSlotsUsed).toEqual({})
+  })
+
+  it('shortRest 僅有契術可回復時應觸發回復並回傳 true', () => {
+    const { adjustPactSlotUsed, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustPactSlotUsed(3, 2, 2)
+    expect(shortRest([])).toBe(true)
+    expect(state.pactSlotsUsed).toEqual({})
+  })
+
+  it('longRest 應清空 spellSlotsUsed 與 pactSlotsUsed', () => {
+    const { adjustSpellSlotUsed, adjustPactSlotUsed, longRest, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustSpellSlotUsed(1, 2, 4)
+    adjustPactSlotUsed(3, 1, 2)
+    longRest([])
+    expect(state.spellSlotsUsed).toEqual({})
+    expect(state.pactSlotsUsed).toEqual({})
+  })
+
+  it('normalize 載入舊資料無 spellSlotsUsed / pactSlotsUsed 時應補空物件', () => {
+    localStorage.setItem(
+      getCombatStateStorageKey(CHAR_ID),
+      JSON.stringify({
+        characterId: CHAR_ID,
+        hp: { current: 12, tempHp: 0, maxAdjustment: 0 },
+        acAdjustment: 0,
+        speedAdjustment: 0,
+        savingThrowAdjustments: {},
+        updatedAt: '2026-04-26T00:00:00.000Z',
+      }),
+    )
+    const { state } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(state.spellSlotsUsed).toEqual({})
+    expect(state.pactSlotsUsed).toEqual({})
   })
 })
 
