@@ -30,6 +30,8 @@ export interface CombatState {
   spellSlotsUsed: Partial<Record<SpellLevel, number>>
   /** 各環級已使用契術環位數（key = SpellLevel）；未出現的 key 視為 0 */
   pactSlotsUsed: Partial<Record<SpellLevel, number>>
+  /** 死亡豁免計數；HP=0 時生效，HP≥1 自動歸零 */
+  deathSaves: { successes: number; failures: number }
   updatedAt: string
 }
 
@@ -46,8 +48,13 @@ function createDefaultState(characterId: string): CombatState {
     hitDiceUsed: {},
     spellSlotsUsed: {},
     pactSlotsUsed: {},
+    deathSaves: { successes: 0, failures: 0 },
     updatedAt: new Date().toISOString(),
   }
+}
+
+function clampDeathSaveCount(value: number | undefined): number {
+  return Math.min(3, Math.max(0, Math.floor(value ?? 0)))
 }
 
 function normalizeState(stored: Partial<CombatState>, characterId: string): CombatState {
@@ -66,6 +73,10 @@ function normalizeState(stored: Partial<CombatState>, characterId: string): Comb
     hitDiceUsed: { ...stored.hitDiceUsed },
     spellSlotsUsed: { ...stored.spellSlotsUsed },
     pactSlotsUsed: { ...stored.pactSlotsUsed },
+    deathSaves: {
+      successes: clampDeathSaveCount(stored.deathSaves?.successes),
+      failures: clampDeathSaveCount(stored.deathSaves?.failures),
+    },
     updatedAt: stored.updatedAt ?? fallback.updatedAt,
   }
 }
@@ -197,6 +208,34 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     touch()
   }
 
+  // ─── Death saves ──────────────────────────────────────────────────────
+
+  function setDeathSaveSuccess(value: number): void {
+    state.deathSaves.successes = clampDeathSaveCount(value)
+    touch()
+  }
+
+  function setDeathSaveFailure(value: number): void {
+    state.deathSaves.failures = clampDeathSaveCount(value)
+    touch()
+  }
+
+  function resetDeathSaves(): void {
+    state.deathSaves.successes = 0
+    state.deathSaves.failures = 0
+    touch()
+  }
+
+  watch(
+    displayCurrentHp,
+    (next, prev) => {
+      if (prev === 0 && next > 0) {
+        resetDeathSaves()
+      }
+    },
+    { flush: 'sync' },
+  )
+
   // ─── Adjustments ──────────────────────────────────────────────────────
 
   function adjustAc(delta: number): void {
@@ -325,6 +364,8 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     state.hitDiceUsed = recoverHitDice(state.hitDiceUsed, professions)
     state.spellSlotsUsed = {}
     state.pactSlotsUsed = {}
+    state.deathSaves.successes = 0
+    state.deathSaves.failures = 0
     touch()
   }
 
@@ -378,6 +419,9 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     getPactSlotUsed,
     setPactSlotUsed,
     adjustPactSlotUsed,
+    setDeathSaveSuccess,
+    setDeathSaveFailure,
+    resetDeathSaves,
     shortRest,
     longRest,
   }

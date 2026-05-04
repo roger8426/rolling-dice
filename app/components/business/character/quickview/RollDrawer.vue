@@ -5,11 +5,11 @@
     aria-label="開啟擲骰面板"
     aria-haspopup="dialog"
     :aria-expanded="isOpen"
-    class="fixed right-0 top-1/2 z-30 flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded-l-md border border-r-0 border-border-soft bg-panel-2 px-2 py-3 text-content-muted shadow-md transition-colors hover:bg-panel hover:text-content focus-visible:outline-2 focus-visible:outline-ring"
+    class="fixed right-0 top-1/2 z-30 flex flex-col -translate-y-1/2 cursor-pointer items-center gap-2 rounded-l-md border border-r-0 border-border-soft bg-panel-2 px-3 pt-2 pb-1 text-content-muted shadow-md transition-colors hover:bg-panel hover:text-content focus-visible:outline-2 focus-visible:outline-ring"
     @click="isOpen = true"
   >
-    <Icon name="dice" :size="20" />
-    <span class="text-xs font-medium [writing-mode:vertical-rl]">擲骰</span>
+    <Icon name="dice" :size="32" />
+    <span class="text-xs font-medium">擲骰</span>
   </button>
 
   <Drawer

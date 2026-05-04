@@ -17,13 +17,23 @@
           @adjust-temp="adjustTempHp"
           @adjust-max="adjustMaxHp"
         />
-        <BusinessCharacterQuickviewHitDiceCard
-          :professions="character.professions"
-          :hit-dice-used="state.hitDiceUsed"
-          @adjust="adjustHitDiceUsed"
-        />
+        <div class="grid items-start gap-4 sm:grid-cols-2">
+          <BusinessCharacterQuickviewHitDiceCard
+            :professions="character.professions"
+            :hit-dice-used="state.hitDiceUsed"
+            @adjust="adjustHitDiceUsed"
+          />
+          <BusinessCharacterQuickviewDeathSavesCard
+            :active="displayCurrentHp === 0"
+            :successes="state.deathSaves.successes"
+            :failures="state.deathSaves.failures"
+            @set-success="setDeathSaveSuccess"
+            @set-failure="setDeathSaveFailure"
+            @roll-nat20="healHp(1)"
+          />
+        </div>
       </div>
-      <BusinessCharacterQuickviewDefenseCard
+      <BusinessCharacterQuickviewBattleCard
         :base-armor-class="totalArmorClass"
         :ac-adjustment="state.acAdjustment"
         :base-speed="totalSpeed"
@@ -31,6 +41,7 @@
         :initiative="totalInitiative"
         :passive-perception="totalPassivePerception"
         :passive-insight="totalPassiveInsight"
+        :proficiency-bonus="proficiencyBonus"
         @adjust-ac="adjustAc"
         @adjust-speed="adjustSpeed"
       />
@@ -134,6 +145,8 @@ const {
   adjustHitDiceUsed,
   adjustSpellSlotUsed,
   adjustPactSlotUsed,
+  setDeathSaveSuccess,
+  setDeathSaveFailure,
   shortRest,
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)

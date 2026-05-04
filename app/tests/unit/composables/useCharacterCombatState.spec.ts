@@ -498,6 +498,96 @@ describe('useCharacterCombatState — 法術位', () => {
   })
 })
 
+describe('useCharacterCombatState — 死亡豁免', () => {
+  it('預設 deathSaves 應為 0/0', () => {
+    const { state } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(state.deathSaves).toEqual({ successes: 0, failures: 0 })
+  })
+
+  it('setDeathSaveSuccess / setDeathSaveFailure 應夾在 [0, 3]', () => {
+    const { setDeathSaveSuccess, setDeathSaveFailure, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    setDeathSaveSuccess(2)
+    expect(state.deathSaves.successes).toBe(2)
+    setDeathSaveSuccess(99)
+    expect(state.deathSaves.successes).toBe(3)
+    setDeathSaveSuccess(-1)
+    expect(state.deathSaves.successes).toBe(0)
+    setDeathSaveFailure(5)
+    expect(state.deathSaves.failures).toBe(3)
+  })
+
+  it('resetDeathSaves 應將兩個欄位歸零', () => {
+    const { setDeathSaveSuccess, setDeathSaveFailure, resetDeathSaves, state } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    setDeathSaveSuccess(2)
+    setDeathSaveFailure(1)
+    resetDeathSaves()
+    expect(state.deathSaves).toEqual({ successes: 0, failures: 0 })
+  })
+
+  it('HP 由 0 恢復為正值時應自動歸零 deathSaves', async () => {
+    const { damageHp, healHp, setDeathSaveSuccess, setDeathSaveFailure, state } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    damageHp(30)
+    expect(state.hp.current).toBe(0)
+    setDeathSaveSuccess(2)
+    setDeathSaveFailure(1)
+    healHp(5)
+    await nextTick()
+    expect(state.deathSaves).toEqual({ successes: 0, failures: 0 })
+  })
+
+  it('HP 持續為 0 時不觸發歸零', async () => {
+    const { damageHp, setDeathSaveSuccess, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    damageHp(30)
+    setDeathSaveSuccess(2)
+    damageHp(5)
+    await nextTick()
+    expect(state.deathSaves.successes).toBe(2)
+  })
+
+  it('longRest 應清空 deathSaves', () => {
+    const { setDeathSaveSuccess, setDeathSaveFailure, longRest, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    setDeathSaveSuccess(2)
+    setDeathSaveFailure(1)
+    longRest([])
+    expect(state.deathSaves).toEqual({ successes: 0, failures: 0 })
+  })
+
+  it('localStorage 載入超出範圍的值應 clamp 至 [0, 3]', () => {
+    localStorage.setItem(
+      getCombatStateStorageKey(CHAR_ID),
+      JSON.stringify({
+        characterId: CHAR_ID,
+        hp: { current: 0, tempHp: 0, maxAdjustment: 0 },
+        deathSaves: { successes: 99, failures: -5 },
+        updatedAt: '2026-04-26T00:00:00.000Z',
+      }),
+    )
+    const { state } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(state.deathSaves).toEqual({ successes: 3, failures: 0 })
+  })
+
+  it('舊資料無 deathSaves 欄位時應補預設', () => {
+    localStorage.setItem(
+      getCombatStateStorageKey(CHAR_ID),
+      JSON.stringify({
+        characterId: CHAR_ID,
+        hp: { current: 10, tempHp: 0, maxAdjustment: 0 },
+        updatedAt: '2026-04-26T00:00:00.000Z',
+      }),
+    )
+    const { state } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(state.deathSaves).toEqual({ successes: 0, failures: 0 })
+  })
+})
+
 describe('useCharacterCombatState — 持久化', () => {
   it('狀態變動後 debounce 結束應寫入 localStorage', async () => {
     const { damageHp } = useCharacterCombatState(CHAR_ID, ref(30))
