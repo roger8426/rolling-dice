@@ -7,7 +7,7 @@
         <button
           type="button"
           aria-label="新增攻擊"
-          class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-4 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
+          class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-7 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
           @click="openCreate"
         >
           <span class="text-xl leading-none">+</span>
@@ -19,15 +19,24 @@
         :key="attack.id"
         class="flex items-center justify-between rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
-        <div>
-          <p class="text-sm font-semibold text-content">{{ attack.name }}</p>
-          <p class="mt-0.5 text-xs text-content-muted">
-            命中
-            <span class="font-bold" :class="hitBonusColor(attack)">
-              {{ formatModifier(computedHit(attack)) }}
-            </span>
-            <span class="mx-1.5">·</span>
-            傷害 {{ formatDamageSummary(attack, abilityScores) }}
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <p class="text-sm font-semibold text-content">{{ attack.name }}</p>
+            <p class="text-xs text-content">
+              命中
+              <span class="font-bold" :class="hitBonusColor(attack)">
+                {{ formatModifier(computedHit(attack)) }}
+              </span>
+            </p>
+          </div>
+          <p class="my-1 text-xs text-content">
+            {{ formatDamageSummary(attack, abilityScores) }}
+          </p>
+          <p
+            v-if="attack.comment"
+            class="line-clamp-2 text-xs whitespace-pre-line text-content-muted"
+          >
+            {{ attack.comment }}
           </p>
         </div>
         <div class="flex shrink-0 gap-1">
@@ -195,9 +204,27 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-content-muted">傷害</span>
-          <span class="text-sm font-bold text-content">{{
-            formatDamageSummary(draft, abilityScores)
-          }}</span>
+          <span class="text-sm font-bold text-content">
+            {{ formatDamageSummary(draft, abilityScores) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- 第四列：補充說明 -->
+      <div>
+        <label for="attack-modal-comment" class="mb-1 block text-xs text-content">補充說明</label>
+        <div class="rounded-md border border-primary bg-canvas-inset">
+          <TextArea
+            id="attack-modal-comment"
+            class="w-full"
+            :border="false"
+            :model-value="draft.comment ?? ''"
+            :rows="3"
+            :maxlength="COMMENT_MAX_LENGTH"
+            show-count
+            placeholder="觸發條件、附加效果、備註等（選填）"
+            @update:model-value="draft.comment = $event ? $event : null"
+          />
         </div>
       </div>
     </div>
@@ -216,7 +243,7 @@
 </template>
 
 <script setup lang="ts">
-import { Modal, Button, Icon, Toggle } from '@ui'
+import { Modal, Button, Icon, Toggle, TextArea } from '@ui'
 import type { SelectOption } from '@ui'
 import type {
   TotalAbilityScores,
@@ -257,6 +284,8 @@ const damageTypeOptions: SelectOption[] = [
   ...DAMAGE_TYPE_KEYS.map((key) => ({ value: key, label: DAMAGE_TYPE_LABELS[key] })),
 ]
 
+const COMMENT_MAX_LENGTH = 100
+
 // ─── Modal 狀態 ───────────────────────────────────────────────────────────────
 
 const modalOpen = ref(false)
@@ -269,6 +298,7 @@ const createEmptyDraft = (): AttackDraft => {
     damageDice: [],
     extraHitBonus: null,
     applyAbilityToDamage: true,
+    comment: null,
   }
 }
 
@@ -307,6 +337,7 @@ const openEdit = (attack: AttackEntry) => {
     damageDice: attack.damageDice.map((entry) => ({ ...entry })),
     extraHitBonus: attack.extraHitBonus,
     applyAbilityToDamage: attack.applyAbilityToDamage,
+    comment: attack.comment,
   }
   modalOpen.value = true
 }

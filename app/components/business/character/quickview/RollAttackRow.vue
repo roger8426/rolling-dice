@@ -1,15 +1,16 @@
 <template>
   <li class="rounded-lg border border-border-soft bg-surface px-3 py-2">
-    <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
-
-    <div class="mt-1.5 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2 text-xs text-content-muted">
-        <span>命中</span>
-        <span class="font-bold" :class="modifierColor(hitBonus)">
-          {{ formatModifier(hitBonus) }}
-        </span>
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
+        <p class="text-xs text-content">
+          命中
+          <span class="font-bold" :class="modifierColor(hitBonus)">
+            {{ formatModifier(hitBonus) }}
+          </span>
+        </p>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex shrink-0 items-center gap-1">
         <button
           type="button"
           :aria-label="`${attack.name || '攻擊'} 一般命中`"
@@ -37,9 +38,8 @@
       </div>
     </div>
 
-    <div class="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+    <div class="my-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
       <div class="flex min-w-0 flex-1 items-center gap-2 text-xs text-content-muted">
-        <span class="shrink-0">傷害</span>
         <span class="min-w-0 wrap-break-word font-bold text-content">{{ damageSummary }}</span>
       </div>
       <div class="ml-auto flex gap-0.5">
@@ -61,6 +61,10 @@
         </button>
       </div>
     </div>
+
+    <p v-if="attack.comment" class="line-clamp-2 text-xs whitespace-pre-line text-content-muted">
+      {{ attack.comment }}
+    </p>
   </li>
 </template>
 

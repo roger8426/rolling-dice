@@ -61,6 +61,7 @@ describe('useCharacterAttacksForm', () => {
       damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
       applyAbilityToDamage: true,
+      comment: '輕型武器，可雙持',
     })
     expect(formState.attacks[0]).toMatchObject({
       id,
@@ -69,6 +70,15 @@ describe('useCharacterAttacksForm', () => {
       damageDice: [{ id: 'd-1', dieType: 'd8', count: 1, bonus: 3, damageType: 'slashing' }],
       extraHitBonus: 2,
       applyAbilityToDamage: true,
+      comment: '輕型武器，可雙持',
     })
+  })
+
+  it('updateAttack 應以 null 覆寫既有 comment', () => {
+    const { formState, attacks } = setup()
+    attacks.addAttack({ ...defaultEntry(), comment: '原始備註' })
+    const id = formState.attacks[0]!.id
+    attacks.updateAttack(id, { ...defaultEntry(), comment: null })
+    expect(formState.attacks[0]!.comment).toBeNull()
   })
 })

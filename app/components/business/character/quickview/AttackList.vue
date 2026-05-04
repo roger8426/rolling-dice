@@ -12,17 +12,26 @@
         :key="attack.id"
         class="rounded-lg border border-border-soft bg-surface px-3 py-2"
       >
-        <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
-        <p class="mt-0.5 text-xs text-content-muted">
-          命中
-          <span
-            class="font-bold"
-            :class="getHitBonusColorClass(getAttackHit(attack, abilityScores, proficiencyBonus))"
-          >
-            {{ formatModifier(getAttackHit(attack, abilityScores, proficiencyBonus)) }}
-          </span>
-          <span class="mx-1.5">·</span>
-          傷害 {{ formatDamageSummary(attack, abilityScores) }}
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+          <p class="text-sm font-semibold text-content">{{ attack.name || '（未命名）' }}</p>
+          <p class="text-xs text-content">
+            命中
+            <span
+              class="font-bold"
+              :class="getHitBonusColorClass(getAttackHit(attack, abilityScores, proficiencyBonus))"
+            >
+              {{ formatModifier(getAttackHit(attack, abilityScores, proficiencyBonus)) }}
+            </span>
+          </p>
+        </div>
+        <p class="my-1 text-xs text-content">
+          {{ formatDamageSummary(attack, abilityScores) }}
+        </p>
+        <p
+          v-if="attack.comment"
+          class="line-clamp-2 text-xs whitespace-pre-line text-content-muted"
+        >
+          {{ attack.comment }}
         </p>
       </li>
     </ul>
