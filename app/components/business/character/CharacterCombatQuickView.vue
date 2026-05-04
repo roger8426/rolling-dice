@@ -79,6 +79,14 @@
         />
       </div>
     </div>
+
+    <BusinessCharacterQuickviewRollDrawer
+      :character="character"
+      :ability-scores="totalAbilityScores"
+      :proficiency-bonus="proficiencyBonus"
+      :saving-throw-proficiencies="savingThrowProficiencies"
+      :saving-throw-adjustments="state.savingThrowAdjustments"
+    />
   </div>
 </template>
 
