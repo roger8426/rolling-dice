@@ -4,7 +4,7 @@ import {
   POINT_BUY_MAX_SCORE,
   POINT_BUY_MIN_SCORE,
 } from '~/constants/dnd'
-import { rollAbilityScore } from '~/helpers/dice'
+import { rollDice } from '~/helpers/dice'
 import type { AbilityKey } from '~/types/business/dnd'
 import type { AbilityScoreEntry, DiceSlot } from '~/types/business/character'
 
@@ -60,6 +60,16 @@ export function tryCalculateSpentPoints(scores: Record<AbilityKey, number>): num
     sum += POINT_BUY_COST_TABLE[score]!
   }
   return sum
+}
+
+/**
+ * D&D 5e 能力值擲骰：4d6 去最低。
+ * 擲 4 顆 d6，排序後取最高 3 顆加總。
+ */
+export function rollAbilityScore(): number {
+  const sorted = rollDice(4, 6).sort((a, b) => a - b) as [number, number, number, number]
+  const [_, second, third, fourth] = sorted
+  return second + third + fourth
 }
 
 /**
