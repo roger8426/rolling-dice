@@ -68,8 +68,8 @@
     <div class="grid items-start gap-4 md:grid-cols-2">
       <BusinessCharacterQuickviewFeatureList
         :features="character.features"
-        :feature-uses="state.featureUses"
-        @adjust="adjustFeatureUse"
+        :feature-uses-spent="state.featureUsesSpent"
+        @adjust="adjustFeatureUseSpent"
       />
 
       <div class="flex flex-col gap-4">
@@ -141,7 +141,7 @@ const {
   adjustAc,
   adjustSpeed,
   adjustSavingThrow,
-  adjustFeatureUse,
+  adjustFeatureUseSpent,
   adjustHitDiceUsed,
   adjustSpellSlotUsed,
   adjustPactSlotUsed,
@@ -172,7 +172,13 @@ const onShortRest = (): void => {
 }
 
 const onLongRest = (): void => {
-  longRest(props.character.professions)
+  const ids = props.character.features
+    .filter(
+      (f) =>
+        f.usage.hasUses && (f.usage.recovery === 'shortRest' || f.usage.recovery === 'longRest'),
+    )
+    .map((f) => f.id)
+  longRest(props.character.professions, ids)
   useToast().success('長休完成')
 }
 </script>

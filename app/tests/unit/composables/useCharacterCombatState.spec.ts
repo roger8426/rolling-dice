@@ -182,7 +182,7 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.savingThrowAdjustments.strength).toBeUndefined()
   })
 
-  it('longRest 應清空所有臨時調整與 HP / tempHp / maxAdjustment / featureUses', () => {
+  it('longRest 應清空所有臨時調整與 HP / tempHp / maxAdjustment，並清空指定 id 的 featureUsesSpent', () => {
     const {
       adjustAc,
       adjustSpeed,
@@ -190,7 +190,7 @@ describe('useCharacterCombatState — 臨時調整', () => {
       setTempHp,
       damageHp,
       adjustMaxHp,
-      adjustFeatureUse,
+      adjustFeatureUseSpent,
       longRest,
       state,
     } = useCharacterCombatState(CHAR_ID, ref(30))
@@ -200,9 +200,9 @@ describe('useCharacterCombatState — 臨時調整', () => {
     setTempHp(5)
     damageHp(10)
     adjustMaxHp(7)
-    adjustFeatureUse('feat-1', -1, 3)
+    adjustFeatureUseSpent('feat-1', 1, 3)
 
-    longRest()
+    longRest([], ['feat-1'])
 
     expect(state.acAdjustment).toBe(0)
     expect(state.speedAdjustment).toBe(0)
@@ -210,14 +210,36 @@ describe('useCharacterCombatState — 臨時調整', () => {
     expect(state.hp.tempHp).toBe(0)
     expect(state.hp.current).toBeNull()
     expect(state.hp.maxAdjustment).toBe(0)
-    expect(state.featureUses).toEqual({})
+    expect(state.featureUsesSpent).toEqual({})
+  })
+
+  it('longRest 應保留 manual recovery 對應的 featureUsesSpent 條目', () => {
+    const { adjustFeatureUseSpent, longRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('short-feat', 1, 2)
+    adjustFeatureUseSpent('long-feat', 1, 3)
+    adjustFeatureUseSpent('manual-feat', 1, 5)
+
+    longRest([], ['short-feat', 'long-feat'])
+
+    expect(state.featureUsesSpent['short-feat']).toBeUndefined()
+    expect(state.featureUsesSpent['long-feat']).toBeUndefined()
+    expect(state.featureUsesSpent['manual-feat']).toBe(1)
+  })
+
+  it('longRest 未傳入 longRestFeatureIds 時不動 featureUsesSpent', () => {
+    const { adjustFeatureUseSpent, longRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('manual-feat', 2, 5)
+
+    longRest()
+
+    expect(state.featureUsesSpent['manual-feat']).toBe(2)
   })
 })
 
 describe('useCharacterCombatState — 休息 toast 通知', () => {
   it('shortRest 有 feature 目標時回傳 true', () => {
-    const { adjustFeatureUse, shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('feat-1', -1, 2)
+    const { adjustFeatureUseSpent, shortRest } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('feat-1', 1, 2)
     expect(shortRest(['feat-1'])).toBe(true)
   })
 
@@ -332,42 +354,50 @@ describe('useCharacterCombatState — 生命骰', () => {
 })
 
 describe('useCharacterCombatState — 特性次數', () => {
-  it('未調整時 getFeatureUse 應回傳 max', () => {
-    const { getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
-    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  it('未調整時 getFeatureUseSpent 應回傳 0、getFeatureUseRemaining 應回傳 max', () => {
+    const { getFeatureUseSpent, getFeatureUseRemaining } = useCharacterCombatState(CHAR_ID, ref(30))
+    expect(getFeatureUseSpent('feat-1')).toBe(0)
+    expect(getFeatureUseRemaining('feat-1', 3)).toBe(3)
   })
 
-  it('adjustFeatureUse 應夾在 0..max 之間', () => {
-    const { adjustFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('feat-1', -1, 3)
-    expect(getFeatureUse('feat-1', 3)).toBe(2)
-    adjustFeatureUse('feat-1', -10, 3)
-    expect(getFeatureUse('feat-1', 3)).toBe(0)
-    adjustFeatureUse('feat-1', 10, 3)
-    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  it('adjustFeatureUseSpent 應夾在 0..max 之間', () => {
+    const { adjustFeatureUseSpent, getFeatureUseSpent, getFeatureUseRemaining } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('feat-1', 1, 3)
+    expect(getFeatureUseSpent('feat-1')).toBe(1)
+    expect(getFeatureUseRemaining('feat-1', 3)).toBe(2)
+    adjustFeatureUseSpent('feat-1', 10, 3)
+    expect(getFeatureUseSpent('feat-1')).toBe(3)
+    expect(getFeatureUseRemaining('feat-1', 3)).toBe(0)
+    adjustFeatureUseSpent('feat-1', -10, 3)
+    expect(getFeatureUseSpent('feat-1')).toBe(0)
+    expect(getFeatureUseRemaining('feat-1', 3)).toBe(3)
   })
 
-  it('恢復至滿時應從 record 移除 entry', () => {
-    const { adjustFeatureUse, setFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('feat-1', -1, 3)
-    expect(state.featureUses['feat-1']).toBe(2)
-    setFeatureUse('feat-1', 3, 3)
-    expect(state.featureUses['feat-1']).toBeUndefined()
+  it('歸零時應從 record 移除 entry', () => {
+    const { adjustFeatureUseSpent, setFeatureUseSpent, state } = useCharacterCombatState(
+      CHAR_ID,
+      ref(30),
+    )
+    adjustFeatureUseSpent('feat-1', 1, 3)
+    expect(state.featureUsesSpent['feat-1']).toBe(1)
+    setFeatureUseSpent('feat-1', 0, 3)
+    expect(state.featureUsesSpent['feat-1']).toBeUndefined()
   })
 
   it('shortRest 僅恢復指定 id 的特性，其他不動', () => {
-    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('short-feat', -1, 2)
-    adjustFeatureUse('long-feat', -1, 1)
+    const { adjustFeatureUseSpent, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('short-feat', 1, 2)
+    adjustFeatureUseSpent('long-feat', 1, 1)
     shortRest(['short-feat'])
-    expect(state.featureUses['short-feat']).toBeUndefined()
-    expect(state.featureUses['long-feat']).toBe(0)
+    expect(state.featureUsesSpent['short-feat']).toBeUndefined()
+    expect(state.featureUsesSpent['long-feat']).toBe(1)
   })
 
   it('shortRest 與 HP / 臨時調整無關', () => {
-    const { adjustFeatureUse, adjustAc, damageHp, shortRest, state, displayCurrentHp } =
+    const { adjustFeatureUseSpent, adjustAc, damageHp, shortRest, state, displayCurrentHp } =
       useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('short-feat', -1, 2)
+    adjustFeatureUseSpent('short-feat', 1, 2)
     adjustAc(2)
     damageHp(5)
     shortRest(['short-feat'])
@@ -375,30 +405,39 @@ describe('useCharacterCombatState — 特性次數', () => {
     expect(displayCurrentHp.value).toBe(25)
   })
 
-  it('setFeatureUse 應直接 clamp 至 [0, max]', () => {
-    const { setFeatureUse, getFeatureUse } = useCharacterCombatState(CHAR_ID, ref(30))
-    setFeatureUse('feat-1', -5, 3)
-    expect(getFeatureUse('feat-1', 3)).toBe(0)
-    setFeatureUse('feat-1', 99, 3)
-    expect(getFeatureUse('feat-1', 3)).toBe(3)
+  it('setFeatureUseSpent 應直接 clamp 至 [0, max]', () => {
+    const { setFeatureUseSpent, getFeatureUseSpent } = useCharacterCombatState(CHAR_ID, ref(30))
+    setFeatureUseSpent('feat-1', -5, 3)
+    expect(getFeatureUseSpent('feat-1')).toBe(0)
+    setFeatureUseSpent('feat-1', 99, 3)
+    expect(getFeatureUseSpent('feat-1')).toBe(3)
   })
 
-  it('adjustFeatureUse(delta = 0) 應為 no-op', () => {
-    const { adjustFeatureUse, state } = useCharacterCombatState(CHAR_ID, ref(30))
+  it('adjustFeatureUseSpent(delta = 0) 應為 no-op', () => {
+    const { adjustFeatureUseSpent, state } = useCharacterCombatState(CHAR_ID, ref(30))
     const beforeUpdatedAt = state.updatedAt
-    adjustFeatureUse('feat-1', 0, 3)
-    expect(state.featureUses).toEqual({})
+    adjustFeatureUseSpent('feat-1', 0, 3)
+    expect(state.featureUsesSpent).toEqual({})
     expect(state.updatedAt).toBe(beforeUpdatedAt)
   })
 
   it('shortRest([]) 應為 no-op，不變更 updatedAt', () => {
-    const { adjustFeatureUse, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
-    adjustFeatureUse('long-feat', -1, 2)
+    const { adjustFeatureUseSpent, shortRest, state } = useCharacterCombatState(CHAR_ID, ref(30))
+    adjustFeatureUseSpent('long-feat', 1, 2)
     const beforeUpdatedAt = state.updatedAt
     vi.advanceTimersByTime(10)
     shortRest([])
-    expect(state.featureUses['long-feat']).toBe(1)
+    expect(state.featureUsesSpent['long-feat']).toBe(1)
     expect(state.updatedAt).toBe(beforeUpdatedAt)
+  })
+
+  it('feature.usage.max 變動下調時 getFeatureUseRemaining 應 clamp 至 0、不出現負值', () => {
+    const { setFeatureUseSpent, getFeatureUseRemaining, getFeatureUseSpent } =
+      useCharacterCombatState(CHAR_ID, ref(30))
+    setFeatureUseSpent('feat-1', 4, 5)
+    expect(getFeatureUseSpent('feat-1')).toBe(4)
+    expect(getFeatureUseRemaining('feat-1', 5)).toBe(1)
+    expect(getFeatureUseRemaining('feat-1', 3)).toBe(0)
   })
 })
 

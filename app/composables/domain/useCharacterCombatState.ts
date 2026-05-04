@@ -2,38 +2,8 @@ import type { Ref } from 'vue'
 import { PROFESSION_CONFIG } from '~/constants/dnd'
 import { getCombatStateStorageKey } from '~/constants/storage'
 import { calculateTotalLevel } from '~/helpers/character'
-import type { ProfessionEntry, SpellLevel } from '~/types/business/character'
+import type { CombatState, ProfessionEntry, SpellLevel } from '~/types/business/character'
 import type { AbilityKey, ProfessionKey } from '~/types/business/dnd'
-
-/** 戰況追蹤資料；獨立於 Character 主資料，僅影響速查顯示 */
-export interface CombatState {
-  characterId: string
-  hp: {
-    /** 目前生命值；null 表示未開始追蹤，UI 應顯示 effectiveMaxHp */
-    current: number | null
-    /** 臨時生命值，受傷時優先扣 */
-    tempHp: number
-    /** 最大生命臨時調整（疊加於 baseMaxHp） */
-    maxAdjustment: number
-  }
-  /** 護甲等級臨時調整（疊加於基礎 AC） */
-  acAdjustment: number
-  /** 移動速度臨時調整 */
-  speedAdjustment: number
-  /** 各項豁免的臨時調整 */
-  savingThrowAdjustments: Partial<Record<AbilityKey, number>>
-  /** 各特性目前剩餘次數（key = feature.id）；未出現的 key 視為滿 */
-  featureUses: Partial<Record<string, number>>
-  /** 各職業已使用生命骰數（key = ProfessionKey）；未出現的 key 視為 0 */
-  hitDiceUsed: Partial<Record<ProfessionKey, number>>
-  /** 各環級已使用一般法術位數（key = SpellLevel）；未出現的 key 視為 0 */
-  spellSlotsUsed: Partial<Record<SpellLevel, number>>
-  /** 各環級已使用契術環位數（key = SpellLevel）；未出現的 key 視為 0 */
-  pactSlotsUsed: Partial<Record<SpellLevel, number>>
-  /** 死亡豁免計數；HP=0 時生效，HP≥1 自動歸零 */
-  deathSaves: { successes: number; failures: number }
-  updatedAt: string
-}
 
 const PERSIST_DEBOUNCE_MS = 300
 
@@ -44,7 +14,7 @@ function createDefaultState(characterId: string): CombatState {
     acAdjustment: 0,
     speedAdjustment: 0,
     savingThrowAdjustments: {},
-    featureUses: {},
+    featureUsesSpent: {},
     hitDiceUsed: {},
     spellSlotsUsed: {},
     pactSlotsUsed: {},
@@ -69,7 +39,7 @@ function normalizeState(stored: Partial<CombatState>, characterId: string): Comb
     acAdjustment: stored.acAdjustment ?? 0,
     speedAdjustment: stored.speedAdjustment ?? 0,
     savingThrowAdjustments: { ...stored.savingThrowAdjustments },
-    featureUses: { ...stored.featureUses },
+    featureUsesSpent: { ...stored.featureUsesSpent },
     hitDiceUsed: { ...stored.hitDiceUsed },
     spellSlotsUsed: { ...stored.spellSlotsUsed },
     pactSlotsUsed: { ...stored.pactSlotsUsed },
@@ -261,19 +231,27 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
 
   // ─── Feature uses ─────────────────────────────────────────────────────
 
-  function getFeatureUse(featureId: string, max: number): number {
-    return state.featureUses[featureId] ?? max
+  /** 取得指定特性已使用次數，未追蹤時回傳 0 */
+  function getFeatureUseSpent(featureId: string): number {
+    return state.featureUsesSpent[featureId] ?? 0
   }
 
-  function setFeatureUse(featureId: string, value: number, max: number): void {
+  /** 取得指定特性剩餘次數（max - spent，clamp 至 [0, max]）；UI 顯示用 */
+  function getFeatureUseRemaining(featureId: string, max: number): number {
+    return Math.min(max, Math.max(0, max - getFeatureUseSpent(featureId)))
+  }
+
+  /** 直接設定指定特性已使用次數，clamp 至 [0, max]；spent = 0 時從 record 移除 */
+  function setFeatureUseSpent(featureId: string, value: number, max: number): void {
     const clamped = Math.min(Math.max(0, value), max)
-    state.featureUses = setSparseRecord(state.featureUses, featureId, clamped, max)
+    state.featureUsesSpent = setSparseRecord(state.featureUsesSpent, featureId, clamped, 0)
     touch()
   }
 
-  function adjustFeatureUse(featureId: string, delta: number, max: number): void {
+  /** 對指定特性已使用次數 +/- delta，clamp 至 [0, max] */
+  function adjustFeatureUseSpent(featureId: string, delta: number, max: number): void {
     if (delta === 0) return
-    setFeatureUse(featureId, getFeatureUse(featureId, max) + delta, max)
+    setFeatureUseSpent(featureId, getFeatureUseSpent(featureId) + delta, max)
   }
 
   // ─── Hit dice ─────────────────────────────────────────────────────────
@@ -341,8 +319,8 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     if (targets.size === 0 && !hasPactToRecover) return false
 
     if (targets.size > 0) {
-      state.featureUses = Object.fromEntries(
-        Object.entries(state.featureUses).filter(([k]) => !targets.has(k)),
+      state.featureUsesSpent = Object.fromEntries(
+        Object.entries(state.featureUsesSpent).filter(([k]) => !targets.has(k)),
       ) as Partial<Record<string, number>>
     }
     if (hasPactToRecover) {
@@ -352,15 +330,28 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     return true
   }
 
-  /** 長休：HP 回滿、清空所有臨時調整與所有特性次數與所有法術位，並依「大骰面優先」貪婪回復生命骰 */
-  function longRest(professions: readonly ProfessionEntry[] = []): void {
+  /**
+   * 長休：HP 回滿、清空臨時調整、清空指定 id 對應的特性次數與所有法術位，
+   * 依「大骰面優先」貪婪回復生命骰。傳入的 longRestFeatureIds 應涵蓋
+   * recovery 為 shortRest 或 longRest 的特性；recovery 為 manual 的特性
+   * 由 caller 排除即可保留次數。
+   */
+  function longRest(
+    professions: readonly ProfessionEntry[] = [],
+    longRestFeatureIds: readonly string[] = [],
+  ): void {
     state.hp.current = null
     state.hp.tempHp = 0
     state.hp.maxAdjustment = 0
     state.acAdjustment = 0
     state.speedAdjustment = 0
     state.savingThrowAdjustments = {}
-    state.featureUses = {}
+    if (longRestFeatureIds.length > 0) {
+      const targets = new Set(longRestFeatureIds)
+      state.featureUsesSpent = Object.fromEntries(
+        Object.entries(state.featureUsesSpent).filter(([k]) => !targets.has(k)),
+      ) as Partial<Record<string, number>>
+    }
     state.hitDiceUsed = recoverHitDice(state.hitDiceUsed, professions)
     state.spellSlotsUsed = {}
     state.pactSlotsUsed = {}
@@ -407,9 +398,10 @@ export function useCharacterCombatState(characterId: string, baseMaxHp: Ref<numb
     adjustAc,
     adjustSpeed,
     adjustSavingThrow,
-    getFeatureUse,
-    setFeatureUse,
-    adjustFeatureUse,
+    getFeatureUseSpent,
+    getFeatureUseRemaining,
+    setFeatureUseSpent,
+    adjustFeatureUseSpent,
     getHitDiceUsed,
     setHitDiceUsed,
     adjustHitDiceUsed,
