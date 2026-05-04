@@ -371,6 +371,8 @@ export interface AttackEntry {
   extraHitBonus: number | null
   /** 是否將屬性調整值加入第一行傷害（預設 true；false 用於額外傷害類型不吃屬性 mod 的情境） */
   applyAbilityToDamage: boolean
+  /** 攻擊模組的補充說明（觸發條件、附加效果、備註等；未填以 null 表示） */
+  comment: string | null
 }
 
 /** 攻擊草稿（尚未具備 id 的攻擊條目，常見於新增/編輯 modal） */

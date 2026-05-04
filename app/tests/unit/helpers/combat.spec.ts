@@ -11,6 +11,7 @@ const baseDraft = (): AttackDraft => ({
   damageDice: [],
   extraHitBonus: null,
   applyAbilityToDamage: true,
+  comment: null,
 })
 
 const emptyScores = (): TotalAbilityScores => ({
