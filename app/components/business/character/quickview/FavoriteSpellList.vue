@@ -56,8 +56,9 @@ const headingId = useId()
 
 const groupedSpells = computed(() => {
   const spells: Spell[] = []
-  for (const id of props.character.favoriteSpellIds) {
-    const spell = getSpell(id)
+  for (const entry of props.character.spells) {
+    if (!entry.isFavorite) continue
+    const spell = getSpell(entry.id)
     if (spell) spells.push(spell)
   }
   return groupSpellsByLevel(spells)

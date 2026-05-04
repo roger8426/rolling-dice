@@ -253,7 +253,7 @@ const filteredSpells = computed<Spell[]>(() => {
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
 const isLearned = (id: string): boolean => {
-  return formState.value.learnedSpells.includes(id)
+  return formState.value.spells.some((entry) => entry.id === id)
 }
 
 const itemEls = new Map<string, HTMLElement>()

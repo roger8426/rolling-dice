@@ -127,10 +127,10 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.savingThrowExtras).toEqual([])
   })
 
-  it('新增後 favoriteSpellIds 應為空陣列', () => {
+  it('新增後 spells 應為空陣列', () => {
     const store = useCharacterStore()
     const created = store.addCharacter(MOCK_FORM_STATE)
-    expect(created!.favoriteSpellIds).toEqual([])
+    expect(created!.spells).toEqual([])
   })
 
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
@@ -229,8 +229,7 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   attacks: [],
   spellcastingAbilities: [],
   customSpellcastingBonuses: {},
-  learnedSpells: [],
-  preparedSpells: [],
+  spells: [],
   spellSlotsDelta: {},
   pactSlotsDelta: {},
   features: [],
@@ -389,37 +388,32 @@ describe('useCharacterStore — updateCharacter', () => {
     expect(updated!.savingThrowExtras).toEqual(['charisma'])
   })
 
-  it('favoriteSpellIds 中已不在 learnedSpells 的法術應同步移除', () => {
-    const KEPT = 'spell-keep'
-    const REMOVED = 'spell-remove'
-    const baseline = createMockCharacter({
-      learnedSpells: [KEPT, REMOVED],
-      favoriteSpellIds: [KEPT, REMOVED],
-    })
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([baseline]))
-    const store = useCharacterStore()
-    const updated = store.updateCharacter('test-001', {
-      ...MOCK_UPDATE_FORM_STATE,
-      learnedSpells: [KEPT],
-      preparedSpells: [],
-    })
-    expect(updated!.favoriteSpellIds).toEqual([KEPT])
-  })
-
-  it('favoriteSpellIds 在 learnedSpells 維持不變時應完整保留', () => {
+  it('spells 完整由 formState 寫入（含 isPrepared / isFavorite flag）', () => {
     const A = 'spell-a'
     const B = 'spell-b'
-    const baseline = createMockCharacter({
-      learnedSpells: [A, B],
-      favoriteSpellIds: [A, B],
-    })
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([baseline]))
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
     const updated = store.updateCharacter('test-001', {
       ...MOCK_UPDATE_FORM_STATE,
-      learnedSpells: [A, B],
-      preparedSpells: [],
+      spells: [
+        { id: A, isPrepared: true, isFavorite: false },
+        { id: B, isPrepared: false, isFavorite: true },
+      ],
     })
-    expect(updated!.favoriteSpellIds).toEqual([A, B])
+    expect(updated!.spells).toEqual([
+      { id: A, isPrepared: true, isFavorite: false },
+      { id: B, isPrepared: false, isFavorite: true },
+    ])
+  })
+
+  it('updateCharacter 不會與 store 內部 reactive 共享 spells 參考', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
+    const store = useCharacterStore()
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      spells: [{ id: 's1', isPrepared: false, isFavorite: false }],
+    })
+    updated!.spells[0]!.isPrepared = true
+    expect(store.getById('test-001')!.spells[0]!.isPrepared).toBe(false)
   })
 })

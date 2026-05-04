@@ -4,10 +4,17 @@ import {
   formatSpellComponents,
   formatSpellLevel,
   groupSpellsByLevel,
-  hasConsumedMaterial,
   validateSpell,
+  withToggledFlag,
 } from '~/helpers/spell'
+import type { SpellEntry } from '~/types/business/character'
 import type { Spell, SpellDto, SpellSchool } from '~/types/business/spell'
+
+const makeEntry = (id: string, isPrepared = false, isFavorite = false): SpellEntry => ({
+  id,
+  isPrepared,
+  isFavorite,
+})
 
 function makeDto(overrides: Partial<SpellDto> = {}): SpellDto {
   return {
@@ -119,34 +126,6 @@ describe('formatSpellComponents', () => {
   })
 })
 
-// ─── hasConsumedMaterial ──────────────────────────────────────────────────────
-
-describe('hasConsumedMaterial', () => {
-  it('空 material 回傳 false', () => {
-    expect(hasConsumedMaterial({ material: '' })).toBe(false)
-  })
-
-  it('純材料無消耗標記回傳 false', () => {
-    expect(hasConsumedMaterial({ material: '一根蝙蝠的羽毛和一塊硫磺' })).toBe(false)
-  })
-
-  it('material 以「在施法時消耗」結尾回傳 true', () => {
-    expect(hasConsumedMaterial({ material: '一顆價值至少1,000金幣的鑽石，在施法時消耗' })).toBe(
-      true,
-    )
-  })
-
-  it('「在施法時消耗」於中段（後接分號子句）回傳 true', () => {
-    expect(hasConsumedMaterial({ material: '價值25金幣的銀粉，在施法時消耗；一個價值至少…' })).toBe(
-      true,
-    )
-  })
-
-  it('「在施法時消耗」於中段（後接逗號子句）回傳 true', () => {
-    expect(hasConsumedMaterial({ material: '聖水，在施法時消耗，以及一塊白銀' })).toBe(true)
-  })
-})
-
 // ─── groupSpellsByLevel ───────────────────────────────────────────────────────
 
 let _spellCounter = 0
@@ -200,5 +179,29 @@ describe('groupSpellsByLevel', () => {
     const level2 = groups.find((g) => g.level === 2)!
     expect(level2.spells).toHaveLength(2)
     expect(level2.spells.map((s) => s.name).sort()).toEqual(['A', 'C'])
+  })
+})
+
+// ─── SpellEntry helpers ──────────────────────────────────────────────────────
+
+describe('withToggledFlag', () => {
+  it('切換 isPrepared 並回傳新陣列', () => {
+    const entries = [makeEntry('a', false), makeEntry('b', true)]
+    const result = withToggledFlag(entries, 'a', 'isPrepared')
+    expect(result[0]).toEqual({ id: 'a', isPrepared: true, isFavorite: false })
+    expect(result[1]).toEqual({ id: 'b', isPrepared: true, isFavorite: false })
+    expect(result).not.toBe(entries)
+  })
+
+  it('切換 isFavorite 不影響 isPrepared', () => {
+    const entries = [makeEntry('a', true, false)]
+    const result = withToggledFlag(entries, 'a', 'isFavorite')
+    expect(result[0]).toEqual({ id: 'a', isPrepared: true, isFavorite: true })
+  })
+
+  it('id 不存在時原樣回傳每筆 entry', () => {
+    const entries = [makeEntry('a', true)]
+    const result = withToggledFlag(entries, 'z', 'isPrepared')
+    expect(result).toEqual(entries)
   })
 })

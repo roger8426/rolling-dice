@@ -28,7 +28,7 @@
           :professions="formState.professions"
         />
         <BusinessCharacterFormSpellsLearnedSpellList
-          :learned-spell-ids="formState.learnedSpells"
+          :spells="formState.spells"
           @select="onSelectLearned"
         />
       </div>

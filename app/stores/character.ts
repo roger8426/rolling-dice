@@ -72,9 +72,7 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: [],
       spellcastingAbilities: [],
       customSpellcastingBonuses: {},
-      learnedSpells: [],
-      preparedSpells: [],
-      favoriteSpellIds: [],
+      spells: [],
       spellSlotsDelta: {},
       pactSlotsDelta: {},
       features: [],
@@ -110,11 +108,6 @@ export const useCharacterStore = defineStore('character', () => {
     const baselineSet = new Set(baselineSavingThrows)
     const savingThrowExtras = formState.savingThrowExtras.filter((key) => !baselineSet.has(key))
 
-    const learnedSpells = [...formState.learnedSpells]
-    const learnedSet = new Set(learnedSpells)
-    const preparedSpells = formState.preparedSpells.filter((id) => learnedSet.has(id))
-    const favoriteSpellIds = previous.favoriteSpellIds.filter((id) => learnedSet.has(id))
-
     const updated: Character = {
       ...previous,
       ...patch,
@@ -130,9 +123,7 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: JSON.parse(JSON.stringify(formState.attacks)),
       spellcastingAbilities: [...formState.spellcastingAbilities],
       customSpellcastingBonuses: { ...formState.customSpellcastingBonuses },
-      learnedSpells,
-      preparedSpells,
-      favoriteSpellIds,
+      spells: formState.spells.map((entry) => ({ ...entry })),
       spellSlotsDelta: { ...formState.spellSlotsDelta },
       pactSlotsDelta: { ...formState.pactSlotsDelta },
       features: JSON.parse(JSON.stringify(formState.features)),

@@ -159,18 +159,24 @@ export type SpellSlots = Partial<Record<SpellLevel, number>>
 /** 各環級環位的使用者調整量（相對於系統依職業 / 等級計算的 base，可正可負）；只記錄非 0 項 */
 export type SpellSlotsDelta = Partial<Record<SpellLevel, number>>
 
+/** 角色與單一法術的關係條目；存在於 spells 陣列即代表已掌握 */
+export interface SpellEntry {
+  /** 法術 UUID */
+  id: string
+  /** 今日是否已準備 */
+  isPrepared: boolean
+  /** 是否被玩家標記為常用 */
+  isFavorite: boolean
+}
+
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
   /** 施法主屬性列表（兼職施法者可有多個來源） */
   spellcastingAbilities: AbilityKey[]
   /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
   customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
-  /** 已掌握的法術 UUID 列表 */
-  learnedSpells: string[]
-  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
-  preparedSpells: string[]
-  /** 玩家標記為常用的法術 UUID 列表，必為 learnedSpells 的子集 */
-  favoriteSpellIds: string[]
+  /** 角色掌握的法術；以 SpellEntry 形式同時記錄準備 / 常用狀態 */
+  spells: SpellEntry[]
   /** 一般施法者環位的使用者調整量；顯示值為 base + delta（base 由職業 / 等級推算） */
   spellSlotsDelta: SpellSlotsDelta
   /** 契術師 pact magic 環位的使用者調整量；獨立保留短休恢復語意 */
@@ -379,10 +385,8 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   spellcastingAbilities: AbilityKey[]
   /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
   customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
-  /** 已掌握的法術 UUID 列表 */
-  learnedSpells: string[]
-  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
-  preparedSpells: string[]
+  /** 角色掌握的法術；以 SpellEntry 形式同時記錄準備 / 常用狀態 */
+  spells: SpellEntry[]
   /** 一般施法者環位的使用者調整量；顯示值為 base + delta（base 由職業 / 等級推算） */
   spellSlotsDelta: SpellSlotsDelta
   /** 契術師 pact magic 環位的使用者調整量；獨立保留短休恢復語意 */

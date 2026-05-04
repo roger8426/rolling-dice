@@ -53,16 +53,25 @@ function mountList(character: Character) {
   })
 }
 
+const fav = (id: string) => ({ id, isPrepared: false, isFavorite: true })
+
 describe('FavoriteSpellList', () => {
-  it('favoriteSpellIds 為空時顯示空狀態提示', () => {
-    const character = createMockCharacter({ favoriteSpellIds: [] })
+  it('沒有 isFavorite 的 entry 時顯示空狀態提示', () => {
+    const character = createMockCharacter({
+      spells: [{ id: FIREBALL_ID, isPrepared: true, isFavorite: false }],
+    })
     const wrapper = mountList(character)
     expect(wrapper.text()).toContain('尚未標記常用法術')
   })
 
-  it('依環位分組並由低到高排序', () => {
+  it('只渲染 isFavorite = true 的 entry，依環位分組並由低到高排序', () => {
     const character = createMockCharacter({
-      favoriteSpellIds: [FIREBALL_ID, CANTRIP_ID, FROST_RAY_ID],
+      spells: [
+        fav(FIREBALL_ID),
+        fav(CANTRIP_ID),
+        fav(FROST_RAY_ID),
+        { id: 'non-fav', isPrepared: false, isFavorite: false },
+      ],
     })
     const wrapper = mountList(character)
     const groupHeaders = wrapper.findAll('h4').map((el) => el.text())
@@ -70,7 +79,7 @@ describe('FavoriteSpellList', () => {
   })
 
   it('點選法術 → emit select 事件帶該法術 id', async () => {
-    const character = createMockCharacter({ favoriteSpellIds: [FIREBALL_ID] })
+    const character = createMockCharacter({ spells: [fav(FIREBALL_ID)] })
     const wrapper = mountList(character)
     await wrapper.find('li button').trigger('click')
     expect(wrapper.emitted('select')).toEqual([[FIREBALL_ID]])
@@ -78,7 +87,7 @@ describe('FavoriteSpellList', () => {
 
   it('資料庫中不存在的 id 應被靜默過濾，不渲染', () => {
     const character = createMockCharacter({
-      favoriteSpellIds: [FIREBALL_ID, 'unknown-id'],
+      spells: [fav(FIREBALL_ID), fav('unknown-id')],
     })
     const wrapper = mountList(character)
     const rows = wrapper.findAll('li button')

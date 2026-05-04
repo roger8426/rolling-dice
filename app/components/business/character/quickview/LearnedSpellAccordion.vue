@@ -46,7 +46,7 @@
                   <div class="flex items-center gap-2">
                     <p class="truncate text-sm font-semibold text-content">{{ spell.name }}</p>
                     <div
-                      v-if="spell.ritual || spell.concentration || hasConsumedMaterial(spell)"
+                      v-if="spell.ritual || spell.concentration || spell.material"
                       class="flex shrink-0 gap-1"
                     >
                       <Badge
@@ -65,11 +65,7 @@
                       >
                         專注
                       </Badge>
-                      <Badge
-                        v-if="hasConsumedMaterial(spell)"
-                        size="sm"
-                        bg-color="var(--color-surface-3)"
-                      >
+                      <Badge v-if="spell.material" size="sm" bg-color="var(--color-surface-3)">
                         耗材
                       </Badge>
                     </div>
@@ -138,10 +134,10 @@ const headingId = useId()
 const learnedSpellDetails = computed(() => {
   const found: Spell[] = []
   const missing: string[] = []
-  for (const id of props.character.learnedSpells) {
-    const spell = getSpell(id)
+  for (const entry of props.character.spells) {
+    const spell = getSpell(entry.id)
     if (spell) found.push(spell)
-    else missing.push(id)
+    else missing.push(entry.id)
   }
   return { found, missing }
 })
@@ -150,30 +146,28 @@ const groupedSpells = computed(() => groupSpellsByLevel(learnedSpellDetails.valu
 const missingNames = computed(() => learnedSpellDetails.value.missing)
 
 const isPrepared = (id: string): boolean => {
-  return props.character.preparedSpells.includes(id)
+  return props.character.spells.some((entry) => entry.id === id && entry.isPrepared)
 }
 
 const onTogglePrepared = (spell: Spell): void => {
   if (spell.level === 0) return
   const latest = characterStore.getById(props.character.id)
   if (!latest) return
-  const next = latest.preparedSpells.includes(spell.id)
-    ? latest.preparedSpells.filter((id) => id !== spell.id)
-    : [...latest.preparedSpells, spell.id]
-  characterStore.patchCharacter(props.character.id, { preparedSpells: next })
+  characterStore.patchCharacter(props.character.id, {
+    spells: withToggledFlag(latest.spells, spell.id, 'isPrepared'),
+  })
 }
 
 const isFavorite = (id: string): boolean => {
-  return props.character.favoriteSpellIds.includes(id)
+  return props.character.spells.some((entry) => entry.id === id && entry.isFavorite)
 }
 
 const onToggleFavorite = (spell: Spell): void => {
   const latest = characterStore.getById(props.character.id)
   if (!latest) return
-  const next = latest.favoriteSpellIds.includes(spell.id)
-    ? latest.favoriteSpellIds.filter((id) => id !== spell.id)
-    : [...latest.favoriteSpellIds, spell.id]
-  characterStore.patchCharacter(props.character.id, { favoriteSpellIds: next })
+  characterStore.patchCharacter(props.character.id, {
+    spells: withToggledFlag(latest.spells, spell.id, 'isFavorite'),
+  })
 }
 
 const expandedSpellIds = ref<string[]>([])

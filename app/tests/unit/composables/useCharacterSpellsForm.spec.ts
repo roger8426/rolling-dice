@@ -15,18 +15,19 @@ describe('useCharacterSpellsForm', () => {
   it('toggleLearnedSpell 可新增與移除掌握的法術', () => {
     const { formState, spells } = setup()
     spells.toggleLearnedSpell(FIREBALL_ID)
-    expect(formState.learnedSpells).toContain(FIREBALL_ID)
+    expect(formState.spells).toEqual([{ id: FIREBALL_ID, isPrepared: false, isFavorite: false }])
     spells.toggleLearnedSpell(FIREBALL_ID)
-    expect(formState.learnedSpells).not.toContain(FIREBALL_ID)
+    expect(formState.spells).toEqual([])
   })
 
-  it('取消掌握某法術時，應同步從 preparedSpells 移除', () => {
+  it('取消掌握法術時，整筆 entry（含 isPrepared / isFavorite）一併移除', () => {
     const { formState, spells } = setup()
     spells.toggleLearnedSpell(FIREBALL_ID)
-    formState.preparedSpells.push(FIREBALL_ID)
+    const entry = formState.spells[0]!
+    entry.isPrepared = true
+    entry.isFavorite = true
 
     spells.toggleLearnedSpell(FIREBALL_ID)
-    expect(formState.learnedSpells).not.toContain(FIREBALL_ID)
-    expect(formState.preparedSpells).not.toContain(FIREBALL_ID)
+    expect(formState.spells).toEqual([])
   })
 })
