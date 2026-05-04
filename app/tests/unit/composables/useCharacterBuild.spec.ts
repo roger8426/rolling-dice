@@ -1,14 +1,12 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { rollDice } from '~/helpers/dice'
 
 const mockNavigateTo = vi.fn()
 
-// 固定能力值擲骰結果：每次呼叫都回傳 15
-const mockRollAbilityScore = vi.fn(() => 15)
-
+// 固定 4d6 結果為 [5,5,5,5]，rollAbilityScore = sort 去最低後加總 = 15
 vi.mock('~/helpers/dice', () => ({
-  rollAbilityScore: mockRollAbilityScore,
-  rollDice: vi.fn(() => [4, 4, 4, 4]),
+  rollDice: vi.fn(() => [5, 5, 5, 5]),
 }))
 
 const mockToastError = vi.fn()
@@ -27,7 +25,6 @@ beforeEach(() => {
   vi.resetModules()
   setActivePinia(createPinia())
   vi.stubGlobal('navigateTo', mockNavigateTo)
-  vi.stubGlobal('rollAbilityScore', mockRollAbilityScore)
 })
 
 afterEach(() => {
@@ -104,11 +101,11 @@ describe('useCharacterBuild — 屬性分配方式切換', () => {
     const { formState, abilities } = await getComposable()
     abilities.setAbilityMethod('diceRoll')
     abilities.assignDiceToAbility('strength', formState.dicePool[0]!.id)
-    const callCountBefore = mockRollAbilityScore.mock.calls.length
+    const callCountBefore = vi.mocked(rollDice).mock.calls.length
 
     abilities.setAbilityMethod('diceRoll')
 
-    expect(mockRollAbilityScore.mock.calls.length).toBe(callCountBefore)
+    expect(vi.mocked(rollDice).mock.calls.length).toBe(callCountBefore)
     expect(formState.dicePool[0]!.assignedTo).toBe('strength')
   })
 
@@ -120,7 +117,7 @@ describe('useCharacterBuild — 屬性分配方式切換', () => {
     expect(formState.dicePool.every((slot) => slot.value === 15)).toBe(true)
     expect(formState.dicePool.every((slot) => slot.assignedTo === null)).toBe(true)
     expect(Object.values(formState.abilities).every((v) => v.origin === 8)).toBe(true)
-    expect(mockRollAbilityScore).toHaveBeenCalledTimes(6)
+    expect(vi.mocked(rollDice)).toHaveBeenCalledTimes(6)
   })
 })
 

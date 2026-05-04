@@ -84,10 +84,7 @@
     <p v-if="groupedSpells.length === 0" class="py-8 text-center text-content-muted">
       沒有符合條件的法術
     </p>
-    <div
-      v-else
-      class="space-y-5 max-h-[60vh] overflow-y-auto md:max-h-[calc(100vh-18rem)] scrollbar-hidden"
-    >
+    <div v-else class="space-y-5 max-h-[60vh] overflow-y-auto md:max-h-[90vh] scrollbar-hidden">
       <div v-for="group in groupedSpells" :key="group.level">
         <div class="mb-2 flex items-center gap-2">
           <h3 class="font-display text-sm font-bold text-content">
@@ -256,7 +253,7 @@ const filteredSpells = computed<Spell[]>(() => {
 const groupedSpells = computed(() => groupSpellsByLevel(filteredSpells.value))
 
 const isLearned = (id: string): boolean => {
-  return formState.value.learnedSpells.includes(id)
+  return formState.value.spells.some((entry) => entry.id === id)
 }
 
 const itemEls = new Map<string, HTMLElement>()

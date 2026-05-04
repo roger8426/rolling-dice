@@ -11,11 +11,11 @@
       尚未設定任何職業
     </p>
 
-    <ul v-else class="grid items-start gap-2 sm:grid-cols-2">
+    <ul v-else class="flex flex-col gap-2">
       <li
         v-for="entry in professions"
         :key="entry.profession"
-        class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface px-3 py-2"
+        class="flex items-center justify-between gap-2 rounded-lg border border-border-soft bg-surface pl-3 pr-2 py-2"
       >
         <div class="flex min-w-0 flex-wrap items-center gap-1.5">
           <span class="text-sm font-semibold text-content">

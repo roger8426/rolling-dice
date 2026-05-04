@@ -21,6 +21,18 @@
 
       <!-- Item rows -->
       <ul class="divide-y divide-border-soft">
+        <!-- Add row -->
+        <li>
+          <button
+            type="button"
+            aria-label="新增物品"
+            class="flex w-full items-center justify-center py-3 text-content-muted transition-colors duration-150 hover:bg-surface hover:text-content"
+            @click="openCreate"
+          >
+            <span class="text-lg leading-none">+</span>
+          </button>
+        </li>
+
         <li
           v-for="item in items"
           :key="item.id"
@@ -95,18 +107,6 @@
               <Icon name="trash" :size="14" />
             </button>
           </div>
-        </li>
-
-        <!-- Add row -->
-        <li>
-          <button
-            type="button"
-            aria-label="新增物品"
-            class="flex w-full items-center justify-center py-3 text-content-muted transition-colors duration-150 hover:bg-surface hover:text-content"
-            @click="openCreate"
-          >
-            <span class="text-lg leading-none">+</span>
-          </button>
         </li>
       </ul>
     </div>

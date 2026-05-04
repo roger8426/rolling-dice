@@ -157,9 +157,9 @@
       <div
         v-for="(entry, index) in formState.professions"
         :key="index"
-        class="flex items-end gap-3"
+        class="flex items-end gap-2"
       >
-        <div class="min-w-16 flex-1">
+        <div class="w-26">
           <label :for="`prof-${index}`" class="mb-1 block text-xs text-content">
             {{ index === 0 ? '主職業' : `兼職 ${index}` }}
             <span class="text-danger">*</span>
@@ -175,16 +175,19 @@
             @update:model-value="updateProfessionKey(index, $event as string)"
           />
         </div>
-        <div class="min-w-16 flex-1">
+        <div class="flex-1">
           <label :for="`prof-sub-${index}`" class="mb-1 block text-xs text-content"> 子職業 </label>
-          <CommonAppInput
+          <CommonAppSelect
             :id="`prof-sub-${index}`"
             class="w-full"
-            :radius="0"
-            :model-value="entry.subprofession ?? ''"
+            :model-value="entry.subprofession || null"
+            :options="getSubprofessionOptions(entry.profession)"
+            :disabled="entry.profession === null"
+            placeholder=""
             size="sm"
-            outline
-            @update:model-value="updateProfessionSubprofession(index, $event)"
+            @update:model-value="
+              updateProfessionSubprofession(index, $event as SubprofessionKey | null)
+            "
           />
         </div>
         <div class="max-w-12">
@@ -236,8 +239,9 @@
 import { Button, Icon } from '@ui'
 import type { SelectOption } from '@ui'
 import { ALIGNMENT_NAMES, GENDER_NAMES, PROFESSION_CONFIG, PROFESSION_KEYS } from '~/constants/dnd'
+import { SUBPROFESSION_BY_PROFESSION, SUBPROFESSION_CONFIG } from '~/constants/subprofession'
 import type { CharacterFormStateBase } from '~/types/business/character'
-import type { AlignmentKey, GenderKey, ProfessionKey } from '~/types/business/dnd'
+import type { AlignmentKey, GenderKey, ProfessionKey, SubprofessionKey } from '~/types/business/dnd'
 
 const formState = defineModel<CharacterFormStateBase>('formState', { required: true })
 
@@ -287,7 +291,9 @@ const removeProfession = (index: number): void => {
 }
 
 const updateProfessionKey = (index: number, value: string): void => {
-  formState.value.professions[index]!.profession = value as ProfessionKey
+  const entry = formState.value.professions[index]!
+  entry.profession = value as ProfessionKey
+  entry.subprofession = null
 }
 
 const updateProfessionLevel = (index: number, value: string): void => {
@@ -295,8 +301,16 @@ const updateProfessionLevel = (index: number, value: string): void => {
   formState.value.professions[index]!.level = Math.max(1, Math.min(20, level))
 }
 
-const updateProfessionSubprofession = (index: number, value: string): void => {
-  const trimmed = value.trim()
-  formState.value.professions[index]!.subprofession = trimmed || null
+const updateProfessionSubprofession = (index: number, value: SubprofessionKey | null): void => {
+  formState.value.professions[index]!.subprofession = value
+}
+
+const getSubprofessionOptions = (profession: ProfessionKey | null): SelectOption[] => {
+  if (profession === null) return []
+  const labels = SUBPROFESSION_CONFIG[profession]
+  return SUBPROFESSION_BY_PROFESSION[profession].map((key) => ({
+    value: key,
+    label: labels[key] ?? key,
+  }))
 }
 </script>

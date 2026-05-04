@@ -71,7 +71,11 @@
 import { Drawer, Icon } from '@ui'
 import { navItems } from '~/constants/navigation'
 
-const DRAWER_DISABLED_ROUTE_NAMES = ['character-build', 'character-id-update'] as const
+const DRAWER_DISABLED_ROUTE_NAMES = [
+  'character-build',
+  'character-id-update',
+  'character-id',
+] as const
 
 const navStore = useNavigationStore()
 const { isNavOpen } = storeToRefs(navStore)

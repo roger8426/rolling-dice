@@ -1,12 +1,12 @@
 <template>
-  <section aria-labelledby="quickview-defense-label" class="flex h-full flex-col">
-    <h3 id="quickview-defense-label" class="mb-2 font-display text-sm font-bold text-content">
-      防禦・行動
+  <section aria-labelledby="quickview-battle-label" class="flex h-full flex-col">
+    <h3 id="quickview-battle-label" class="mb-2 font-display text-sm font-bold text-content">
+      戰鬥相關
     </h3>
     <div class="flex flex-1 flex-col gap-2">
       <div class="grid grid-cols-2 gap-2">
         <div
-          class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
         >
           <span class="text-xs text-content-muted">護甲值</span>
           <div class="mt-1 flex items-center gap-2">
@@ -42,7 +42,7 @@
         </div>
 
         <div
-          class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
         >
           <span class="text-xs text-content-muted">速度（呎）</span>
           <div class="mt-1 flex items-center gap-2">
@@ -78,27 +78,38 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <div
-          class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
         >
           <span class="text-xs text-content-muted">被動察覺</span>
           <span class="mt-1 text-2xl font-bold text-content">{{ passivePerception }}</span>
         </div>
 
         <div
-          class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
         >
           <span class="text-xs text-content-muted">被動洞察</span>
           <span class="mt-1 text-2xl font-bold text-content">{{ passiveInsight }}</span>
         </div>
+      </div>
 
+      <div class="grid grid-cols-2 gap-2">
         <div
-          class="flex flex-col items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
         >
           <span class="text-xs text-content-muted">先攻</span>
           <span class="mt-1 text-2xl font-bold" :class="initiativeColor">
             {{ formatModifier(initiative) }}
+          </span>
+        </div>
+
+        <div
+          class="flex flex-col gap-1 items-center justify-center rounded-lg border border-border-soft bg-surface p-3"
+        >
+          <span class="text-xs text-content-muted">熟練加值</span>
+          <span class="mt-1 text-2xl font-bold text-content">
+            {{ formatModifier(proficiencyBonus) }}
           </span>
         </div>
       </div>
@@ -117,6 +128,7 @@ const props = defineProps<{
   initiative: number
   passivePerception: number
   passiveInsight: number
+  proficiencyBonus: number
 }>()
 
 const emit = defineEmits<{

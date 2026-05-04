@@ -9,6 +9,7 @@ import type {
   ProfessionKey,
   ProficiencyLevel,
   SkillKey,
+  SubprofessionKey,
 } from '~/types/business/dnd'
 
 export type CharacterTier = 'common' | 'elite' | 'master' | 'legendary'
@@ -21,8 +22,8 @@ export interface ProfessionEntry {
   profession: ProfessionKey
   /** 該職業等級（1–20） */
   level: number
-  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
-  subprofession: string | null
+  /** 流派 / 範型（subclass / archetype），enum key；未選以 null 表示 */
+  subprofession: SubprofessionKey | null
 }
 
 /** 表單用職業條目：允許尚未選擇職業的空值狀態 */
@@ -31,8 +32,8 @@ export interface FormProfessionEntry {
   profession: ProfessionKey | null
   /** 該職業等級（1–20） */
   level: number
-  /** 流派 / 範型（subclass / archetype），自由文字；未填以 null 表示 */
-  subprofession: string | null
+  /** 流派 / 範型（subclass / archetype），enum key；未選以 null 表示 */
+  subprofession: SubprofessionKey | null
 }
 
 // ─── Abilities ────────────────────────────────────────────────────────────────
@@ -149,16 +150,37 @@ export interface CharacterStats {
   passiveInsightBonus: number
 }
 
+/** 法術環級（1-9，戲法不計） */
+export type SpellLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+/** 各環級最大環位數；只記錄非 0 項 */
+export type SpellSlots = Partial<Record<SpellLevel, number>>
+
+/** 各環級環位的使用者調整量（相對於系統依職業 / 等級計算的 base，可正可負）；只記錄非 0 項 */
+export type SpellSlotsDelta = Partial<Record<SpellLevel, number>>
+
+/** 角色與單一法術的關係條目；存在於 spells 陣列即代表已掌握 */
+export interface SpellEntry {
+  /** 法術 UUID */
+  id: string
+  /** 今日是否已準備 */
+  isPrepared: boolean
+  /** 是否被玩家標記為常用 */
+  isFavorite: boolean
+}
+
 export interface CharacterCapabilities {
   attacks: AttackEntry[]
   /** 施法主屬性列表（兼職施法者可有多個來源） */
   spellcastingAbilities: AbilityKey[]
   /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
   customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
-  /** 已掌握的法術 UUID 列表 */
-  learnedSpells: string[]
-  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
-  preparedSpells: string[]
+  /** 角色掌握的法術；以 SpellEntry 形式同時記錄準備 / 常用狀態 */
+  spells: SpellEntry[]
+  /** 一般施法者環位的使用者調整量；顯示值為 base + delta（base 由職業 / 等級推算） */
+  spellSlotsDelta: SpellSlotsDelta
+  /** 契術師 pact magic 環位的使用者調整量；獨立保留短休恢復語意 */
+  pactSlotsDelta: SpellSlotsDelta
   features: CharacterFeature[]
 }
 
@@ -206,6 +228,48 @@ export interface Character
     CharacterInventory {
   id: string
   createdAt: string
+}
+
+// ─── Combat State ─────────────────────────────────────────────────────────────
+
+/** 戰鬥當下的 HP 子結構：當前生命 / 臨時生命 / 最大生命臨時加減 */
+export interface CombatHp {
+  /** 目前生命值；null 表示未開始追蹤，UI 應顯示 effectiveMaxHp */
+  current: number | null
+  /** 臨時生命值，受傷時優先扣 */
+  tempHp: number
+  /** 最大生命臨時調整（疊加於 baseMaxHp） */
+  maxAdjustment: number
+}
+
+/** 死亡豁免計數；HP=0 時生效，HP≥1 自動歸零 */
+export interface DeathSaves {
+  /** 0..3 */
+  successes: number
+  /** 0..3 */
+  failures: number
+}
+
+/** 戰況追蹤資料；獨立於 Character 主資料，與 Character 1:1 */
+export interface CombatState {
+  characterId: string
+  hp: CombatHp
+  /** 護甲等級臨時調整（疊加於基礎 AC） */
+  acAdjustment: number
+  /** 移動速度臨時調整 */
+  speedAdjustment: number
+  /** 各項豁免的臨時調整 */
+  savingThrowAdjustments: Partial<Record<AbilityKey, number>>
+  /** 各特性已使用次數（key = feature.id）；未出現的 key 視為 0（未消耗） */
+  featureUsesSpent: Partial<Record<string, number>>
+  /** 各職業已使用生命骰數（key = ProfessionKey）；未出現的 key 視為 0 */
+  hitDiceUsed: Partial<Record<ProfessionKey, number>>
+  /** 各環級已使用一般法術位數（key = SpellLevel）；未出現的 key 視為 0 */
+  spellSlotsUsed: Partial<Record<SpellLevel, number>>
+  /** 各環級已使用契術環位數（key = SpellLevel）；未出現的 key 視為 0 */
+  pactSlotsUsed: Partial<Record<SpellLevel, number>>
+  deathSaves: DeathSaves
+  updatedAt: string
 }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -363,10 +427,12 @@ export interface CharacterUpdateFormState extends CharacterFormStateBase {
   spellcastingAbilities: AbilityKey[]
   /** 各施法主屬性的自定義調整值；只記錄非 0 項 */
   customSpellcastingBonuses: Partial<Record<AbilityKey, number>>
-  /** 已掌握的法術 UUID 列表 */
-  learnedSpells: string[]
-  /** 今日已準備的法術 UUID 列表，必為 learnedSpells 的子集 */
-  preparedSpells: string[]
+  /** 角色掌握的法術；以 SpellEntry 形式同時記錄準備 / 常用狀態 */
+  spells: SpellEntry[]
+  /** 一般施法者環位的使用者調整量；顯示值為 base + delta（base 由職業 / 等級推算） */
+  spellSlotsDelta: SpellSlotsDelta
+  /** 契術師 pact magic 環位的使用者調整量；獨立保留短休恢復語意 */
+  pactSlotsDelta: SpellSlotsDelta
   /** 角色特性列表 */
   features: CharacterFeature[]
   /** 背包與儲物袋的物品列表（以 location 區分位置） */

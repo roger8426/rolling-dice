@@ -3,6 +3,17 @@
     <h2 id="section-attacks" class="mb-4 font-display text-lg font-bold text-content">攻擊模組</h2>
 
     <ul class="space-y-2">
+      <li>
+        <button
+          type="button"
+          aria-label="新增攻擊"
+          class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-4 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
+          @click="openCreate"
+        >
+          <span class="text-xl leading-none">+</span>
+        </button>
+      </li>
+
       <li
         v-for="attack in formState.attacks"
         :key="attack.id"
@@ -37,18 +48,6 @@
             <Icon name="trash" :size="16" />
           </button>
         </div>
-      </li>
-
-      <!-- 新增攻擊佔位卡片 -->
-      <li>
-        <button
-          type="button"
-          aria-label="新增攻擊"
-          class="flex w-full items-center justify-center rounded-lg border border-dashed border-border-soft py-4 text-content-muted transition-colors duration-150 hover:border-border hover:bg-surface hover:text-content"
-          @click="openCreate"
-        >
-          <span class="text-xl leading-none">+</span>
-        </button>
       </li>
     </ul>
   </section>

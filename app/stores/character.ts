@@ -23,17 +23,10 @@ function cloneCharacter(c: Character): Character {
 }
 
 function loadFromStorage(): Character[] {
-  const stored = getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY)
-  if (stored) {
-    return stored.map((c) => ({
-      ...createDefaultInventory(),
-      ...c,
-      savingThrowExtras: c.savingThrowExtras ?? [],
-      features: c.features ?? [],
-      attacks: c.attacks ?? [],
-    }))
-  }
-  return import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : []
+  return (
+    getLocalStorage<Character[]>(CHARACTERS_STORAGE_KEY) ??
+    (import.meta.dev ? MOCK_CHARACTERS.map(cloneCharacter) : [])
+  )
 }
 
 function saveToStorage(characters: Character[]): boolean {
@@ -79,8 +72,9 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: [],
       spellcastingAbilities: [],
       customSpellcastingBonuses: {},
-      learnedSpells: [],
-      preparedSpells: [],
+      spells: [],
+      spellSlotsDelta: {},
+      pactSlotsDelta: {},
       features: [],
       ...createDefaultInventory(),
     }
@@ -114,10 +108,6 @@ export const useCharacterStore = defineStore('character', () => {
     const baselineSet = new Set(baselineSavingThrows)
     const savingThrowExtras = formState.savingThrowExtras.filter((key) => !baselineSet.has(key))
 
-    const learnedSpells = [...formState.learnedSpells]
-    const learnedSet = new Set(learnedSpells)
-    const preparedSpells = formState.preparedSpells.filter((id) => learnedSet.has(id))
-
     const updated: Character = {
       ...previous,
       ...patch,
@@ -133,8 +123,9 @@ export const useCharacterStore = defineStore('character', () => {
       attacks: JSON.parse(JSON.stringify(formState.attacks)),
       spellcastingAbilities: [...formState.spellcastingAbilities],
       customSpellcastingBonuses: { ...formState.customSpellcastingBonuses },
-      learnedSpells,
-      preparedSpells,
+      spells: formState.spells.map((entry) => ({ ...entry })),
+      spellSlotsDelta: { ...formState.spellSlotsDelta },
+      pactSlotsDelta: { ...formState.pactSlotsDelta },
       features: JSON.parse(JSON.stringify(formState.features)),
       items: JSON.parse(JSON.stringify(formState.items)),
       currency: { ...formState.currency },

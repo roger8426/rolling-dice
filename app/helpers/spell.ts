@@ -1,4 +1,5 @@
 import { SPELL_SCHOOL_LABELS } from '~/constants/dnd'
+import type { SpellEntry } from '~/types/business/character'
 import type { Spell, SpellDto } from '~/types/business/spell'
 
 const VALID_SCHOOLS = new Set(Object.keys(SPELL_SCHOOL_LABELS))
@@ -23,6 +24,15 @@ export function formatSpellComponents(
   if (spell.somatic) parts.push('勢')
   if (spell.material) parts.push('材')
   return parts.join(' / ') || '—'
+}
+
+/** 對指定 id 的 entry 切換 isPrepared / isFavorite，回傳新陣列；id 不存在時原樣回傳。 */
+export function withToggledFlag(
+  spells: SpellEntry[],
+  id: string,
+  flag: 'isPrepared' | 'isFavorite',
+): SpellEntry[] {
+  return spells.map((entry) => (entry.id === id ? { ...entry, [flag]: !entry[flag] } : entry))
 }
 
 /** 將 Spell 列表依環數分組並組內依中文名稱排序 */

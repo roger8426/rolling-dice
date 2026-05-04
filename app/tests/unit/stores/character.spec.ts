@@ -127,6 +127,12 @@ describe('useCharacterStore — addCharacter', () => {
     expect(created!.savingThrowExtras).toEqual([])
   })
 
+  it('新增後 spells 應為空陣列', () => {
+    const store = useCharacterStore()
+    const created = store.addCharacter(MOCK_FORM_STATE)
+    expect(created!.spells).toEqual([])
+  })
+
   it('寫入 localStorage 失敗時應回傳 null 且 characters 長度不變', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
@@ -223,8 +229,9 @@ const MOCK_UPDATE_FORM_STATE: CharacterUpdateFormState = {
   attacks: [],
   spellcastingAbilities: [],
   customSpellcastingBonuses: {},
-  learnedSpells: [],
-  preparedSpells: [],
+  spells: [],
+  spellSlotsDelta: {},
+  pactSlotsDelta: {},
   features: [],
   items: [],
   currency: { cp: 0, sp: 0, gp: 0, pp: 0 },
@@ -380,30 +387,33 @@ describe('useCharacterStore — updateCharacter', () => {
     })
     expect(updated!.savingThrowExtras).toEqual(['charisma'])
   })
-})
 
-describe('useCharacterStore — loadFromStorage migration', () => {
-  it('舊資料缺少 savingThrowExtras 時應自動補為空陣列', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.savingThrowExtras
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+  it('spells 完整由 formState 寫入（含 isPrepared / isFavorite flag）', () => {
+    const A = 'spell-a'
+    const B = 'spell-b'
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
-    expect(store.characters[0]!.savingThrowExtras).toEqual([])
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      spells: [
+        { id: A, isPrepared: true, isFavorite: false },
+        { id: B, isPrepared: false, isFavorite: true },
+      ],
+    })
+    expect(updated!.spells).toEqual([
+      { id: A, isPrepared: true, isFavorite: false },
+      { id: B, isPrepared: false, isFavorite: true },
+    ])
   })
 
-  it('舊資料缺少 items 時應自動補為空陣列', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.items
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
+  it('updateCharacter 不會與 store 內部 reactive 共享 spells 參考', () => {
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([MOCK_CHARACTER]))
     const store = useCharacterStore()
-    expect(store.characters[0]!.items).toEqual([])
-  })
-
-  it('舊資料缺少 currency 時應自動補為全零', () => {
-    const legacyCharacter = { ...MOCK_CHARACTER } as Partial<Character>
-    delete legacyCharacter.currency
-    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([legacyCharacter]))
-    const store = useCharacterStore()
-    expect(store.characters[0]!.currency).toEqual({ cp: 0, sp: 0, gp: 0, pp: 0 })
+    const updated = store.updateCharacter('test-001', {
+      ...MOCK_UPDATE_FORM_STATE,
+      spells: [{ id: 's1', isPrepared: false, isFavorite: false }],
+    })
+    updated!.spells[0]!.isPrepared = true
+    expect(store.getById('test-001')!.spells[0]!.isPrepared).toBe(false)
   })
 })

@@ -86,16 +86,18 @@ import type { CharacterFeature } from '~/types/business/character'
 
 const props = defineProps<{
   features: CharacterFeature[]
-  featureUses: Partial<Record<string, number>>
+  featureUsesSpent: Partial<Record<string, number>>
 }>()
 
 const emit = defineEmits<{
+  /** delta 為「對 spent 的調整」：消耗為 +1、恢復為 -1 */
   adjust: [id: string, delta: number, max: number]
 }>()
 
 const getCurrent = (feature: CharacterFeature): number => {
   if (!feature.usage.hasUses) return 0
-  return props.featureUses[feature.id] ?? feature.usage.max
+  const spent = props.featureUsesSpent[feature.id] ?? 0
+  return Math.min(feature.usage.max, Math.max(0, feature.usage.max - spent))
 }
 
 const canDecrement = (feature: CharacterFeature): boolean => {
@@ -110,12 +112,12 @@ const canIncrement = (feature: CharacterFeature): boolean => {
 
 const onDecrement = (feature: CharacterFeature): void => {
   if (!feature.usage.hasUses || !canDecrement(feature)) return
-  emit('adjust', feature.id, -1, feature.usage.max)
+  emit('adjust', feature.id, 1, feature.usage.max)
 }
 
 const onIncrement = (feature: CharacterFeature): void => {
   if (!feature.usage.hasUses || !canIncrement(feature)) return
-  emit('adjust', feature.id, 1, feature.usage.max)
+  emit('adjust', feature.id, -1, feature.usage.max)
 }
 </script>
 

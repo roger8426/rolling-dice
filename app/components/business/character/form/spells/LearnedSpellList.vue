@@ -3,7 +3,7 @@
     <header class="mb-4 flex items-center justify-between">
       <h2 :id="headingId" class="font-display text-lg font-bold text-content">已知法術</h2>
       <span class="text-xs text-content-muted">
-        共 <span class="font-bold text-content">{{ learnedSpellIds.length }}</span> 個
+        共 <span class="font-bold text-content">{{ spells.length }}</span> 個
       </span>
     </header>
 
@@ -17,10 +17,7 @@
     <p v-if="groupedSpells.length === 0" class="py-6 text-center text-sm text-content-muted">
       尚未掌握任何法術
     </p>
-    <div
-      v-else
-      class="space-y-4 max-h-[50vh] overflow-y-auto md:max-h-[calc(100vh-8rem)] md:pr-1 scrollbar-hidden"
-    >
+    <div v-else class="space-y-4 max-h-[50vh] overflow-y-auto md:pr-1 scrollbar-hidden">
       <div v-for="group in groupedSpells" :key="group.level">
         <div class="mb-2 flex items-center gap-2">
           <h3 class="font-display text-sm font-bold text-content">
@@ -45,10 +42,11 @@
 </template>
 
 <script setup lang="ts">
+import type { SpellEntry } from '~/types/business/character'
 import type { Spell } from '~/types/business/spell'
 
 const props = defineProps<{
-  learnedSpellIds: string[]
+  spells: SpellEntry[]
 }>()
 
 const emit = defineEmits<{
@@ -62,10 +60,10 @@ const headingId = useId()
 const learnedSpellDetails = computed(() => {
   const found: Spell[] = []
   const missing: string[] = []
-  for (const id of props.learnedSpellIds) {
-    const spell = getSpell(id)
+  for (const entry of props.spells) {
+    const spell = getSpell(entry.id)
     if (spell) found.push(spell)
-    else missing.push(id)
+    else missing.push(entry.id)
   }
   return { found, missing }
 })

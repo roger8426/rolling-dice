@@ -17,13 +17,23 @@
           @adjust-temp="adjustTempHp"
           @adjust-max="adjustMaxHp"
         />
-        <BusinessCharacterQuickviewHitDiceCard
-          :professions="character.professions"
-          :hit-dice-used="state.hitDiceUsed"
-          @adjust="adjustHitDiceUsed"
-        />
+        <div class="grid items-start gap-4 sm:grid-cols-2">
+          <BusinessCharacterQuickviewHitDiceCard
+            :professions="character.professions"
+            :hit-dice-used="state.hitDiceUsed"
+            @adjust="adjustHitDiceUsed"
+          />
+          <BusinessCharacterQuickviewDeathSavesCard
+            :active="displayCurrentHp === 0"
+            :successes="state.deathSaves.successes"
+            :failures="state.deathSaves.failures"
+            @set-success="setDeathSaveSuccess"
+            @set-failure="setDeathSaveFailure"
+            @roll-nat20="healHp(1)"
+          />
+        </div>
       </div>
-      <BusinessCharacterQuickviewDefenseCard
+      <BusinessCharacterQuickviewBattleCard
         :base-armor-class="totalArmorClass"
         :ac-adjustment="state.acAdjustment"
         :base-speed="totalSpeed"
@@ -31,6 +41,7 @@
         :initiative="totalInitiative"
         :passive-perception="totalPassivePerception"
         :passive-insight="totalPassiveInsight"
+        :proficiency-bonus="proficiencyBonus"
         @adjust-ac="adjustAc"
         @adjust-speed="adjustSpeed"
       />
@@ -57,16 +68,36 @@
     <div class="grid items-start gap-4 md:grid-cols-2">
       <BusinessCharacterQuickviewFeatureList
         :features="character.features"
-        :feature-uses="state.featureUses"
-        @adjust="adjustFeatureUse"
+        :feature-uses-spent="state.featureUsesSpent"
+        @adjust="adjustFeatureUseSpent"
       />
 
-      <BusinessCharacterQuickviewAttackList
-        :attacks="character.attacks"
-        :ability-scores="totalAbilityScores"
-        :proficiency-bonus="proficiencyBonus"
-      />
+      <div class="flex flex-col gap-4">
+        <BusinessCharacterQuickviewSpellSlotsCard
+          v-if="hasAnySlot"
+          :spell-slots-base="spellSlotsBase"
+          :spell-slots-used="state.spellSlotsUsed"
+          :pact-slots-base="pactSlotsBase"
+          :pact-slots-used="state.pactSlotsUsed"
+          @adjust-spell="adjustSpellSlotUsed"
+          @adjust-pact="adjustPactSlotUsed"
+        />
+
+        <BusinessCharacterQuickviewAttackList
+          :attacks="character.attacks"
+          :ability-scores="totalAbilityScores"
+          :proficiency-bonus="proficiencyBonus"
+        />
+      </div>
     </div>
+
+    <BusinessCharacterQuickviewRollDrawer
+      :character="character"
+      :ability-scores="totalAbilityScores"
+      :proficiency-bonus="proficiencyBonus"
+      :saving-throw-proficiencies="savingThrowProficiencies"
+      :saving-throw-adjustments="state.savingThrowAdjustments"
+    />
   </div>
 </template>
 
@@ -74,6 +105,11 @@
 import { Button } from '@ui'
 import { useCharacterCombatState } from '~/composables/domain/useCharacterCombatState'
 import { useCharacterDerivedStatsFromCharacter } from '~/composables/domain/useCharacterDerivedStats'
+import {
+  getSuggestedPactSlots,
+  getSuggestedRegularSpellSlots,
+  mergeSlots,
+} from '~/helpers/spell-slots'
 import type { Character } from '~/types/business/character'
 
 const props = defineProps<{
@@ -105,20 +141,44 @@ const {
   adjustAc,
   adjustSpeed,
   adjustSavingThrow,
-  adjustFeatureUse,
+  adjustFeatureUseSpent,
   adjustHitDiceUsed,
+  adjustSpellSlotUsed,
+  adjustPactSlotUsed,
+  setDeathSaveSuccess,
+  setDeathSaveFailure,
   shortRest,
   longRest,
 } = useCharacterCombatState(props.character.id, totalHp)
+
+const spellSlotsBase = computed(() =>
+  mergeSlots(
+    getSuggestedRegularSpellSlots(props.character.professions),
+    props.character.spellSlotsDelta,
+  ),
+)
+const pactSlotsBase = computed(() =>
+  mergeSlots(getSuggestedPactSlots(props.character.professions), props.character.pactSlotsDelta),
+)
+const hasAnySlot = computed(
+  () => Object.keys(spellSlotsBase.value).length + Object.keys(pactSlotsBase.value).length > 0,
+)
 
 const onShortRest = (): void => {
   const ids = props.character.features
     .filter((f) => f.usage.hasUses && f.usage.recovery === 'shortRest')
     .map((f) => f.id)
-  shortRest(ids)
+  if (shortRest(ids)) useToast().success('短休完成')
 }
 
 const onLongRest = (): void => {
-  longRest(props.character.professions)
+  const ids = props.character.features
+    .filter(
+      (f) =>
+        f.usage.hasUses && (f.usage.recovery === 'shortRest' || f.usage.recovery === 'longRest'),
+    )
+    .map((f) => f.id)
+  longRest(props.character.professions, ids)
+  useToast().success('長休完成')
 }
 </script>

@@ -1,20 +1,20 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createDicePool,
   getPointBuyCost,
   isValidPointBuyScore,
+  rollAbilityScore,
   tryCalculateSpentPoints,
 } from '~/helpers/ability'
+import { rollDice } from '~/helpers/dice'
 import type { AbilityKey } from '~/types/business/dnd'
 
-vi.mock('~/helpers/dice', () => {
-  // 故意不依排序順序，確保 createDicePool 真的有執行 sort
-  const sequence = [10, 16, 8, 14, 12, 13]
-  let i = 0
-  return {
-    rollAbilityScore: vi.fn(() => sequence[i++ % sequence.length]),
-    rollDice: vi.fn(() => [4, 4, 4, 4]),
-  }
+vi.mock('~/helpers/dice', () => ({
+  rollDice: vi.fn(),
+}))
+
+beforeEach(() => {
+  vi.mocked(rollDice).mockReset()
 })
 
 // 輔助：建立六項屬性皆為同一分數的 Record
@@ -128,9 +128,51 @@ describe('tryCalculateSpentPoints', () => {
   })
 })
 
+// ─── rollAbilityScore ─────────────────────────────────────────────────────────
+
+describe('rollAbilityScore', () => {
+  it('回傳值為整數且介於 3 到 18 之間', () => {
+    vi.mocked(rollDice).mockImplementation((times, sides) =>
+      Array.from({ length: times }, () => Math.floor(Math.random() * sides) + 1),
+    )
+    for (let i = 0; i < 100; i++) {
+      const score = rollAbilityScore()
+      expect(Number.isInteger(score)).toBe(true)
+      expect(score).toBeGreaterThanOrEqual(3)
+      expect(score).toBeLessThanOrEqual(18)
+    }
+  })
+
+  it('mock 4d6 = [1,2,3,4] 應回傳 2+3+4 = 9', () => {
+    vi.mocked(rollDice).mockReturnValueOnce([1, 2, 3, 4])
+    expect(rollAbilityScore()).toBe(9)
+  })
+
+  it('mock 4d6 = [6,6,6,6] 應回傳 18（最大值）', () => {
+    vi.mocked(rollDice).mockReturnValueOnce([6, 6, 6, 6])
+    expect(rollAbilityScore()).toBe(18)
+  })
+})
+
 // ─── createDicePool ──────────────────────────────────────────────────────────
 
 describe('createDicePool', () => {
+  // 故意不依排序順序的 6 組 4d6 結果，分別產生 [10, 16, 8, 14, 12, 13]
+  // 讓 createDicePool 必須真的執行 sort
+  const dicePoolSequences = [
+    [1, 2, 4, 4],
+    [1, 4, 6, 6],
+    [1, 2, 3, 3],
+    [2, 4, 4, 6],
+    [2, 4, 4, 4],
+    [1, 4, 4, 5],
+  ]
+
+  beforeEach(() => {
+    let i = 0
+    vi.mocked(rollDice).mockImplementation(() => dicePoolSequences[i++]!)
+  })
+
   it('應產生 6 個 slot', () => {
     const pool = createDicePool()
     expect(pool).toHaveLength(6)

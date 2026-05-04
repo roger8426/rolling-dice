@@ -100,13 +100,13 @@ describe('useCharacterUpdate — 初始狀態', () => {
     const character = createMockCharacter({
       id: 'update-sub-001',
       professions: [
-        { profession: 'fighter', level: 5, subprofession: '戰鬥大師' },
+        { profession: 'fighter', level: 5, subprofession: 'battleMaster' },
         { profession: 'wizard', level: 3, subprofession: null },
       ],
     })
     localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify([character]))
     const { formState } = await getComposable('update-sub-001')
-    expect(formState.professions[0]!.subprofession).toBe('戰鬥大師')
+    expect(formState.professions[0]!.subprofession).toBe('battleMaster')
     expect(formState.professions[1]!.subprofession).toBeNull()
   })
 
